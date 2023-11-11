@@ -1,0 +1,34 @@
+{
+    "{{#each stations}}": {
+        "site_id": "{{site_id}}",
+        "company": "applegreen",
+        "e5": null,
+        "e10": "{{prices.E10}}",
+        "b7": "{{prices.B7}}",
+        "address": "{{address}}",
+        "postcode": "{{postcode}}",
+        "latitude": "{{location.latitude}}",
+        "longitude": "{{location.longitude}}",
+        "created_at": Date.parse("{{$root.last_updated}}")/1000
+    }
+}
+
+{
+    "last_updated":"11\/11\/2023 11:40:00",
+    "stations":[
+        {
+            "site_id":"gbuw6gheezxg",
+            "brand":"Applegreen",
+            "address":"Pennewick Road Service Station, St Austell, St Austell",
+            "postcode":"PL25 5DP",
+            "location":{
+                "latitude":50.334504,
+                "longitude":-4.794674
+            },
+            "prices":{
+                "E10":151.8,
+                "B7":160.8
+            }
+        }
+    ]
+}
