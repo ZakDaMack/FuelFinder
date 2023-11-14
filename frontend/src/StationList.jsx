@@ -8,15 +8,16 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 import styled from '@emotion/styled';
-import IconButton from '@mui/material/IconButton';
 import { grey } from '@mui/material/colors';
 import { Box, Divider, Toolbar } from '@mui/material';
 import List from '@mui/material/List';
 import { useEffect, useRef, useState } from 'react';
 import StationListItem from './StationListItem';
+import StationListToolbar from './StationListToolbar';
 
 export default function StationList(props) {
     const { stations } = props;
+    const [ sortKey, setSortKey ] = useState('e5');
 
     const [open, setOpen] = useState(false);
     const toggleOpen = () => setOpen(!open);
@@ -40,15 +41,20 @@ export default function StationList(props) {
             <Box sx={{
                 bgcolor: 'white', 
                 overflow: 'scroll',
+                position: 'relative',
                 width: 400, 
                 height: '100%'
             }}>
-                <Toolbar></Toolbar>
+                <StationListToolbar />
+                <Toolbar />
                 <List>
-                    {stations.map((s, i) => (
+                    {stations
+                    .filter(s => !!s[sortKey])
+                    .sort((a,b) => a[sortKey] - b[sortKey])
+                    .map((s, i) => (
                         <>
                             <StationListItem key={s._id} company={s} />
-                            {i !== stations.length - 1 && <Divider  />}
+                            {i !== stations.length - 1 && <Divider key={`${s._id}-divider`} />}
                         </>
                     ))}
                 </List>
@@ -75,11 +81,3 @@ const OpenButton = styled(Button)({
         color: 'black'
     }
 });
-
-function StationItem(props) {
-    return (
-        <Box>
-            <></>
-        </Box>
-    );
-}

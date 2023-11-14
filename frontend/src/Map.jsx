@@ -24,7 +24,7 @@ export default function Map(props) {
             fetch('http://localhost:3001?' + new URLSearchParams({
                 lat: location[0],
                 lng: location[1],
-                distance: 10
+                distance: 1000
             }))
             .then(res => res.json())
             .then(data => setStations(data))
@@ -37,11 +37,6 @@ export default function Map(props) {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {/* <Marker position={location}>
-                <Popup>
-                    A pretty CSS3 popup. <br /> Easily customizable.
-                </Popup>
-            </Marker> */}
             {stations.map(s => (<StationMarker key={s._id} company={s} />))}
             <StationList stations={stations} />
             <Toolbar
