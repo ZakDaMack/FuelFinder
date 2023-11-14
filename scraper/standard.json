@@ -1,0 +1,17 @@
+{
+    "dateFormat": "DD/MM/YYYY HH:mm:ss",
+    "template": {
+        "{{#each stations}}": {
+            "site_id": "{{site_id}}",
+            "company": "applegreen",
+            "e5": null,
+            "e10": "{{prices.E10}}",
+            "b7": "{{prices.B7}}",
+            "address": "{{address}}",
+            "postcode": "{{postcode}}",
+            "latitude": "{{location.latitude}}",
+            "longitude": "{{location.longitude}}",
+            "created_at": "{{$root.last_updated}}"
+        }
+    }
+} 

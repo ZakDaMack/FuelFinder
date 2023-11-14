@@ -1,4 +1,32 @@
 services:
   database:
-    image: cassandra:latest
+    image: mongo:latest
+    hostname: database
+    environment:
+      - MONGO_INITDB_DATABASE=openfueldata
 
+  scraper:
+    build: 
+      context: .
+      target: scraper
+    ports:
+      - 3000:3000
+
+  queryable:
+    build: 
+      context: .
+      target: queryable
+    ports:
+      - 3001:3000
+
+  # frontend:
+  #   build: 
+  #     context: .
+  #     target: frontend
+  #   ports:
+  #     - 1500:80
+
+networks:
+  ofd:
+    name: ofd
+    
