@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 
 import { MapContainer } from 'react-leaflet/MapContainer'
 import { TileLayer } from 'react-leaflet/TileLayer' 
-import { Marker } from 'react-leaflet/Marker' 
-import { Popup } from 'react-leaflet/Popup' 
 import { useMap } from 'react-leaflet/hooks'
 
 import Toolbar from './Toolbar';
+import OfdBanner from './Banner';
 import StationList from './StationList';
 import StationMarker from './StationMarker';
 
@@ -25,7 +24,7 @@ export default function Map(props) {
             fetch('http://localhost:3001?' + new URLSearchParams({
                 lat: location[0],
                 lng: location[1],
-                distance: 50
+                distance: 10
             }))
             .then(res => res.json())
             .then(data => setStations(data))
@@ -44,11 +43,12 @@ export default function Map(props) {
                 </Popup>
             </Marker> */}
             {stations.map(s => (<StationMarker key={s._id} company={s} />))}
-            <StationList />
+            <StationList stations={stations} />
             <Toolbar
                 recentre={getCurrentLocation}
             />
             <RecentreAutomatically location={location} />
+            <OfdBanner />
         </MapContainer>
     );
 }
@@ -56,7 +56,7 @@ export default function Map(props) {
 const RecentreAutomatically = ({ location }) => {
     const map = useMap();
     useEffect(() => {
-       map.panTo(location);
+       map.setView(location, 13);
     }, [location]);
     return null;
 };

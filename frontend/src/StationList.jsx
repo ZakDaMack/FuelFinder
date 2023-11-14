@@ -10,10 +10,14 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import styled from '@emotion/styled';
 import IconButton from '@mui/material/IconButton';
 import { grey } from '@mui/material/colors';
-import { Box } from '@mui/material';
+import { Box, Divider, Toolbar } from '@mui/material';
+import List from '@mui/material/List';
 import { useEffect, useRef, useState } from 'react';
+import StationListItem from './StationListItem';
 
 export default function StationList(props) {
+    const { stations } = props;
+
     const [open, setOpen] = useState(false);
     const toggleOpen = () => setOpen(!open);
     const drawerRef = useRef(null);
@@ -35,10 +39,19 @@ export default function StationList(props) {
         }}>
             <Box sx={{
                 bgcolor: 'white', 
+                overflow: 'scroll',
                 width: 400, 
                 height: '100%'
             }}>
-
+                <Toolbar></Toolbar>
+                <List>
+                    {stations.map((s, i) => (
+                        <>
+                            <StationListItem key={s._id} company={s} />
+                            {i !== stations.length - 1 && <Divider  />}
+                        </>
+                    ))}
+                </List>
             </Box>
             <OpenButton onClick={toggleOpen}>
                 {open ? (<ChevronLeftIcon />) : (<ChevronRightIcon />)}

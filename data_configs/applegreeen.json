@@ -1,0 +1,23 @@
+{
+    "url": "https://applegreenstores.com/fuel-prices/data.json",
+    "dateFormat": "DD/MM/YYYY HH:mm:ss",
+    "template": {
+        "{{#each stations}}": {
+            "site_id": "{{site_id}}",
+            "company": "Applegreen",
+            "e5": "{{#? prices.E5}}",
+            "e10": "{{#? prices.E10}}",
+            "b7": "{{#? prices.B7}}",
+            "address": "{{address}}",
+            "postcode": "{{postcode}}",
+            "location": {
+                "type": "Point",
+                "coordinates": [
+                    "{{location.longitude}}",
+                    "{{location.latitude}}"
+                ] 
+            },
+            "created_at": "{{$root.last_updated}}"
+        }
+    }
+} 

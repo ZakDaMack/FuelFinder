@@ -27,6 +27,8 @@ export default function StationMarker(props) {
         }
     }
 
+    const getValue = (val) => val ? `${(Math.round(val * 10) / 10).toFixed(1)} p/L` : 'N/A';
+
     return (
         <Marker position={coords}>
             <Popup>
@@ -39,7 +41,7 @@ export default function StationMarker(props) {
                                 <LocalGasStationIcon />
                             </Avatar>
                         </ListItemAvatar>
-                        <PopupText primary="Super (E5)" secondary={e5 ? `${e5} p/L` : 'N/A'} />
+                        <PopupText primary="Super (E5)" secondary={getValue(e5)} />
                     </ListItem>
                     <ListItem disablePadding>
                         <ListItemAvatar>
@@ -47,7 +49,7 @@ export default function StationMarker(props) {
                                 <LocalGasStationIcon />
                             </Avatar>
                         </ListItemAvatar>
-                        <PopupText primary="Petrol (E10)" secondary={e10 ? `${e10} p/L` : 'N/A'} />
+                        <PopupText primary="Petrol (E10)" secondary={getValue(e10)} />
                     </ListItem>
                     <ListItem disablePadding>
                         <ListItemAvatar>
@@ -55,7 +57,7 @@ export default function StationMarker(props) {
                                 <LocalGasStationIcon />
                             </Avatar>
                         </ListItemAvatar>
-                        <PopupText primary="Diesel (B7)" secondary={b7 ? `${b7} p/L` : 'N/A'} />
+                        <PopupText primary="Diesel (B7)" secondary={getValue(b7)} />
                     </ListItem>
                 </List>
             </Popup>

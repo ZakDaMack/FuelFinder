@@ -1,61 +1,64 @@
 import ST from 'stjs';
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
+
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import express from 'express';
-import axios from 'axios';
-import { model, connect } from 'mongoose';
-
-import { IFuelData, FuelDataSchema } from './fueldata';
-
-const port = process.env.PORT ?? 3000;
-const url = 'https://www.bp.com/en_gb/united-kingdom/home/fuelprices/fuel_prices_data.json';
 dayjs.extend(customParseFormat)
 
-const dateFormat = "DD/MM/YYYY HH:mm:ss"
-const template = {
-    "{{#each stations}}": {
-        "site_id": "{{site_id}}",
-        "company": "applegreen",
-        "e5": "{{#? prices.E5}}",
-        "e10": "{{#? prices.E10}}",
-        "b7": "{{#? prices.B7}}",
-        "address": "{{address}}",
-        "postcode": "{{postcode}}",
-        "location": {
-            "type": "Point",
-            "coordinates": [
-                "{{location.longitude}}",
-                "{{location.latitude}}"
-            ] 
-        },
-        "created_at": "{{$root.last_updated}}"
-    }
-};
+import FuelDataSchema from './fueldataschema';
+import { model, connect } from 'mongoose';
 
-const fuelData = model<IFuelData>('fuel_data', FuelDataSchema);
+import IFuelData from './fueldata';
+import ConfData from './conf';
 
-const app = express();
-app.get('/', async (req, res) => {
+const _configDir = process.env.CONFIG_DIR ?? '../data_configs';
+
+async function main() {
+    // ensure connection to mongo
     await connect('mongodb://database:27017/openfueldata');
-    const data = await fetchData(url);
-    convertData(data);
-    res.send("Success");
-});
 
-app.listen(port, () => console.log(`Scraper API listening on port ${port}!`));
+    // get the config dir and files within
+    const files = await fs.promises.readdir(_configDir);
+    files.map(async file => {
+        try {
+            const conf = await readConfigFile(path.join(_configDir, file));
+            const resData = await fetchData(conf.url);
+            convertAndSaveData(resData, conf);
+            console.log(`Added ${file.split('.')[0]} to db`);
+        } catch (e) {
+            console.error("Error handling " + file);
+            console.error(e);
+        }
+    }); 
+}
+
+async function readConfigFile(path: string): Promise<ConfData> {
+    const file = await fs.promises.readFile(path, { encoding: "utf8"});
+    return JSON.parse(file || '{}');
+}
 
 async function fetchData(url: string): Promise<any> {
     const res = await axios(url);
     return res.data;
 }
 
-function convertData(data: any) {
+function convertAndSaveData(data: any, config: ConfData): void {
+    const fuelData = model<IFuelData>('fuel_data', FuelDataSchema);
+
     return ST.select(data)
-    .transformWith(template)
+    .transformWith(config.template)
     .root()
     .map(x => new fuelData({
         ...x,
-        "created_at": dayjs(x.created_at, dateFormat, true).toISOString()
+        "created_at": dayjs(x.created_at, config.dateFormat, true).toISOString()
     }))
     .map(u => u.save());
 }
+
+
+// EXECUTE
+main()
+    .then(() => console.log("Completed"))
+    .catch((err) => console.error(`CATASTROPHIC ERROR!\n${err}`));

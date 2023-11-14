@@ -9,8 +9,6 @@ services:
     build: 
       context: .
       target: scraper
-    ports:
-      - 3000:3000
 
   queryable:
     build: 

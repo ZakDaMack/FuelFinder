@@ -15,11 +15,20 @@ RUN npm run build
 # CMD ["nginx", "-g", "daemon off;"]
 
 
-FROM node:lts AS scraper
+FROM node:lts AS scraper-build
+WORKDIR /usr/app
 COPY scraper .
 RUN npm i
 RUN npx tsc
-CMD [ "node", "dist/index.js" ]
+
+FROM node:lts AS scraper
+WORKDIR /usr/app
+COPY --from=scraper-build /usr/app/dist .
+COPY scraper/package*.json ./
+COPY data_configs ./configs
+RUN npm i --omit=dev
+ENV CONFIG_DIR='./configs'
+CMD [ "node", "index.js" ]
 
 
 FROM node:lts AS queryable

@@ -10,7 +10,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Map />
-  </ThemeProvider>
+    </ThemeProvider>
   );
 }
 
