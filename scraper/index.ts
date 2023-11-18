@@ -2,22 +2,24 @@ import ST from 'stjs';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
+import 'dotenv/config';
 
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat)
 
-import FuelDataSchema from './fueldataschema';
+import StationDataSchema from '../models/stationdataschema';
 import { model, connect } from 'mongoose';
 
-import IFuelData from './fueldata';
-import ConfData from './conf';
+import IFuelData from '../models/fueldata';
+import ConfData from '../models/conf';
 
-const _configDir = process.env.CONFIG_DIR ?? '../data_configs';
+const _configDir = process.env.CONFIG_DIR;
+const _connectionString = process.env.MONGO_CONN;
 
 async function main() {
     // ensure connection to mongo
-    await connect('mongodb://database:27017/openfueldata');
+    await connect(_connectionString);
 
     // get the config dir and files within
     const files = await fs.promises.readdir(_configDir);
@@ -45,12 +47,12 @@ async function fetchData(url: string): Promise<any> {
 }
 
 function convertAndSaveData(data: any, config: ConfData): void {
-    const fuelData = model<IFuelData>('fuel_data', FuelDataSchema);
+    const stationData = model<IFuelData>('station', StationDataSchema);
 
     return ST.select(data)
     .transformWith(config.template)
     .root()
-    .map(x => new fuelData({
+    .map(x => new stationData({
         ...x,
         "created_at": dayjs(x.created_at, config.dateFormat, true).toISOString()
     }))

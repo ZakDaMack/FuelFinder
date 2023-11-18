@@ -23,7 +23,7 @@ export default function StationListItem(props) {
     const getValue = (val) => val ? `${(Math.round(val * 10) / 10).toFixed(1)} p/L` : 'N/A';
 
     return (
-        <ListItem sx={{flexDirection:'column', alignItems: 'start'}}>
+        <ListItem sx={{flexDirection:'column', alignItems: 'start', m:2}}>
             <Typography variant="h5">{company}</Typography>
         <Typography variant="subtitle">{address}, {postcode}</Typography>
         <List>

@@ -1,11 +1,14 @@
 import { Schema } from 'mongoose';
 
+type Nullable<T> = T | null;
+
 export default interface IFuelData {
     site_id: string;
     company: string;
-    e5: number;
-    e10: number;
-    b7: number;
+    e5: Nullable<number>;
+    e10: Nullable<number>;
+    b7: Nullable<number>;
+    sdv: Nullable<number>;
     address: string;
     postcode: string;  
     location: {

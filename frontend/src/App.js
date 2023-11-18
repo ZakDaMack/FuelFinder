@@ -1,10 +1,15 @@
-import logo from './logo.svg';
 import './App.css';
 import Map from './Map'
-import { CssBaseline, ThemeProvider, useTheme } from '@mui/material';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 
 function App() {
-  const theme = useTheme();
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#D5FC7F'
+      },
+    },
+  });
 
   return (
     <ThemeProvider theme={theme}>

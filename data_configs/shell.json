@@ -1,5 +1,5 @@
 {
-    "url": "https://www.shell.co.uk/fuel-prices-data.json",
+    "url": "https://prodpricinghubstrgacct.blob.core.windows.net/ukcma/fuel-prices-data.json",
     "dateFormat": "DD/MM/YYYY HH:mm:ss",
     "template": {
         "{{#each stations}}": {

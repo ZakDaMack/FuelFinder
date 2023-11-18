@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "start": "tsc && node dist/index.js",
+    "start": "tsc && node dist/scraper/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,7 +13,7 @@
   "dependencies": {
     "axios": "^1.6.1",
     "dayjs": "^1.11.10",
-    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
     "mongoose": "^8.0.0",
     "stjs": "^0.0.5"
   },
