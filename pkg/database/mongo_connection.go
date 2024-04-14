@@ -35,16 +35,36 @@ func NewMongoConnection(uri string, db string) (*MongoConnection, error) {
 }
 
 /*
-   const results = await fuelData.find({
-       location: {
-           $geoWithin: {
-               $centerSphere: [
-                   [ longitude, latitude ],
-                   milesToRadians(distance)
-               ]
-           }
-       }
-   }).exec();
+AGGREGATE DATA
+
+[
+	{
+		$geoNear: {
+		key: 'location',
+		near: {
+			type: 'Point',
+			coordinates: [parseFloat(longitude), parseFloat(latitude)]
+		},
+		distanceField: 'distance',
+		maxDistance: milesToMeters(distance),
+		spherical: true
+		}
+	},
+	{ $sort: { created_at: -1 } },
+	{
+		$group: {
+		_id: '$site_id',
+		records: { $push: '$$ROOT' }
+		}
+	},
+	{
+		$replaceRoot: {
+		newRoot: { $first: '$records' }
+		}
+	}
+	],
+
+	{ maxTimeMS: 60000, allowDiskUse: true }
 */
 
 func (m *MongoConnection) QueryArea(lat, long float64, distanceMiles int) ([]models.FuelPriceData, error) {
