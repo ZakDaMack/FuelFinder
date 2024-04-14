@@ -1,0 +1,25 @@
+package models
+
+// incoming data types
+type PriceDataset struct {
+	LastUpdated string           `json:"last_updated"`
+	Stations    []StationDataset `json:"stations"`
+}
+
+type StationDataset struct {
+	SiteId   string `json:"site_id"`
+	Brand    string `json:"brand"`
+	Address  string `json:"address"`
+	Postcode string `json:"postcode"`
+	Location struct {
+		// FIXME: Is there a better way of handling a mix of string|float64?
+		Latitude  interface{} `json:"latitude"`
+		Longitude interface{} `json:"longitude"`
+	} `json:"location"`
+	Prices struct {
+		E5  float64 `json:"e5"`
+		E10 float64 `json:"e10"`
+		B7  float64 `json:"b7"`
+		SDV float64 `json:"sdv"`
+	} `json:"prices"`
+}

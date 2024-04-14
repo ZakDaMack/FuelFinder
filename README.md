@@ -1,5 +1,5 @@
 # OpenFuelData
-![openfueldata logo](/logo.png)
+![openfueldata logo](/docs/logo.png)
 
 API and front end to show cheapest fuel in your area, provided by gov fuel price data. Note that this is an interim scheme and is limited, such as a delay between the setting of prices, the publication of price data, and the prices being available in third-party apps. Customers should always check the price displayed at the forecourt before purchasing road fuel.
 
