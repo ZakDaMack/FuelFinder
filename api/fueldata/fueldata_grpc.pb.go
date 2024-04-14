@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FuelDataClient interface {
-	QueryArea(ctx context.Context, in *Geofence, opts ...grpc.CallOption) (FuelData_QueryAreaClient, error)
+	QueryArea(ctx context.Context, in *Geofence, opts ...grpc.CallOption) (*StationItems, error)
 	Upload(ctx context.Context, in *StationItems, opts ...grpc.CallOption) (*UploadedItems, error)
 }
 
@@ -34,36 +34,13 @@ func NewFuelDataClient(cc grpc.ClientConnInterface) FuelDataClient {
 	return &fuelDataClient{cc}
 }
 
-func (c *fuelDataClient) QueryArea(ctx context.Context, in *Geofence, opts ...grpc.CallOption) (FuelData_QueryAreaClient, error) {
-	stream, err := c.cc.NewStream(ctx, &FuelData_ServiceDesc.Streams[0], "/fueldata.FuelData/QueryArea", opts...)
+func (c *fuelDataClient) QueryArea(ctx context.Context, in *Geofence, opts ...grpc.CallOption) (*StationItems, error) {
+	out := new(StationItems)
+	err := c.cc.Invoke(ctx, "/fueldata.FuelData/QueryArea", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &fuelDataQueryAreaClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type FuelData_QueryAreaClient interface {
-	Recv() (*StationItems, error)
-	grpc.ClientStream
-}
-
-type fuelDataQueryAreaClient struct {
-	grpc.ClientStream
-}
-
-func (x *fuelDataQueryAreaClient) Recv() (*StationItems, error) {
-	m := new(StationItems)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 func (c *fuelDataClient) Upload(ctx context.Context, in *StationItems, opts ...grpc.CallOption) (*UploadedItems, error) {
@@ -79,7 +56,7 @@ func (c *fuelDataClient) Upload(ctx context.Context, in *StationItems, opts ...g
 // All implementations must embed UnimplementedFuelDataServer
 // for forward compatibility
 type FuelDataServer interface {
-	QueryArea(*Geofence, FuelData_QueryAreaServer) error
+	QueryArea(context.Context, *Geofence) (*StationItems, error)
 	Upload(context.Context, *StationItems) (*UploadedItems, error)
 	mustEmbedUnimplementedFuelDataServer()
 }
@@ -88,8 +65,8 @@ type FuelDataServer interface {
 type UnimplementedFuelDataServer struct {
 }
 
-func (UnimplementedFuelDataServer) QueryArea(*Geofence, FuelData_QueryAreaServer) error {
-	return status.Errorf(codes.Unimplemented, "method QueryArea not implemented")
+func (UnimplementedFuelDataServer) QueryArea(context.Context, *Geofence) (*StationItems, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryArea not implemented")
 }
 func (UnimplementedFuelDataServer) Upload(context.Context, *StationItems) (*UploadedItems, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Upload not implemented")
@@ -107,25 +84,22 @@ func RegisterFuelDataServer(s grpc.ServiceRegistrar, srv FuelDataServer) {
 	s.RegisterService(&FuelData_ServiceDesc, srv)
 }
 
-func _FuelData_QueryArea_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Geofence)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _FuelData_QueryArea_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Geofence)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(FuelDataServer).QueryArea(m, &fuelDataQueryAreaServer{stream})
-}
-
-type FuelData_QueryAreaServer interface {
-	Send(*StationItems) error
-	grpc.ServerStream
-}
-
-type fuelDataQueryAreaServer struct {
-	grpc.ServerStream
-}
-
-func (x *fuelDataQueryAreaServer) Send(m *StationItems) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(FuelDataServer).QueryArea(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/fueldata.FuelData/QueryArea",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FuelDataServer).QueryArea(ctx, req.(*Geofence))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _FuelData_Upload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -154,16 +128,14 @@ var FuelData_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FuelDataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "QueryArea",
+			Handler:    _FuelData_QueryArea_Handler,
+		},
+		{
 			MethodName: "Upload",
 			Handler:    _FuelData_Upload_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "QueryArea",
-			Handler:       _FuelData_QueryArea_Handler,
-			ServerStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "api/fueldata.proto",
 }

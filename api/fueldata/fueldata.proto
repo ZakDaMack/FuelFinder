@@ -5,7 +5,7 @@ package fueldata;
 option go_package = "main/pkg/fueldata";
 
 service FuelData {
-    rpc QueryArea(Geofence) returns (stream StationItems);
+    rpc QueryArea(Geofence) returns (StationItems);
     rpc Upload(StationItems) returns (UploadedItems);
 }
 
