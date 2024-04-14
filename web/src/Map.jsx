@@ -11,25 +11,41 @@ import StationMarker from './StationMarker';
 
 export default function Map(props) {
     const [location, setLocation] = useState([51.4649, -0.1596]);
+    const [loaded, setLoaded] = useState(false);
+
     const [stations, setStations] = useState([]);
 
     const getCurrentLocation = () => navigator.geolocation.getCurrentPosition(
-        (pos) => setLocation([pos.coords.latitude, pos.coords.longitude]),
-        (err) => console.error("failed to get location"));
+        (pos) => {
+            setLocation([pos.coords.latitude, pos.coords.longitude])
+            setLoaded(true);
+        },
+        (err) => console.error("Failed to get location"));
+
+    const fetchData = async () => {
+        const res = await fetch(process.env.REACT_APP_API_URL + '?' + getQueryParams());
+        const data = await res.json();
+        setStations(data);
+    }
+
+    const getQueryParams = () => new URLSearchParams({
+        lat: location[0],
+        lng: location[1],
+        distance: 10
+    });
 
     // update loc on load
     useEffect(() => {
         getCurrentLocation();
-        if (stations.length == 0) {
-            fetch('http://localhost:3001?' + new URLSearchParams({
-                lat: location[0],
-                lng: location[1],
-                distance: 1000
-            }))
-            .then(res => res.json())
-            .then(data => setStations(data))
-        }
     }, []);
+
+    // update data on loc change
+    useEffect(() => {
+        if (!loaded) return;
+        fetchData()
+            .catch(err => console.error(err));
+    }, [location, loaded]);
+
 
     return (
         <MapContainer center={location} zoom={13} scrollWheelZoom={false} className="Map__container">

@@ -1,23 +1,27 @@
-import { useEffect, useRef, useState, cloneElement } from 'react';
+import { useState, cloneElement } from 'react';
 
 import Toolbar from '@mui/material/Toolbar';
 
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import TuneIcon from '@mui/icons-material/Tune';
+import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 import Button from '@mui/material/Button';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import AppBar from '@mui/material/AppBar';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
 
 export default function StationListToolbar(props) {
+  const { sortKey, setSortKey, close } = props;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const changeSort = (val) => { setSortKey(val); handleClose(); }
+  const handleClick = (event) => setAnchorEl(event.currentTarget); 
   const handleClose = () => setAnchorEl(null);
 
   const sortList = [
@@ -29,31 +33,38 @@ export default function StationListToolbar(props) {
 
   return (
     <ElevationScroll>
-        <Toolbar sx={{position: 'absolute', zIndex: 2000, bgcolor: 'white', w: '100%'}}>
-            <Button variant="contained"
-                startIcon={<FilterAltIcon />}
-                endIcon={<ExpandMoreIcon />}
-                id="menu-button"
-                aria-controls={open ? 'menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                onClick={handleClick}
-                sx={{textTransform: 'none', letterSpacing: 'normal'}}
-            >
-                { sortList[0].text }
-            </Button>
+      <AppBar position="absolute">
+        <Toolbar>
+          <Button variant="text"
+            startIcon={<FilterAltIcon />}
+            endIcon={<ExpandMoreIcon />}
+            id="menu-button"
+            aria-controls={open ? 'menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            onClick={handleClick}
+            sx={{textTransform: 'none', letterSpacing: 'normal', color: 'black'}}
+          >
+            { sortList.find(l =>l.value === sortKey).text }
+          </Button>
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
+                sx={{zIndex: 3000}}
                 MenuListProps={{
                     'aria-labelledby': 'menu-button',
                 }}
             >
-                {sortList.map(s => (<MenuItem key={s.value} onClick={handleClose}>{s.text}</MenuItem>))}
+                {sortList.map(s => (<MenuItem key={s.value} onClick={()=>changeSort(s.value)}>{s.text}</MenuItem>))}
             </Menu>
+            <Box sx={{flex: 1}}></Box>
+            <IconButton onClick={close}>
+              <CloseIcon />
+            </IconButton>
         </Toolbar>
+      </AppBar>
     </ElevationScroll>
   );
 }

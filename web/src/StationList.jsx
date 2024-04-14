@@ -1,72 +1,68 @@
+import { useEffect, useRef, useState } from 'react';
 
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Toolbar from '@mui/material/Toolbar';
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import TuneIcon from '@mui/icons-material/Tune';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 import styled from '@emotion/styled';
 import { grey } from '@mui/material/colors';
-import { Box, Divider, Toolbar } from '@mui/material';
-import List from '@mui/material/List';
-import { useEffect, useRef, useState } from 'react';
-import StationListItem from './StationListItem';
+
+import StationItem from './StationItem';
 import StationListToolbar from './StationListToolbar';
 
 export default function StationList(props) {
     const { stations } = props;
     const [ sortKey, setSortKey ] = useState('e5');
-
     const [open, setOpen] = useState(false);
-    const toggleOpen = () => setOpen(!open);
-    const drawerRef = useRef(null);
-
-    useEffect(() => {
-        const size = open ? '400' : '0';
-        drawerRef.current.style.width = `${size}px`
-    }, [open]);
+    
+    const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
     return (
-        <Box ref={drawerRef} sx={{
-            height: '100vh',
-            position: 'absolute',
-            left: 0, top: 0,
-            zIndex: 2000,
-            display: 'flex',
-            alignItems: 'center',
-            transition: 'width 0.2s ease-in'
-        }}>
-            <Box sx={{
-                bgcolor: 'white', 
-                overflow: 'scroll',
-                position: 'relative',
-                width: 400, 
-                height: '100%'
-            }}>
-                <StationListToolbar />
-                <Toolbar />
-                <List>
-                    {stations
-                    .filter(s => !!s[sortKey])
-                    .sort((a,b) => a[sortKey] - b[sortKey])
-                    .map((s, i) => (
-                        <>
-                            <StationListItem key={s._id} company={s} />
-                            {i !== stations.length - 1 && <Divider key={`${s._id}-divider`} />}
-                        </>
-                    ))}
-                </List>
-            </Box>
-            <OpenButton onClick={toggleOpen}>
-                {open ? (<ChevronLeftIcon />) : (<ChevronRightIcon />)}
+        <>
+            <SwipeableDrawer
+                anchor="left"
+                open={open}
+                onClose={()=>setOpen(false)}
+                onOpen={()=>setOpen(true)}
+            >
+                <Box sx={{position: 'relative', width: isMobile ? '100%' : 400}}>
+                    <StationListToolbar sortKey={sortKey} setSortKey={setSortKey} close={()=>setOpen(false)} />
+                    <Toolbar />
+                    <Box sx={{height: 'calc(100vh - 64px)', overflow: 'scroll'}}>
+                        <List>
+                            {stations
+                            .filter(s => !!s[sortKey])
+                            .sort((a,b) => a[sortKey] - b[sortKey])
+                            .map((s, i) => (
+                                <>
+                                    <Box key={s._id} sx={{py:2, px:1}}>
+                                        <StationItem company={s} />
+                                    </Box>
+                                    {i !== stations.length - 1 && <Divider key={`${s._id}-divider`} />}
+                                </>
+                            ))}
+                        </List>
+                    </Box>
+                </Box>
+            </SwipeableDrawer>
+            <OpenButton onClick={()=>setOpen(true)}>
+                <ChevronRightIcon />
             </OpenButton>
-        </Box>
+        </>
     );
 }
 
 const OpenButton = styled(Button)({
+    position: 'absolute',
+    left: 0, top: '50%',
+    zIndex: 1000,
+    transform: 'translateY(-50%)',
     height: 70,
     width: 40,
     minWidth: 40,

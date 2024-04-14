@@ -41,3 +41,7 @@
   width: 100vw;
   height: 100vh;
 }
+
+.Map__popup {
+  width: 280px;
+}

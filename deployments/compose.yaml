@@ -4,6 +4,8 @@ services:
     hostname: database
     environment:
       - MONGO_INITDB_DATABASE=openfueldata
+    ports:
+      - 27017:27017
 
   scraper:
     build: 
@@ -17,12 +19,12 @@ services:
     ports:
       - 3001:3000
 
-  # frontend:
-  #   build: 
-  #     context: .
-  #     target: frontend
-  #   ports:
-  #     - 1500:80
+  frontend:
+    build: 
+      context: .
+      target: frontend
+    ports:
+      - 1500:80
 
 networks:
   ofd:
