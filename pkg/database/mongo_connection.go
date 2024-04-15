@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"main/api/fueldata"
 	"main/pkg/models"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -36,7 +37,7 @@ func NewMongoConnection(uri string, db string) (*MongoConnection, error) {
 
 func (m *MongoConnection) QueryArea(lat, long float64, distanceMiles int) ([]models.FuelPriceData, error) {
 	coll := m.client.Database(m.database).Collection(collection)
-	filter := makeFilter(lat, long, milesToRadians(float64(distanceMiles)))
+	filter := makeAggregatePipeline(lat, long, milesToMetres(float64(distanceMiles)))
 	// get data
 	// TODO: sort context todo
 	cursor, err := coll.Find(context.TODO(), filter)
@@ -53,7 +54,7 @@ func (m *MongoConnection) QueryArea(lat, long float64, distanceMiles int) ([]mod
 	return results, nil
 }
 
-func (m *MongoConnection) Write(data []models.FuelPriceData) error {
+func (m *MongoConnection) Write(data []fueldata.StationItems) error {
 	docs := make([]interface{}, len(data))
 	for i, d := range data {
 		docs[i] = d
@@ -69,6 +70,10 @@ func (m *MongoConnection) Write(data []models.FuelPriceData) error {
 
 func milesToRadians(miles float64) float64 {
 	return miles / 3963.2
+}
+
+func milesToMetres(miles float64) float64 {
+	return miles / 1609.344
 }
 
 func makeFilter(lat, long, distRads float64) bson.D {
@@ -90,29 +95,66 @@ AGGREGATE DATA
 [
 	{
 		$geoNear: {
-		key: 'location',
-		near: {
-			type: 'Point',
-			coordinates: [parseFloat(longitude), parseFloat(latitude)]
-		},
-		distanceField: 'distance',
-		maxDistance: milesToMeters(distance),
-		spherical: true
+			key: 'location',
+			near: {
+				type: 'Point',
+				coordinates: [parseFloat(longitude), parseFloat(latitude)]
+			},
+			distanceField: 'distance',
+			maxDistance: milesToMeters(distance),
+			spherical: true
 		}
 	},
 	{ $sort: { created_at: -1 } },
 	{
 		$group: {
-		_id: '$site_id',
-		records: { $push: '$$ROOT' }
+			_id: '$site_id',
+			records: { $push: '$$ROOT' }
 		}
 	},
 	{
 		$replaceRoot: {
-		newRoot: { $first: '$records' }
+			newRoot: { $first: '$records' }
 		}
 	}
 	],
 
 	{ maxTimeMS: 60000, allowDiskUse: true }
 */
+
+func makeAggregatePipeline(lat, long, distMetres float64) bson.A {
+	return bson.A{
+		bson.D{{
+			Key: "$geoNear", Value: bson.D{
+				{Key: "key", Value: "location"},
+				{Key: "near", Value: bson.D{
+					{Key: "type", Value: "Point"},
+					{Key: "coordinates", Value: bson.A{long, lat}},
+				}},
+				{Key: "distanceField", Value: "distance"},
+				{Key: "maxDistance", Value: distMetres},
+				{Key: "spherical", Value: true},
+			},
+		}},
+		bson.D{{
+			Key: "$sort", Value: bson.D{{
+				Key: "created_at", Value: -1,
+			}},
+		}},
+		bson.D{{
+			Key: "$group", Value: bson.D{
+				{Key: "_id", Value: "$site_id"},
+				{Key: "records", Value: bson.D{
+					{Key: "$push", Value: "$$ROOT"},
+				},
+				}},
+		}},
+		bson.D{{
+			Key: "$replaceRoot", Value: bson.D{{
+				Key: "newRoot", Value: bson.D{{
+					Key: "$first", Value: "$records",
+				}},
+			}},
+		}},
+	}
+}
