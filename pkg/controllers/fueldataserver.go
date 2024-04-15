@@ -2,57 +2,53 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"main/api/fueldata"
+	"main/pkg/services"
 )
 
 type FuelDataServer struct {
+	store *services.MongoStore
 	fueldata.UnimplementedFuelDataServer
 }
 
-// mustEmbedUnimplementedFuelDataServer implements fueldata.FuelDataServer.
-// func (s *FuelDataServer) mustEmbedUnimplementedFuelDataServer() {
-// 	panic("unimplemented")
-// }
-
-func (s *FuelDataServer) QueryArea(context.Context, *fueldata.Geofence) (*fueldata.StationItems, error) {
-	// coll := m.client.Database(m.database).Collection(collection)
-	// filter := makeFilter(lat, long, milesToRadians(float64(distanceMiles)))
-	// // get data
-	// // TODO: sort context todo
-	// cursor, err := coll.Find(context.TODO(), filter)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// var results []models.FuelPriceData
-	// err = cursor.All(context.TODO(), &results)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	item := &fueldata.StationItem{}
-	results := &fueldata.StationItems{
-		Items: []*fueldata.StationItem{item},
+func NewFuelDataServer(db, uri string) (*FuelDataServer, error) {
+	conn, err := services.NewMongoConnection(uri, db)
+	if err != nil {
+		return nil, err
 	}
 
+	fds := &FuelDataServer{store: conn}
+	return fds, nil
+}
+
+func (s *FuelDataServer) QueryArea(ctx context.Context, fence *fueldata.Geofence) (*fueldata.StationItems, error) {
+	queryRes, err := s.store.QueryArea(float64(fence.Latitude), float64(fence.Longitude), int(fence.Radius))
+	if err != nil {
+		return nil, err
+	}
+
+	// REVIEW - is there a better way for this?
+	// map to pointers
+	items := make([]*fueldata.StationItem, len(queryRes))
+	for i := 0; i < len(queryRes); i++ {
+		items[i] = &queryRes[i]
+	}
+
+	results := &fueldata.StationItems{Items: items}
 	return results, nil
 }
 
-func (s *FuelDataServer) Upload(context.Context, *fueldata.StationItems) (*fueldata.UploadedItems, error) {
-	// docs := make([]interface{}, len(data))
-	// for i, d := range data {
-	// 	docs[i] = d
-	// }
-
-	// coll := m.client.Database(m.database).Collection(collection)
-	// _, err := coll.InsertMany(context.TODO(), docs)
-	// if err != nil {
-	// 	return err
-	// }
-
-	items := &fueldata.UploadedItems{
-		Count: 10,
+func (s *FuelDataServer) Upload(ctx context.Context, items *fueldata.StationItems) (*fueldata.UploadedItems, error) {
+	writeRes, err := s.store.Write(items.Items)
+	if err != nil {
+		return nil, err
 	}
 
-	return items, nil
+	fmt.Println(writeRes)
+	res := &fueldata.UploadedItems{
+		Count: int32(writeRes),
+	}
+
+	return res, nil
 }

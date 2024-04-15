@@ -1,16 +1,16 @@
-package database
+package services
 
 import (
 	"context"
+	"fmt"
 	"main/api/fueldata"
-	"main/pkg/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type MongoConnection struct {
+type MongoStore struct {
 	database string
 	client   *mongo.Client
 }
@@ -19,7 +19,7 @@ const (
 	collection = "fuel_data"
 )
 
-func NewMongoConnection(uri string, db string) (*MongoConnection, error) {
+func NewMongoConnection(uri string, db string) (*MongoStore, error) {
 	// TODO: sort out contexts
 	options := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(context.TODO(), options)
@@ -27,7 +27,7 @@ func NewMongoConnection(uri string, db string) (*MongoConnection, error) {
 		return nil, err
 	}
 
-	c := &MongoConnection{
+	c := &MongoStore{
 		database: db,
 		client:   client,
 	}
@@ -35,17 +35,21 @@ func NewMongoConnection(uri string, db string) (*MongoConnection, error) {
 	return c, nil
 }
 
-func (m *MongoConnection) QueryArea(lat, long float64, distanceMiles int) ([]models.FuelPriceData, error) {
+func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int) ([]fueldata.StationItem, error) {
 	coll := m.client.Database(m.database).Collection(collection)
-	filter := makeAggregatePipeline(lat, long, milesToMetres(float64(distanceMiles)))
+
 	// get data
 	// TODO: sort context todo
-	cursor, err := coll.Find(context.TODO(), filter)
+	filter := makeAggregatePipeline(lat, long, int(milesToMetres(distanceMiles)))
+	// filter := makeFilter(lat, long, milesToRadians(float64(distanceMiles)))
+	cursor, err := coll.Aggregate(context.TODO(), filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var results []models.FuelPriceData
+	// decode results into array data
+	// TODO: is there a mroe effecient way of doing this?
+	var results []fueldata.StationItem
 	err = cursor.All(context.TODO(), &results)
 	if err != nil {
 		return nil, err
@@ -54,26 +58,27 @@ func (m *MongoConnection) QueryArea(lat, long float64, distanceMiles int) ([]mod
 	return results, nil
 }
 
-func (m *MongoConnection) Write(data []fueldata.StationItems) error {
+// TODO: dont write if the values already exist
+func (m *MongoStore) Write(data []*fueldata.StationItem) (int, error) {
 	docs := make([]interface{}, len(data))
 	for i, d := range data {
-		docs[i] = d
+		docs[i] = &d
 	}
 
 	coll := m.client.Database(m.database).Collection(collection)
-	_, err := coll.InsertMany(context.TODO(), docs)
+	res, err := coll.InsertMany(context.TODO(), docs)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return len(res.InsertedIDs), nil
 }
 
 func milesToRadians(miles float64) float64 {
 	return miles / 3963.2
 }
 
-func milesToMetres(miles float64) float64 {
-	return miles / 1609.344
+func milesToMetres(miles int) float64 {
+	return float64(miles) * 1609.344
 }
 
 func makeFilter(lat, long, distRads float64) bson.D {
@@ -105,10 +110,10 @@ AGGREGATE DATA
 			spherical: true
 		}
 	},
-	{ $sort: { created_at: -1 } },
+	{ $sort: { createdat: -1 } },
 	{
 		$group: {
-			_id: '$site_id',
+			_id: '$siteid',
 			records: { $push: '$$ROOT' }
 		}
 	},
@@ -122,7 +127,8 @@ AGGREGATE DATA
 	{ maxTimeMS: 60000, allowDiskUse: true }
 */
 
-func makeAggregatePipeline(lat, long, distMetres float64) bson.A {
+func makeAggregatePipeline(lat, long float64, distMetres int) bson.A {
+	fmt.Println(lat, long, distMetres)
 	return bson.A{
 		bson.D{{
 			Key: "$geoNear", Value: bson.D{
@@ -138,16 +144,16 @@ func makeAggregatePipeline(lat, long, distMetres float64) bson.A {
 		}},
 		bson.D{{
 			Key: "$sort", Value: bson.D{{
-				Key: "created_at", Value: -1,
+				Key: "createdat", Value: -1,
 			}},
 		}},
 		bson.D{{
 			Key: "$group", Value: bson.D{
-				{Key: "_id", Value: "$site_id"},
+				{Key: "_id", Value: "$siteid"},
 				{Key: "records", Value: bson.D{
 					{Key: "$push", Value: "$$ROOT"},
-				},
 				}},
+			},
 		}},
 		bson.D{{
 			Key: "$replaceRoot", Value: bson.D{{

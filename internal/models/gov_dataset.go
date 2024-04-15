@@ -17,9 +17,9 @@ type StationDataset struct {
 		Longitude interface{} `json:"longitude"`
 	} `json:"location"`
 	Prices struct {
-		E5  float64 `json:"e5"`
-		E10 float64 `json:"e10"`
-		B7  float64 `json:"b7"`
-		SDV float64 `json:"sdv"`
+		E5  float32 `json:"e5"`
+		E10 float32 `json:"e10"`
+		B7  float32 `json:"b7"`
+		SDV float32 `json:"sdv"`
 	} `json:"prices"`
 }

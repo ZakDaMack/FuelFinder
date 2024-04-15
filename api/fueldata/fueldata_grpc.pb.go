@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.6.1
-// source: api/fueldata.proto
+// source: api/fueldata/fueldata.proto
 
 package fueldata
 
@@ -137,5 +137,5 @@ var FuelData_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/fueldata.proto",
+	Metadata: "api/fueldata/fueldata.proto",
 }

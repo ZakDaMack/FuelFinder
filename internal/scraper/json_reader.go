@@ -3,8 +3,9 @@ package scraper
 import (
 	"encoding/json"
 	"fmt"
+	"main/api/fueldata"
+	"main/internal/models"
 	"main/internal/sanitizer"
-	"main/pkg/models"
 	"net/http"
 	"regexp"
 	"strings"
@@ -16,7 +17,7 @@ const (
 )
 
 // the main must return (interface{}, error)
-func ReadJsonFrom(url string) ([]models.FuelPriceData, error) {
+func ReadJsonFrom(url string) ([]*fueldata.StationItem, error) {
 
 	if url == "" {
 		return nil, fmt.Errorf("url cannot be empty")
@@ -25,14 +26,6 @@ func ReadJsonFrom(url string) ([]models.FuelPriceData, error) {
 	// get the json vals
 	req, _ := createRequest(url)
 	resp, err := http.DefaultClient.Do(req)
-	// resp, err := http.Get(url)
-
-	// fmt.Println(req.Header)
-	// http.Do
-	// for key, val := range resp.Header {
-	// 	fmt.Println(key, ":", val)
-	// }
-
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +43,7 @@ func ReadJsonFrom(url string) ([]models.FuelPriceData, error) {
 	// parse the time. Can we read it?
 	// NOTE - jetlocal use the wrong string format
 	priceData.LastUpdated = strings.Replace(priceData.LastUpdated, "-", "/", -1)
-	time, err := time.Parse(dateTimeLayout, priceData.LastUpdated)
+	createdAt, err := time.Parse(dateTimeLayout, priceData.LastUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -59,26 +52,27 @@ func ReadJsonFrom(url string) ([]models.FuelPriceData, error) {
 	// TODO: Sense check the price data, if it looks off, invalidate the json and report it
 
 	// convert inputted format to 2D store format
-	var convertedData []models.FuelPriceData
+	var convertedData []*fueldata.StationItem
 	for _, s := range priceData.Stations {
-		d := models.FuelPriceData{
-			SiteId:   s.SiteId,
-			Brand:    s.Brand,
-			Address:  s.Address,
-			Postcode: s.Postcode,
-			E5:       s.Prices.E5,
-			E10:      s.Prices.E10,
-			B7:       s.Prices.B7,
-			SDV:      s.Prices.SDV,
-		}
-		d.Location.LocationType = "Point"
-		d.Location.Coordinates = []float64{
-			sanitizer.ToFloat(s.Location.Longitude),
-			sanitizer.ToFloat(s.Location.Latitude),
-		}
-		d.CreatedAt = time
 		// append to list
-		convertedData = append(convertedData, d)
+		convertedData = append(convertedData, &fueldata.StationItem{
+			CreatedAt: createdAt.Unix(),
+			SiteId:    s.SiteId,
+			Brand:     s.Brand,
+			Address:   s.Address,
+			Postcode:  s.Postcode,
+			Location: &fueldata.Location{
+				Type: "Point",
+				Coordinates: []float32{
+					float32(sanitizer.ToFloat(s.Location.Longitude)),
+					float32(sanitizer.ToFloat(s.Location.Latitude)),
+				},
+			},
+			E5:  s.Prices.E5,
+			E10: s.Prices.E10,
+			B7:  s.Prices.B7,
+			Sdv: s.Prices.SDV,
+		})
 	}
 
 	return convertedData, nil
