@@ -23,6 +23,30 @@ export default function StationList(props) {
     
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
+    const [val, setVal] = useState({});
+    useEffect(() => {
+        fetchData();
+    }, [])
+
+    const fetchData = async () => {
+        const res = await fetch('http://localhost:3001/gcn7sj2hxk2c');
+        const data = await res.json();
+        setVal({
+            _id: data[0]._id,
+            site_id: data[0].site_id,
+            company: data[0].company,
+            address: data[0].address,
+            postcode: data[0].postcode,
+            history: data.map(s => ({
+                date: s.created_at,
+                sdv: s.sdv,
+                b7: s.b7,
+                e5: s.e5,
+                e10: s.e10
+            }))
+        });
+    };
+
     return (
         <>
             <SwipeableDrawer
@@ -34,7 +58,7 @@ export default function StationList(props) {
                 <Box sx={{position: 'relative', width: isMobile ? '100%' : 400}}>
                     <StationListToolbar sortKey={sortKey} setSortKey={setSortKey} close={()=>setOpen(false)} />
                     <Toolbar />
-                    <Box sx={{height: 'calc(100vh - 64px)', overflow: 'scroll'}}>
+                    {/* <Box sx={{height: 'calc(100vh - 64px)', overflow: 'scroll'}}>
                         <List>
                             {stations
                             .filter(s => !!s[sortKey])
@@ -48,7 +72,10 @@ export default function StationList(props) {
                                 </>
                             ))}
                         </List>
-                    </Box>
+                    </Box> */}
+                    <pre>
+                        {JSON.stringify(val, null, 4)}
+                    </pre>
                 </Box>
             </SwipeableDrawer>
             <OpenButton onClick={()=>setOpen(true)}>
