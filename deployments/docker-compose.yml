@@ -2,6 +2,8 @@ services:
   database:
     container_name: database
     image: mongo:latest
+    ports:
+      - 27017:27017
 
   frontend:
     container_name: frontend
