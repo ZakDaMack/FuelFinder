@@ -1,0 +1,7 @@
+// create collection and set up indexes
+
+use ofd
+db.createCollection("fuel_data")
+db.fuel_data.createIndex({ location: "2dsphere" })
+db.fuel_data.createIndex({ created_at: 1 })
+db.fuel_data.createIndex({ site_id: 1 })

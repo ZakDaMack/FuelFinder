@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package fueldata;
+
+option go_package = "main/pkg/fueldata";
+
+service FuelData {
+    rpc QueryArea(Geofence) returns (StationItems);
+    rpc Upload(StationItems) returns (UploadedItems);
+}
+
+message UploadedItems {
+    int32 count = 1;
+}
+
+message Geofence {
+    float longitude = 1;
+    float latitude = 2;
+    float radius = 3;
+}
+
+message StationItem {
+	int64 created_at = 1;
+    string site_id = 2;
+    string brand = 3;
+    string address = 4;
+    string postcode = 5;
+	Location location = 6;
+	float e5 = 7;
+	float e10 = 8;
+	float b7 = 9;  
+	float sdv = 10;
+}
+
+message Location {
+	string type = 1;
+	repeated float coordinates = 2;
+}
+
+message StationItems {
+    repeated StationItem items = 1;
+}
