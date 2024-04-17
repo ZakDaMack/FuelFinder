@@ -1,0 +1,47 @@
+services:
+  database:
+    container_name: database
+    image: mongo:latest
+
+  frontend:
+    container_name: frontend
+    build: 
+      context: ..
+      target: ofd-web
+    ports:
+      - 1500:80
+
+  server:
+    container_name: server
+    build: 
+      context: ..
+      target: ofd-fueldataserver
+    ports:
+      - 50051:50051
+    environment:
+      - PORT=50051
+      - MONGO_URI=mongodb://database
+
+  scraper:
+    container_name: scraper
+    command: /app/stationscraper && exec crond -f
+    build: 
+      context: ..
+      target: ofd-stationscraper
+    depends_on:
+      - server
+    environment:
+      - GRPC_HOST=server:50051
+
+  gateway:
+    container_name: gateway
+    build: 
+      context: ..
+      target: ofd-apigateway
+    depends_on:
+      - server
+    ports:
+      - 8080:8080
+    environment:
+      - PORT=8080
+      - GRPC_HOST=server:50051

@@ -7,7 +7,7 @@ import (
 
 func Get(key string, dflt string) string {
 	val, ok := os.LookupEnv(key)
-	if !ok {
+	if !ok || val == "" {
 		val = dflt
 	}
 
