@@ -18,6 +18,23 @@ app.use(cors());
 
 app.get('/ping',(req, res) => res.send({ status: "PONG", time: dayjs().toISOString() }));
 
+app.get('/:id', async (req, res) => {
+  console.log(`${req.method.toUpperCase()} ${req.originalUrl}`);
+    await connect(_connectionString);
+
+    const stationId = req.params.id;
+
+    const results = await _stationData.aggregate([
+        { $match: { site_id: stationId } },
+        { $sort: { created_at: -1 } },
+      ],
+      { maxTimeMS: 60000, allowDiskUse: true })
+    .exec();
+
+    console.log("query got " + results.length);
+    res.send(results);
+});
+
 app.get('/', async (req, res) => {
   console.log(`${req.method.toUpperCase()} ${req.originalUrl}`);
     await connect(_connectionString);
@@ -62,9 +79,6 @@ app.get('/', async (req, res) => {
       console.log("query got " + results.length);
 
     res.send(results);
-
-    // const t = await _stationData.find({ company: "BP" }).exec();
-    // res.send(t);
 });
 
 app.use(logger);

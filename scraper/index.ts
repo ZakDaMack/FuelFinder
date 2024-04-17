@@ -13,6 +13,7 @@ import { model, connect } from 'mongoose';
 
 import IFuelData from '../models/fueldata';
 import ConfData from '../models/conf';
+import { exit } from 'process';
 
 const _configDir = process.env.CONFIG_DIR;
 const _connectionString = process.env.MONGO_CONN;
@@ -23,9 +24,14 @@ async function main() {
 
     // get the config dir and files within
     const files = await fs.promises.readdir(_configDir);
+    console.log(`Found ${files.length} files in config`);
+    
     files.map(async file => {
         try {
-            const conf = await readConfigFile(path.join(_configDir, file));
+            const filePath = path.join(_configDir, file);
+            console.log(`Reading from file '${filePath}'`);
+            
+            const conf = await readConfigFile(filePath);            
             const resData = await fetchData(conf.url);
             convertAndSaveData(resData, conf);
             console.log(`Added ${file.split('.')[0]} to db`);
@@ -47,6 +53,7 @@ async function fetchData(url: string): Promise<any> {
 }
 
 function convertAndSaveData(data: any, config: ConfData): void {
+    StationDataSchema.index({location: '2dsphere'});
     const stationData = model<IFuelData>('station', StationDataSchema);
 
     return ST.select(data)
@@ -63,4 +70,5 @@ function convertAndSaveData(data: any, config: ConfData): void {
 // EXECUTE
 main()
     .then(() => console.log("Completed"))
-    .catch((err) => console.error(`CATASTROPHIC ERROR!\n${err}`));
+    .catch((err) => {console.error(`CATASTROPHIC ERROR!\n${err}`); process.exitCode = 1;})
+    // .finally(() => exit());

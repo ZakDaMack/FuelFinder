@@ -12,7 +12,7 @@ Current datasets include:
 - [Applegreen UK](https://applegreenstores.com/fuel-prices/data.json)
 - [Ascona Group](https://fuelprices.asconagroup.co.uk/newfuel.json)
 - [BP](https://www.bp.com/en_gb/united-kingdom/home/fuelprices/fuel_prices_data.json)
-- [Esso Tesco Alliance](https://www.esso.co.uk/-/media/Project/WEP/Esso/Esso-Retail-UK/roadfuelpricingscheme)
+- [Esso Tesco Alliance](https://fuelprices.esso.co.uk/latestdata.json) *Updated 20/11/23*
 - [Morrisons](https://www.morrisons.com/fuel-prices/fuel.json)
 - [Motor Fuel Group](https://fuel.motorfuelgroup.com/fuel_prices_data.json)
 - [Rontec](https://www.rontec-servicestations.co.uk/fuel-prices/data/fuel_prices_data.json)
