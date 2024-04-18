@@ -32,7 +32,6 @@ services:
 
   scraper:
     container_name: scraper
-    command: /app/stationscraper && exec crond -f
     build: 
       context: ..
       target: ofd-stationscraper
