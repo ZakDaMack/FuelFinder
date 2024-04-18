@@ -5,13 +5,19 @@ services:
     ports:
       - 27017:27017
 
+  proxy:
+    container_name: reverseproxy
+    image: nginx:alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8000:80
+
   frontend:
     container_name: frontend
     build: 
       context: ..
       target: ofd-web
-    ports:
-      - 1500:80
 
   server:
     container_name: server
@@ -42,8 +48,6 @@ services:
       target: ofd-apigateway
     depends_on:
       - server
-    ports:
-      - 8080:8080
     environment:
       - PORT=8080
       - GRPC_HOST=server:50051
