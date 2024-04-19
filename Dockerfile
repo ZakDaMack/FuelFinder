@@ -50,4 +50,5 @@ WORKDIR /app
 COPY --from=go-build /app/bin/stationscraper .
 COPY scripts/stationscraper_cron.sh .
 ENV GRPC_HOST="fueldataserver:50051"
-CMD crontab /app/stationscraper_cron.sh && exec crond -f
+ENV INTERVAL=15
+CMD ["/app/stationscraper"]

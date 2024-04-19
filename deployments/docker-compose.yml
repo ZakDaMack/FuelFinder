@@ -39,6 +39,7 @@ services:
       - server
     environment:
       - GRPC_HOST=server:50051
+      - INTERVAL=15
 
   gateway:
     container_name: gateway
