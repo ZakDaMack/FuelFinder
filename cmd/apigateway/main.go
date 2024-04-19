@@ -16,13 +16,13 @@ import (
 )
 
 func main() {
-	// get env vars
-	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
-	port := env.GetInt("PORT", 8080)
-
 	// set up logging
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
+
+	// get env vars
+	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
+	port := env.GetInt("PORT", 8080)
 
 	// set up grpc client
 	conn, err := grpc.Dial(grpcHost, grpc.WithTransportCredentials(insecure.NewCredentials()))

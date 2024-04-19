@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"main/api/fueldata"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -73,6 +72,21 @@ func (m *MongoStore) Write(data []*fueldata.StationItem) (int, error) {
 	return len(res.InsertedIDs), nil
 }
 
+func (m *MongoStore) Exists(unixTime int64, stationId string) (bool, error) {
+	coll := m.client.Database(m.database).Collection(collection)
+	query := bson.D{{Key: "createdat", Value: unixTime}, {Key: "siteid", Value: stationId}}
+	err := coll.FindOne(context.TODO(), query).Err()
+
+	if err == mongo.ErrNoDocuments {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	// if both queries above skip, then it must exist
+	return true, nil
+}
+
 func milesToRadians(miles float64) float64 {
 	return miles / 3963.2
 }
@@ -128,7 +142,6 @@ AGGREGATE DATA
 */
 
 func makeAggregatePipeline(lat, long float64, distMetres int) bson.A {
-	fmt.Println(lat, long, distMetres)
 	return bson.A{
 		bson.D{{
 			Key: "$geoNear", Value: bson.D{

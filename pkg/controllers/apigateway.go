@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"main/api/fueldata"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -20,12 +21,21 @@ func (*Gateway) GetPing(c *gin.Context) {
 }
 
 func (g *Gateway) GetStations(c *gin.Context) {
-	// c.GetQueryMap()
+	lat, _ := strconv.ParseFloat(c.Query("latitude"), 32)
+	long, _ := strconv.ParseFloat(c.Query("longitude"), 32)
+	radius, _ := strconv.ParseFloat(c.Query("radius"), 32)
+
 	service := *g.Client
-	val, _ := service.QueryArea(context.TODO(), &fueldata.Geofence{
-		Latitude:  51.795971,
-		Longitude: -0.078880,
-		Radius:    3,
+	val, err := service.QueryArea(context.TODO(), &fueldata.Geofence{
+		Latitude:  float32(lat),
+		Longitude: float32(long),
+		Radius:    float32(radius),
 	})
+
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
+
 	c.JSON(200, val.Items)
 }

@@ -1,7 +1,7 @@
 package scraper
 
 import (
-	"fmt"
+	"log/slog"
 	"main/internal/slug"
 
 	"github.com/gocolly/colly"
@@ -26,12 +26,12 @@ func GetTableLinks(url string) ([]string, error) {
 
 	// on req, ensure visiting correct page
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
+		slog.Debug("Visiting url", "url", r.URL)
 	})
 
 	// get any errors
 	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("FAILED: Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		slog.Error("error on response", "url", r.Request.URL, "error", err)
 	})
 
 	c.Visit(url)

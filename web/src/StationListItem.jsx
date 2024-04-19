@@ -16,7 +16,7 @@ import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import styled from '@emotion/styled';
 
 export default function StationListItem(props) {
-    const { location, company, address, postcode, b7, e5, e10 } = props.company;
+    const { location, brand, address, postcode, b7, e5, e10 } = props.company;
     // const coords = [...location.coordinates].reverse();
 
 
@@ -24,7 +24,7 @@ export default function StationListItem(props) {
 
     return (
         <ListItem sx={{flexDirection:'column', alignItems: 'start', m:2}}>
-            <Typography variant="h5">{company}</Typography>
+            <Typography variant="h5">{brand}</Typography>
         <Typography variant="subtitle">{address}, {postcode}</Typography>
         <List>
             <ListItem disablePadding>

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"main/api/fueldata"
 	"main/internal/env"
@@ -19,19 +18,21 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
+	slog.Info("scraper started")
+
 	// get env vars
 	slog.Debug("getting env vars")
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
-	interval := env.GetInt("INTERVAL", 15)
-	fmt.Println("got env vars", "host", grpcHost, "interval", interval)
+	interval := env.GetInt("INTERVAL", 1)
+	slog.Debug("got env vars", "host", grpcHost, "interval", interval)
 
-	fmt.Println("creating ticker")
+	slog.Debug("creating ticker")
 	ticker := time.NewTicker(time.Duration(interval) * time.Minute)
 	for t := range ticker.C {
-		fmt.Println("job triggered", "ticker_time", t)
+		slog.Info("job triggered", "ticker_time", t)
 		scrapeData(grpcHost)
 	}
-	fmt.Println("app exiting")
+	slog.Info("app exiting")
 }
 
 func scrapeData(grpcHost string) {
@@ -53,29 +54,24 @@ func scrapeData(grpcHost string) {
 		slog.Error("could not scrape fuel price data", "url", "https://www.gov.uk/guidance/access-fuel-price-data", "error", err)
 		return
 	}
-
 	for _, link := range links {
-		go uploadStations(link, client)
+		slog.Info("reading json", "url", link)
+
+		data, err := scraper.ReadJsonFrom(link)
+		if err != nil {
+			slog.Error("could not read json", "url", link, "error", err)
+			return
+		}
+
+		slog.Debug("collected station data", "link", link, "stations", len(data))
+
+		req := &fueldata.StationItems{Items: data}
+		res, err := client.Upload(context.TODO(), req)
+		if err != nil {
+			slog.Error("could not read json", "url", link, "error", err)
+			return
+		}
+
+		slog.Debug("uploaded station data", "stations", res.Count)
 	}
-}
-
-func uploadStations(link string, client fueldata.FuelDataClient) {
-	slog.Info("reading json", "url", link)
-
-	data, err := scraper.ReadJsonFrom(link)
-	if err != nil {
-		slog.Error("could not read json", "url", link, "error", err)
-		return
-	}
-
-	slog.Debug("collected station data", "link", link, "stations", len(data))
-
-	req := &fueldata.StationItems{Items: data}
-	res, err := client.Upload(context.TODO(), req)
-	if err != nil {
-		slog.Error("could not read json", "url", link, "error", err)
-		return
-	}
-
-	slog.Debug("uploaded station data", "stations", res.Count)
 }

@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { MapContainer } from 'react-leaflet/MapContainer'
 import { TileLayer } from 'react-leaflet/TileLayer' 
 import { useMap } from 'react-leaflet/hooks'
+import { Marker } from 'react-leaflet/Marker' 
+import { Icon } from 'leaflet'
 
 import Toolbar from './Toolbar';
 import OfdBanner from './Banner';
@@ -25,13 +27,13 @@ export default function Map(props) {
     const fetchData = async () => {
         const res = await fetch(process.env.REACT_APP_API_URL + '?' + getQueryParams());
         const data = await res.json();
-        setStations(data);
+        setStations(Array.isArray(data) ? data : []);
     }
 
     const getQueryParams = () => new URLSearchParams({
-        lat: location[0],
-        lng: location[1],
-        distance: 10
+        latitude: location[0],
+        longitude: location[1],
+        radius: 10
     });
 
     // update loc on load
@@ -47,13 +49,23 @@ export default function Map(props) {
     }, [location, loaded]);
 
 
+    const carIcon = new Icon ({
+        iconUrl : '/car.png',
+        iconSize : [40,40], // size of the icon
+        iconAnchor : [20,20], // point of the icon which will correspond to marker's location
+        popupAnchor : [-3, -76] // point from which the popup should open relative to the iconAnchor
+    });
+
+
     return (
         <MapContainer center={location} zoom={13} scrollWheelZoom={false} className="Map__container">
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {stations.map(s => (<StationMarker key={s._id} company={s} />))}
+            {stations?.map(s => (<StationMarker key={s.site_id} company={s} />))}
+            <Marker position={location} icon={carIcon}>
+            </Marker>
             <StationList stations={stations} />
             <Toolbar
                 recentre={getCurrentLocation}

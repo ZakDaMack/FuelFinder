@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"main/api/fueldata"
 	"main/pkg/services"
 )
@@ -40,15 +40,26 @@ func (s *FuelDataServer) QueryArea(ctx context.Context, fence *fueldata.Geofence
 }
 
 func (s *FuelDataServer) Upload(ctx context.Context, items *fueldata.StationItems) (*fueldata.UploadedItems, error) {
+	res := &fueldata.UploadedItems{}
+
+	// check if files already exists, if so, return
+	exists, err := s.store.Exists(items.Items[0].CreatedAt, items.Items[0].SiteId)
+	if err != nil {
+		return nil, err
+	}
+
+	if exists {
+		res.Count = 0
+		return res, nil
+	}
+
 	writeRes, err := s.store.Write(items.Items)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(writeRes)
-	res := &fueldata.UploadedItems{
-		Count: int32(writeRes),
-	}
+	slog.Debug("uploaded station data", "stations", writeRes)
+	res.Count = int32(writeRes)
 
 	return res, nil
 }

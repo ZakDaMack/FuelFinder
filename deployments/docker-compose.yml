@@ -16,6 +16,7 @@ services:
   frontend:
     container_name: frontend
     build: 
+      network: host
       context: ..
       target: ofd-web
 

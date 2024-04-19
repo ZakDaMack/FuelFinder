@@ -8,9 +8,10 @@ RUN mongosh < setup
 FROM node:lts-alpine as web-build
 WORKDIR /app
 COPY web/package*.json ./
-RUN npm install
+RUN npm config set registry https://registry.npmjs.org/
+RUN npm ci --force
 COPY web .
-RUN export REACT_APP_API_URL="/api/"
+ENV REACT_APP_API_URL="/api/"
 RUN npm run build
 
 # production stage
