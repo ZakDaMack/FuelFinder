@@ -8,6 +8,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: Production
+    strategy:
+      matrix:
+        include:
+          - image: zakdamack/ofd-frontend
+            dockerfile: build/frontend.Dockerfile
+          - image: zakdamack/ofd-server
+            dockerfile: build/server.Dockerfile
+          - image: zakdamack/ofd-scraper
+            dockerfile: build/scraper.Dockerfile
+          - image: zakdamack/ofd-gateway
+            dockerfile: build/gateway.Dockerfile
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -22,14 +33,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: zakdamack
+          images: ${{ matrix.image }}
           tags: type=semver,pattern={{version}}
       
       - name: Build and push Docker image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         with:
           context: .
-          file: ./Dockerfile
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

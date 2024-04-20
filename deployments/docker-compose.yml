@@ -15,16 +15,18 @@ services:
 
   frontend:
     container_name: frontend
+    image: ofd-frontend
     build: 
       network: host
       context: ..
-      target: ofd-web
+      dockerfile:  build/frontend.Dockerfile
 
   server:
     container_name: server
-    build: 
+    image: ofd-server
+    build:
       context: ..
-      target: ofd-fueldataserver
+      dockerfile:  build/server.Dockerfile
     ports:
       - 50051:50051
     environment:
@@ -33,9 +35,10 @@ services:
 
   scraper:
     container_name: scraper
+    image: ofd-scraper
     build: 
       context: ..
-      target: ofd-stationscraper
+      dockerfile:  build/scraper.Dockerfile
     depends_on:
       - server
     environment:
@@ -44,9 +47,10 @@ services:
 
   gateway:
     container_name: gateway
+    image: ofd-gateway
     build: 
       context: ..
-      target: ofd-apigateway
+      dockerfile:  build/gateway.Dockerfile
     depends_on:
       - server
     environment:
