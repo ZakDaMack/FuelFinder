@@ -34,7 +34,9 @@ export default function StationItem(props) {
             <List>
                 <ListItem disablePadding>
                     <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: blue[500] }} variant="rounded">
+                        <Avatar sx={{ 
+                            background: 'linear-gradient(45deg, rgba(33,150,243,1) 0%, rgba(69,111,145,1) 100%)'
+                        }} variant="rounded">
                             <LocalGasStationIcon />
                         </Avatar>
                     </ListItemAvatar>
@@ -42,7 +44,9 @@ export default function StationItem(props) {
                 </ListItem>
                 <ListItem disablePadding>
                     <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: green[500] }} variant="rounded">
+                        <Avatar sx={{
+                            background: 'linear-gradient(45deg, rgba(76,175,80,1) 0%, rgba(45,94,47,1) 100%)'
+                        }} variant="rounded">
                             <LocalGasStationIcon />
                         </Avatar>
                     </ListItemAvatar>
@@ -50,7 +54,9 @@ export default function StationItem(props) {
                 </ListItem>
                 <ListItem disablePadding>
                     <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: yellow[600] }} variant="rounded">
+                        <Avatar sx={{ 
+                            background: 'linear-gradient(45deg, rgba(253,216,53,1) 0%, rgba(186,166,79,1) 100%)'
+                        }} variant="rounded">
                             <LocalGasStationIcon />
                         </Avatar>
                     </ListItemAvatar>
