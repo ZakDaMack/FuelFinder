@@ -15,9 +15,9 @@ import { grey } from '@mui/material/colors';
 
 import StationItem from './StationItem';
 import StationListToolbar from './StationListToolbar';
+import { useSelector } from 'react-redux';
 
-export default function StationList(props) {
-    const { stations } = props;
+export default function StationList() {
     const [ sortKey, setSortKey ] = useState('e5');
     const [open, setOpen] = useState(false);
     
@@ -27,6 +27,8 @@ export default function StationList(props) {
     useEffect(() => {
     //    fetchData();
     }, [])
+
+    const stations = useSelector((state) => state.stations.value);
 
     //const fetchData = async () => {
     //     const res = await fetch('http://localhost:3001/gcn7sj2hxk2c');

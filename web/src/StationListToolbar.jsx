@@ -5,6 +5,7 @@ import Toolbar from '@mui/material/Toolbar';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SortIcon from '@mui/icons-material/Sort';
 
 import Button from '@mui/material/Button';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
@@ -13,6 +14,8 @@ import MenuItem from '@mui/material/MenuItem';
 import AppBar from '@mui/material/AppBar';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 
 export default function StationListToolbar(props) {
   const { sortKey, setSortKey, close } = props;
@@ -33,9 +36,19 @@ export default function StationListToolbar(props) {
 
   return (
     <ElevationScroll>
-      <AppBar position="absolute">
-        <Toolbar>
-          <Button variant="text"
+      <AppBar position="absolute" >
+        
+        <Toolbar sx={{
+        backgroundImage: 'linear-gradient(#000a, #000a), url("/fuelstation.jpg")',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover'
+      }}>
+        <Typography variant="h6" component="h2" sx={{ flexGrow: 1, color: 'white' }}>
+          Stations
+          </Typography>
+        <Chip color="primary" label={sortList.find(l =>l.value === sortKey).text} icon={<SortIcon />} />
+          {/* <Button variant="text"
             startIcon={<FilterAltIcon />}
             endIcon={<ExpandMoreIcon />}
             id="menu-button"
@@ -54,13 +67,13 @@ export default function StationListToolbar(props) {
                 onClose={handleClose}
                 sx={{zIndex: 3000}}
                 MenuListProps={{
-                    'aria-labelledby': 'menu-button',
+                  'aria-labelledby': 'menu-button',
                 }}
             >
                 {sortList.map(s => (<MenuItem key={s.value} onClick={()=>changeSort(s.value)}>{s.text}</MenuItem>))}
-            </Menu>
+            </Menu> */}
             <Box sx={{flex: 1}}></Box>
-            <IconButton onClick={close}>
+            <IconButton onClick={close} sx={{color: 'white'}}>
               <CloseIcon />
             </IconButton>
         </Toolbar>

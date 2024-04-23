@@ -41,7 +41,7 @@ export default function Map(props) {
             <Marker position={location} icon={carIcon}>
             </Marker>
             {stations?.map(s => (<StationMarker key={s.site_id} company={s} />))}
-            {/* <StationList stations={stations} /> */}
+            <StationList stations={stations} />
             <Toolbar />
             <RecentreAutomatically location={location} />
             {/* <OfdBanner /> */}
