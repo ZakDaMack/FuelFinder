@@ -1,18 +1,14 @@
 
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
-import Button from '@mui/material/Button';
 
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import TuneIcon from '@mui/icons-material/Tune';
 
-import styled from '@emotion/styled';
-import IconButton from '@mui/material/IconButton';
-import { grey } from '@mui/material/colors';
+import MapButton from './MapButton';
 
-export default function Toolbar(props) {
-    const { recentre } = props;
+export default function MapToolbar() {
 
     return (
         <Stack spacing={2} direction="column" sx={{
@@ -21,7 +17,7 @@ export default function Toolbar(props) {
             zIndex: 1000, m: 2, pb: 1
         }}>
             <Tooltip title="Centre on me" placement="left">
-                <MapButton onClick={recentre}>
+                <MapButton>
                     <MyLocationIcon />
                 </MapButton>
             </Tooltip>
@@ -38,11 +34,3 @@ export default function Toolbar(props) {
         </Stack>
     );
 }
-
-const MapButton = styled(IconButton)({
-    background: grey[50],
-    boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px',
-    '&:hover': {
-        background: grey[100]
-    }
-});

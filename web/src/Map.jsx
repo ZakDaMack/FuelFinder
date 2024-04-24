@@ -6,14 +6,15 @@ import { useMap } from 'react-leaflet/hooks'
 import { Marker } from 'react-leaflet/Marker' 
 import { Icon } from 'leaflet'
 
-import Toolbar from './Toolbar';
 import OfdBanner from './Banner';
 import StationList from './StationList';
 import StationMarker from './StationMarker';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchData, refreshLocation } from './slices/stationSlice';
+import { fetchData } from './slices/stationSlice';
+import MapToolbar from './components/MapToolbar';
+import MenuButton from './components/MenuButton';
 
-export default function Map(props) {
+export default function Map() {
     
     const stations = useSelector((state) => state.stations.value)
     const location = useSelector((state) => state.stations.location)
@@ -40,9 +41,12 @@ export default function Map(props) {
             />
             <Marker position={location} icon={carIcon}>
             </Marker>
-            {stations?.map(s => (<StationMarker key={s.site_id} company={s} />))}
-            <StationList stations={stations} />
-            <Toolbar />
+            {stations?.map(s => (
+                <StationMarker key={s.site_id} company={s} />
+            ))}
+            <StationList />
+            <MenuButton />
+            <MapToolbar />
             <RecentreAutomatically location={location} />
             {/* <OfdBanner /> */}
         </MapContainer>
