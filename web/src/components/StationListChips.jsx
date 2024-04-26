@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import Chip from '@mui/material/Chip';
 import Toolbar from '@mui/material/Toolbar';
 import ListItem from '@mui/material/ListItem';
-import Paper from '@mui/material/Paper';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateSort } from '../slices/stationSlice';
 
