@@ -10,9 +10,9 @@ import OfdBanner from './Banner';
 import StationList from './StationList';
 import StationMarker from './StationMarker';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchData } from './slices/stationSlice';
-import MapToolbar from './components/MapToolbar';
-import MenuButton from './components/MenuButton';
+import { fetchData } from '../slices/stationSlice';
+import MapToolbar from './MapToolbar';
+import MenuButton from './MenuButton';
 
 export default function Map() {
     
@@ -45,7 +45,6 @@ export default function Map() {
                 <StationMarker key={s.site_id} company={s} />
             ))}
             <StationList />
-            <MenuButton />
             <MapToolbar />
             <RecentreAutomatically location={location} />
             {/* <OfdBanner /> */}

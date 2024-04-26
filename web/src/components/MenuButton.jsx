@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 
 import MenuIcon from '@mui/icons-material/Menu';
 
-export default function MenuButton() {
+export default function MenuButton(props) {
     return (
         <Box sx={{
             position: 'absolute',
@@ -13,7 +13,7 @@ export default function MenuButton() {
             zIndex: 1000, m: 2
         }}>
             <Tooltip title="View stations" placement="right">
-                <MapButton>
+                <MapButton onClick={props.click}>
                     <MenuIcon fontSize="large" />
                 </MapButton>
             </Tooltip>

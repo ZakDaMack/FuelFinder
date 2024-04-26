@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 
-import { blue, yellow, green, grey } from '@mui/material/colors';
+import { grey } from '@mui/material/colors';
 
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 
@@ -17,7 +17,7 @@ import calendar from 'dayjs/plugin/calendar';
 dayjs.extend(calendar)
 
 export default function StationItem(props) {
-    const {  brand, address, postcode, b7, e5, e10, created_at } = props.company;
+    const { brand, address, postcode, b7, e5, e10, created_at } = props.company;
 
     // const formattedDistance = distance.toLocaleString('en-GB', { maximumFractionDigits: 0 });
     const getValue = (val) => val ? `${(Math.round(val * 10) / 10).toFixed(1)} p/L` : 'N/A';
@@ -64,7 +64,9 @@ export default function StationItem(props) {
                 </ListItem>
             </List>
             <Box sx={{textAlign: 'right'}}>
-                <Typography variant="subtitle2" sx={{fontSize: 10, color: grey[600]}}>Last Updated {dayjs.unix(created_at).calendar()}</Typography>
+                <Typography variant="subtitle2" sx={{fontSize: 10, color: grey[600]}}>
+                    Last Updated {dayjs.unix(created_at).calendar()}
+                </Typography>
             </Box>
         </Box>
     );

@@ -7,6 +7,7 @@ export const stationSlice = createSlice({
     loading: false,
     error: null, 
     location: [51.4649, -0.1596],
+    sortKey: 'distance',
     filters: {
       radius: 3
     }
@@ -27,6 +28,9 @@ export const stationSlice = createSlice({
     updateLocation: (state, action) => {
       state.location = action.payload
     },
+    updateSort: (state, action) => {
+      state.sortKey = action.payload
+    },
     updateSettings: (state, action) => {
       for (let [key, value] of Object.entries(action.payload)) {
         state.filters[key] = value
@@ -36,7 +40,7 @@ export const stationSlice = createSlice({
 })
 
 // actions generated from the slice
-export const { getData, getDataSuccess, getDataFailure, updateLocation, updateSettings } = stationSlice.actions
+export const { getData, getDataSuccess, getDataFailure, updateLocation, updateSort, updateSettings } = stationSlice.actions
 
 // A selector
 export const stationsSelector = (state) => state.value
