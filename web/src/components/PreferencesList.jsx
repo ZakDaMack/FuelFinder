@@ -6,17 +6,20 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Slider from '@mui/material/Slider';
+import TextField from '@mui/material/TextField';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import StationItem from './Station';
 import ListToolbar from './ListToolbar';
 import { updateRadius } from '../slices/stationSlice';
 import { closeAll, updateMenu } from '../slices/menuSlice';
-import { Button, IconButton, Typography, Slider, TextField } from '@mui/material';
 
 export default function PreferencesList() {
     const dispatch = useDispatch();
