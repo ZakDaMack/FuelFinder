@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchData } from '../slices/stationSlice';
 import MapToolbar from './MapToolbar';
 import MenuButton from './MenuButton';
+import PreferencesList from './PreferencesList';
 
 export default function Map() {
     
@@ -45,6 +46,7 @@ export default function Map() {
                 <StationMarker key={s.site_id} company={s} />
             ))}
             <StationList />
+            <PreferencesList />
             <MapToolbar />
             <RecentreAutomatically location={location} />
             {/* <OfdBanner /> */}

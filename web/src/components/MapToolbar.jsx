@@ -1,14 +1,20 @@
+import { useDispatch } from 'react-redux';
 
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
-import TuneIcon from '@mui/icons-material/Tune';
+import MenuIcon from '@mui/icons-material/Menu';
 
 import MapButton from './MapButton';
+import { updateMenu } from '../slices/menuSlice';
 
 export default function MapToolbar() {
+    const dispatch = useDispatch();
+
+    const openStationList = () => dispatch(updateMenu('stations'))
+    const openPreferencesList = () => dispatch(updateMenu('preferences'))
 
     return (
         <Stack spacing={2} direction="column" sx={{
@@ -17,18 +23,18 @@ export default function MapToolbar() {
             zIndex: 1000, m: 2, pb: 1
         }}>
             <Tooltip title="Centre on me" placement="left">
-                <MapButton>
+                <MapButton >
                     <MyLocationIcon />
                 </MapButton>
             </Tooltip>
             <Tooltip title="Filter stations" placement="left">
-                <MapButton>
+                <MapButton onClick={openPreferencesList}>
                     <FilterAltIcon />
                 </MapButton>
             </Tooltip>
-            <Tooltip title="Tune preferences" placement="left">
-                <MapButton>
-                    <TuneIcon />
+            <Tooltip title="View list" placement="left">
+                <MapButton onClick={openStationList}>
+                    <MenuIcon />
                 </MapButton>
             </Tooltip>
         </Stack>

@@ -10,20 +10,20 @@ import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-export default function StationListToolbar(props) {
-  const { close } = props;
+export default function ListToolbar(props) {
+  const { close, url } = props;
 
   return (
     <ElevationScroll>
       <AppBar position="relative">
         <Toolbar sx={{
-          backgroundImage: 'linear-gradient(#000a, #000a), url("/fuelstation.jpg")',
+          backgroundImage: `linear-gradient(#000a, #000a), url("${url}")`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundSize: 'cover'
         }}>
           <Typography variant="h6" component="h2" sx={{ flexGrow: 1, color: 'white' }}>
-            Stations
+            {props.children}
           </Typography>
           <Box sx={{flex: 1}}></Box>
           <IconButton onClick={close} sx={{color: 'white'}}>

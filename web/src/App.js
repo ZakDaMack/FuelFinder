@@ -1,12 +1,14 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
+
 import './App.css';
 import Map from './components/Map'
-
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import menuSlice from './slices/menuSlice';
 import stationsSlice from './slices/stationSlice'
+
 import { grey } from '@mui/material/colors';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 
 function App() {
   const theme = createTheme({
@@ -20,7 +22,8 @@ function App() {
 
   const store = configureStore({
     reducer: {
-      stations: stationsSlice
+      stations: stationsSlice,
+      menus: menuSlice
     }
   })
 
