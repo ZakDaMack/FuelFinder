@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+const RADIUS_MIN = 1;
+const RADIUS_MAX = 20;
+
 export const stationSlice = createSlice({
   name: 'stations',
   initialState: {
@@ -31,7 +34,13 @@ export const stationSlice = createSlice({
     updateSort: (state, action) => {
       state.sortKey = action.payload
     },
-    updateSettings: (state, action) => {
+    updateRadius: (state, action) => {
+      let val = parseInt(action.payload)
+      if (val < RADIUS_MIN) val = RADIUS_MIN
+      if (val > RADIUS_MAX) val = RADIUS_MAX
+      state.filters.radius = val;
+    },
+    updateFilters: (state, action) => {
       for (let [key, value] of Object.entries(action.payload)) {
         state.filters[key] = value
       }
@@ -40,7 +49,7 @@ export const stationSlice = createSlice({
 })
 
 // actions generated from the slice
-export const { getData, getDataSuccess, getDataFailure, updateLocation, updateSort, updateSettings } = stationSlice.actions
+export const { getData, getDataSuccess, getDataFailure, updateLocation, updateSort, updateFilters, updateRadius } = stationSlice.actions
 
 // A selector
 export const stationsSelector = (state) => state.value

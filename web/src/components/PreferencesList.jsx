@@ -14,13 +14,15 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 import StationItem from './Station';
 import ListToolbar from './ListToolbar';
+import { updateRadius } from '../slices/stationSlice';
 import { closeAll, updateMenu } from '../slices/menuSlice';
 import { Button, IconButton, Typography, Slider, TextField } from '@mui/material';
 
 export default function PreferencesList() {
     const dispatch = useDispatch();
 
-    const [distance, setDistance] = useState(3);
+    const radius = useSelector((state) => state.stations.filters.radius);
+    const setRadius = (val) => dispatch(updateRadius(val))
     const [brands, setBrands] = useState({
         'BP': true,
         'AppleGreen': true,
@@ -59,14 +61,15 @@ export default function PreferencesList() {
                     </Box>
                     <Box sx={{overflow: 'scroll', p: 2}}>
                         <Toolbar />
+
                         <Typography component='h3' variant='h6'>Distance (miles)</Typography>
-                        <Slider color="info" value={distance} onChange={(e, v) => setDistance(v)} min={1} max={20} sx={{m:1, width: '95%'}} />
+                        <Slider color="info" value={radius} onChange={(e, v) => setRadius(v)} min={1} max={20} sx={{m:1, width: '95%'}} />
                         <Box sx={{display: 'flex'}}>
-                            <IconButton onClick={() => setDistance(distance - 1)} disabled={distance <= 1}>
+                            <IconButton onClick={() => setRadius(radius - 1)} disabled={radius <= 1}>
                                 <ChevronLeftIcon fontSize='large' />
                             </IconButton>
-                            <TextField type="number" fullWidth variant="outlined" value={distance} onChange={(e, v) => setDistance(parseInt(v))} />
-                            <IconButton onClick={() => setDistance(distance + 1)} disabled={distance >= 20}>
+                            <TextField type="number" fullWidth variant="outlined" value={radius} onChange={(e, v) => setRadius(v)} />
+                            <IconButton onClick={() => setRadius(radius + 1)} disabled={radius >= 20}>
                                 <ChevronRightIcon fontSize='large' />
                             </IconButton>
                         </Box>

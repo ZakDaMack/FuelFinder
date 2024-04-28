@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import TuneIcon from '@mui/icons-material/Tune';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuIcon from '@mui/icons-material/List';
 
 import MapButton from './MapButton';
 import { updateMenu } from '../slices/menuSlice';
@@ -29,7 +29,7 @@ export default function MapToolbar() {
             </Tooltip>
             <Tooltip title="Filter stations" placement="left">
                 <MapButton onClick={openPreferencesList}>
-                    <FilterAltIcon />
+                    <TuneIcon />
                 </MapButton>
             </Tooltip>
             <Tooltip title="View list" placement="left">
