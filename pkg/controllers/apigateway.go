@@ -25,6 +25,13 @@ func (g *Gateway) GetStations(c *gin.Context) {
 	long, _ := strconv.ParseFloat(c.Query("longitude"), 32)
 	radius, _ := strconv.ParseFloat(c.Query("radius"), 32)
 
+	if radius < 1 || radius > 20 {
+		c.JSON(400, gin.H{
+			"message": "Radius must be between 1 and 20",
+		})
+		return
+	}
+
 	service := *g.Client
 	val, err := service.QueryArea(context.TODO(), &fueldata.Geofence{
 		Latitude:  float32(lat),
@@ -39,3 +46,19 @@ func (g *Gateway) GetStations(c *gin.Context) {
 
 	c.JSON(200, val.Items)
 }
+
+// func (g *Gateway) GetBrands(c *gin.Context) {
+// 		service := *g.Client
+// 	val, err := service.QueryArea()(context.TODO(), &fueldata.Geofence{
+// 		Latitude:  float32(lat),
+// 		Longitude: float32(long),
+// 		Radius:    float32(radius),
+// 	})
+
+// 	if err != nil {
+// 		c.JSON(500, err)
+// 		return
+// 	}
+
+// 	c.JSON(200, val.Items)
+// }

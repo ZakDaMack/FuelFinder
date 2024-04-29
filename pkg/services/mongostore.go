@@ -87,6 +87,20 @@ func (m *MongoStore) Exists(unixTime int64, stationId string) (bool, error) {
 	return true, nil
 }
 
+func (m *MongoStore) GetDistinctBrands() ([]string, error) {
+	coll := m.client.Database(m.database).Collection(collection)
+	res, err := coll.Distinct(context.TODO(), "brand", bson.D{})
+	if err != nil {
+		return []string{}, nil
+	}
+
+	brands := make([]string, 0)
+	for _, b := range res {
+		brands = append(brands, b.(string))
+	}
+	return brands, nil
+}
+
 func milesToRadians(miles float64) float64 {
 	return miles / 3963.2
 }

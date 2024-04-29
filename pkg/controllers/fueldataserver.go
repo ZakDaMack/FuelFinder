@@ -63,3 +63,12 @@ func (s *FuelDataServer) Upload(ctx context.Context, items *fueldata.StationItem
 
 	return res, nil
 }
+
+// func (s *FuelDataServer) DistinctBrands(ctx context.Context) (*fueldata.Brands, error) {
+// 	brands, err := s.store.GetDistinctBrands()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return brands, nil
+// }

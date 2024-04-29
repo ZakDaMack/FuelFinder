@@ -7,6 +7,7 @@ option go_package = "main/pkg/fueldata";
 service FuelData {
     rpc QueryArea(Geofence) returns (StationItems);
     rpc Upload(StationItems) returns (UploadedItems);
+    rpc DistinctBrands() returns (Brands);
 }
 
 message UploadedItems {
@@ -30,6 +31,7 @@ message StationItem {
 	float e10 = 8;
 	float b7 = 9;  
 	float sdv = 10;
+    float distance = 11;
 }
 
 message Location {
@@ -39,4 +41,8 @@ message Location {
 
 message StationItems {
     repeated StationItem items = 1;
+}
+
+message Brands {
+    repeated string brand = 1;
 }
