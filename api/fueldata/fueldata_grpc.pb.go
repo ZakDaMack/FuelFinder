@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type FuelDataClient interface {
 	QueryArea(ctx context.Context, in *Geofence, opts ...grpc.CallOption) (*StationItems, error)
 	Upload(ctx context.Context, in *StationItems, opts ...grpc.CallOption) (*UploadedItems, error)
+	DistinctBrands(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Brands, error)
 }
 
 type fuelDataClient struct {
@@ -52,12 +53,22 @@ func (c *fuelDataClient) Upload(ctx context.Context, in *StationItems, opts ...g
 	return out, nil
 }
 
+func (c *fuelDataClient) DistinctBrands(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Brands, error) {
+	out := new(Brands)
+	err := c.cc.Invoke(ctx, "/fueldata.FuelData/DistinctBrands", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FuelDataServer is the server API for FuelData service.
 // All implementations must embed UnimplementedFuelDataServer
 // for forward compatibility
 type FuelDataServer interface {
 	QueryArea(context.Context, *Geofence) (*StationItems, error)
 	Upload(context.Context, *StationItems) (*UploadedItems, error)
+	DistinctBrands(context.Context, *Empty) (*Brands, error)
 	mustEmbedUnimplementedFuelDataServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedFuelDataServer) QueryArea(context.Context, *Geofence) (*Stati
 }
 func (UnimplementedFuelDataServer) Upload(context.Context, *StationItems) (*UploadedItems, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Upload not implemented")
+}
+func (UnimplementedFuelDataServer) DistinctBrands(context.Context, *Empty) (*Brands, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DistinctBrands not implemented")
 }
 func (UnimplementedFuelDataServer) mustEmbedUnimplementedFuelDataServer() {}
 
@@ -120,6 +134,24 @@ func _FuelData_Upload_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FuelData_DistinctBrands_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FuelDataServer).DistinctBrands(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/fueldata.FuelData/DistinctBrands",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FuelDataServer).DistinctBrands(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FuelData_ServiceDesc is the grpc.ServiceDesc for FuelData service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var FuelData_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Upload",
 			Handler:    _FuelData_Upload_Handler,
+		},
+		{
+			MethodName: "DistinctBrands",
+			Handler:    _FuelData_DistinctBrands_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

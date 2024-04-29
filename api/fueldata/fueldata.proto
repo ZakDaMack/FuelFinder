@@ -7,8 +7,10 @@ option go_package = "main/pkg/fueldata";
 service FuelData {
     rpc QueryArea(Geofence) returns (StationItems);
     rpc Upload(StationItems) returns (UploadedItems);
-    rpc DistinctBrands() returns (Brands);
+    rpc DistinctBrands(Empty) returns (Brands);
 }
+
+message Empty { }
 
 message UploadedItems {
     int32 count = 1;
@@ -44,5 +46,5 @@ message StationItems {
 }
 
 message Brands {
-    repeated string brand = 1;
+    repeated string brands = 1;
 }

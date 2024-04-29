@@ -47,18 +47,14 @@ func (g *Gateway) GetStations(c *gin.Context) {
 	c.JSON(200, val.Items)
 }
 
-// func (g *Gateway) GetBrands(c *gin.Context) {
-// 		service := *g.Client
-// 	val, err := service.QueryArea()(context.TODO(), &fueldata.Geofence{
-// 		Latitude:  float32(lat),
-// 		Longitude: float32(long),
-// 		Radius:    float32(radius),
-// 	})
+func (g *Gateway) GetBrands(c *gin.Context) {
+	service := *g.Client
+	val, err := service.DistinctBrands(c, &fueldata.Empty{})
 
-// 	if err != nil {
-// 		c.JSON(500, err)
-// 		return
-// 	}
+	if err != nil {
+		c.JSON(500, err)
+		return
+	}
 
-// 	c.JSON(200, val.Items)
-// }
+	c.JSON(200, val.Brands)
+}

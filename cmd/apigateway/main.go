@@ -39,6 +39,7 @@ func main() {
 	gw := &controllers.Gateway{Client: &client}
 	r.GET("/", gw.GetStations)
 	r.GET("/ping", gw.GetPing)
+	r.GET("/brands", gw.GetBrands)
 
 	r.Run(fmt.Sprintf(":%s", strconv.Itoa(port)))
 }
