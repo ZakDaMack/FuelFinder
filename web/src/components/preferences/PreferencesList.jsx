@@ -82,10 +82,11 @@ export default function PreferencesList() {
                         <Box sx={{m:8}}></Box>
                         
                         <Typography component='h3' variant='h6'>Stations</Typography>
+                        <Typography component='p' variant='caption' color='error'>(Station filter coming soon)</Typography>
                         <Box sx={{display: 'flex', alignItems: 'baseline'}}>
-                            <Button color="info" onClick={() => updateVals(true)}>All</Button>
+                            <Button disabled color="info" onClick={() => updateVals(true)}>All</Button>
                             <Typography>|</Typography>
-                            <Button color="info" onClick={() => updateVals(false)}>None</Button>
+                            <Button disabled color="info" onClick={() => updateVals(false)}>None</Button>
                         </Box>
                         <List sx={{display: 'flex', flexWrap: 'wrap', px: 1}}>
                             {brands.map((b) => (
