@@ -6,12 +6,9 @@ import { fetchBrands } from '../slices/brandSlice';
 
 export default function Init() {
     const dispatch = useDispatch()
-    
     useEffect(() => {   
         dispatch(fetchBrands())
-        navigator.geolocation.getCurrentPosition((pos) => 
-            dispatch(fetchData([pos.coords.latitude, pos.coords.longitude]))
-        )
+        dispatch(fetchData())
     }, [])
 
     return null;

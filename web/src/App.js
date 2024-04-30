@@ -4,7 +4,10 @@ import { Provider } from 'react-redux';
 
 import './App.css';
 import Map from './pages/Map'
+import LoadingOverlay from './pages/LoadingOverlay';
 import Init from './components/Init'
+import ErrorSnackbar from './components/ErrorSnackbar';
+
 import menuSlice from './slices/menuSlice';
 import stationsSlice from './slices/stationSlice'
 import brandSlice from './slices/brandSlice';
@@ -34,8 +37,10 @@ function App() {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <LoadingOverlay />
         <Init />
         <Map />
+        <ErrorSnackbar />
       </ThemeProvider>
     </Provider>
   );

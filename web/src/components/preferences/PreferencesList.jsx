@@ -45,9 +45,7 @@ export default function PreferencesList() {
 
     const handleClick = () => {
         close()
-        navigator.geolocation.getCurrentPosition((pos) => 
-            dispatch(fetchData([pos.coords.latitude, pos.coords.longitude]))
-        )
+        dispatch(fetchData())
     }
     
     return (

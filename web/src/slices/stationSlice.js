@@ -7,7 +7,7 @@ export const stationSlice = createSlice({
   name: 'stations',
   initialState: {
     value: [],
-    loading: false,
+    loading: true,
     error: null, 
     location: [51.4649, -0.1596],
     sortKey: 'distance',
@@ -58,12 +58,16 @@ export const stationsSelector = (state) => state.value
 export default stationSlice.reducer
 
 // Asynchronous thunk action
-export function fetchData(location) {
+export function fetchData() {
   return async (dispatch, getState) => {
     dispatch(getData())
+    const pos = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    });
+
+    const location = [pos.coords.latitude, pos.coords.longitude]
     dispatch(updateLocation(location))
     const state = getState()
-    
     try {
       const response = await fetch(process.env.REACT_APP_API_URL + '?' + new URLSearchParams({
         latitude: state.stations.location[0],
