@@ -8,7 +8,7 @@ import MyLocationIcon from '@mui/icons-material/MyLocation';
 import MenuIcon from '@mui/icons-material/List';
 
 import MapButton from './MapButton';
-import { updateMenu } from '../slices/menuSlice';
+import { updateMenu } from '../../slices/menuSlice';
 
 export default function MapToolbar() {
     const dispatch = useDispatch();

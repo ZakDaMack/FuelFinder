@@ -33,7 +33,7 @@ message StationItem {
 	float e10 = 8;
 	float b7 = 9;  
 	float sdv = 10;
-    float distance = 11;
+    double distance = 11;
 }
 
 message Location {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { MapContainer } from 'react-leaflet/MapContainer'
 import { TileLayer } from 'react-leaflet/TileLayer' 
@@ -6,14 +7,13 @@ import { useMap } from 'react-leaflet/hooks'
 import { Marker } from 'react-leaflet/Marker' 
 import { Icon } from 'leaflet'
 
-import OfdBanner from './Banner';
-import StationList from './StationList';
-import StationMarker from './StationMarker';
-import { useDispatch, useSelector } from 'react-redux';
+import OfdBanner from '../components/map/Banner';
+import StationList from '../components/stations/StationList';
+import StationMarker from '../components/map/StationMarker';
 import { fetchData } from '../slices/stationSlice';
-import MapToolbar from './MapToolbar';
-import MenuButton from './MenuButton';
-import PreferencesList from './PreferencesList';
+import { fetchBrands } from '../slices/brandSlice';
+import MapToolbar from '../components/map/MapToolbar';
+import PreferencesList from '../components/preferences/PreferencesList';
 
 export default function Map() {
     
@@ -22,6 +22,7 @@ export default function Map() {
     const dispatch = useDispatch()
 
     useEffect(() => {   
+        dispatch(fetchBrands())
         navigator.geolocation.getCurrentPosition((pos) => 
             dispatch(fetchData([pos.coords.latitude, pos.coords.longitude]))
         )

@@ -17,24 +17,19 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-import ListToolbar from './ListToolbar';
-import { updateRadius } from '../slices/stationSlice';
-import { closeAll, updateMenu } from '../slices/menuSlice';
+import ListToolbar from '../ListToolbar';
+import { updateRadius } from '../../slices/stationSlice';
+import { closeAll, updateMenu } from '../../slices/menuSlice';
 
 export default function PreferencesList() {
     const dispatch = useDispatch();
 
     const radius = useSelector((state) => state.stations.filters.radius);
+    const brands = useSelector((state) => state.brands.value);
     const setRadius = (val) => dispatch(updateRadius(val))
-    const [brands, setBrands] = useState({
-        'BP': true,
-        'AppleGreen': true,
-        'Tesco': true,
-        'Sainsburys': true,
-        'Asda': true,
-        'Esso': true,
-        'Costco': true,
-    });
+    const [activeBrands, setBrands] = useState([
+        'BP'
+    ]);
 
     const updateVals = (val) => {
         let n = {};
@@ -78,6 +73,7 @@ export default function PreferencesList() {
                         </Box>
 
                         <Box sx={{m:8}}></Box>
+                        
                         <Typography component='h3' variant='h6'>Stations</Typography>
                         <Box sx={{display: 'flex', alignItems: 'baseline'}}>
                             <Button color="info" onClick={() => updateVals(true)}>All</Button>
@@ -85,15 +81,15 @@ export default function PreferencesList() {
                             <Button color="info" onClick={() => updateVals(false)}>None</Button>
                         </Box>
                         <List sx={{display: 'flex', flexWrap: 'wrap', px: 1}}>
-                            {Object.entries(brands).map((b) => (
-                                <ListItem key={b[0]} sx={{ m: 0.5, p: 0, width: 'unset' }}>
+                            {brands.map((b) => (
+                                <ListItem key={b} sx={{ m: 0.5, p: 0, width: 'unset' }}>
                                     <Chip 
-                                        label={b[0]}
-                                        color={b[1] ? 'primary' : undefined}
-                                        onClick={() => setBrands({
-                                            ...brands,
-                                            [b[0]]: !b[1]
-                                        })}
+                                        label={b}
+                                        color={activeBrands.includes(b) ? 'primary' : undefined}
+                                        onClick={() => setBrands([
+                                            ...activeBrands,
+                                            ...(activeBrands.includes(b) ? [] : [b])
+                                        ])}
                                     />
                                 </ListItem>
                             ))}

@@ -4,6 +4,8 @@ services:
     image: mongo:latest
     ports:
       - 27017:27017
+    volumes:
+      - mongodata:/data/db
 
   proxy:
     container_name: reverseproxy
@@ -56,3 +58,6 @@ services:
     environment:
       - PORT=8080
       - GRPC_HOST=server:50051
+
+volumes:
+  mongodata:

@@ -2,7 +2,7 @@ import Chip from '@mui/material/Chip';
 import Toolbar from '@mui/material/Toolbar';
 import ListItem from '@mui/material/ListItem';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateSort } from '../slices/stationSlice';
+import { updateSort } from '../../slices/stationSlice';
 
 export default function ListSortChip() { 
     const dispatch = useDispatch()
@@ -29,7 +29,7 @@ export default function ListSortChip() {
                 >
                     <Chip
                         label={data.text}
-                        color={sortKey == data.value ? 'primary' : undefined}
+                        color={sortKey === data.value ? 'primary' : undefined}
                         onClick={() => handleClick(data.value)}
                     />
                 </ListItem>

@@ -17,9 +17,9 @@ import calendar from 'dayjs/plugin/calendar';
 dayjs.extend(calendar)
 
 export default function StationItem(props) {
-    const { brand, address, postcode, b7, e5, e10, created_at } = props.company;
+    const { distance, brand, address, postcode, b7, e5, e10, created_at } = props.company;
 
-    // const formattedDistance = distance.toLocaleString('en-GB', { maximumFractionDigits: 0 });
+    const formattedDistance = distance.toLocaleString('en-GB', { maximumFractionDigits: 0 });
     const getValue = (val) => val ? `${(Math.round(val * 10) / 10).toFixed(1)} p/L` : 'N/A';
 
     return (
@@ -27,7 +27,7 @@ export default function StationItem(props) {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', pb: 1 }}>
                 <Typography variant="h5">{brand}</Typography>
                 <Typography variant="subtitle" sx={{ color: 'green', pb: 0.5, textAlign: 'right' }}>
-                    {/* {formattedDistance} metres away */}
+                    {formattedDistance} metres away
                 </Typography>
             </Box>
             <Typography variant="subtitle">{address}, {postcode}</Typography>

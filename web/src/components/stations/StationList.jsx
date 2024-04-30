@@ -7,10 +7,10 @@ import List from '@mui/material/List';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import StationItem from './Station';
-import ListToolbar from './ListToolbar';
+import StationItem from '../Station';
+import ListToolbar from '../ListToolbar';
 import ListSortChip from './StationListChips';
-import { closeAll, updateMenu } from '../slices/menuSlice';
+import { closeAll, updateMenu } from '../../slices/menuSlice';
 
 export default function StationList() {
     const dispatch = useDispatch();
