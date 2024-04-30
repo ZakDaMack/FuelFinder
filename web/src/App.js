@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import './App.css';
 import Map from './pages/Map'
+import Init from './components/Init'
 import menuSlice from './slices/menuSlice';
 import stationsSlice from './slices/stationSlice'
 import brandSlice from './slices/brandSlice';
@@ -33,7 +34,7 @@ function App() {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {/* <Init /> */}
+        <Init />
         <Map />
       </ThemeProvider>
     </Provider>

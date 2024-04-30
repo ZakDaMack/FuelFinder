@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 import { MapContainer } from 'react-leaflet/MapContainer'
 import { TileLayer } from 'react-leaflet/TileLayer' 
@@ -10,8 +10,6 @@ import { Icon } from 'leaflet'
 import OfdBanner from '../components/map/Banner';
 import StationList from '../components/stations/StationList';
 import StationMarker from '../components/map/StationMarker';
-import { fetchData } from '../slices/stationSlice';
-import { fetchBrands } from '../slices/brandSlice';
 import MapToolbar from '../components/map/MapToolbar';
 import PreferencesList from '../components/preferences/PreferencesList';
 
@@ -19,14 +17,6 @@ export default function Map() {
     
     const stations = useSelector((state) => state.stations.value)
     const location = useSelector((state) => state.stations.location)
-    const dispatch = useDispatch()
-
-    useEffect(() => {   
-        dispatch(fetchBrands())
-        navigator.geolocation.getCurrentPosition((pos) => 
-            dispatch(fetchData([pos.coords.latitude, pos.coords.longitude]))
-        )
-    }, [])
 
     const carIcon = new Icon ({
         iconUrl : '/car.png',
@@ -58,7 +48,8 @@ export default function Map() {
 const RecentreAutomatically = ({ location }) => {
     const map = useMap();
     useEffect(() => {
-       map.setView(location, 13);
+       map.flyTo(location, 13);
+    //    map.setView(location, 13);
     }, [location]);
     return null;
 };

@@ -18,7 +18,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 import ListToolbar from '../ListToolbar';
-import { updateRadius } from '../../slices/stationSlice';
+import { updateRadius, fetchData } from '../../slices/stationSlice';
 import { closeAll, updateMenu } from '../../slices/menuSlice';
 
 export default function PreferencesList() {
@@ -28,7 +28,7 @@ export default function PreferencesList() {
     const brands = useSelector((state) => state.brands.value);
     const setRadius = (val) => dispatch(updateRadius(val))
     const [activeBrands, setBrands] = useState([
-        'BP'
+        // 'BP'
     ]);
 
     const updateVals = (val) => {
@@ -42,6 +42,13 @@ export default function PreferencesList() {
     const open = () => dispatch(updateMenu('preferences'));
     
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
+
+    const handleClick = () => {
+        close()
+        navigator.geolocation.getCurrentPosition((pos) => 
+            dispatch(fetchData([pos.coords.latitude, pos.coords.longitude]))
+        )
+    }
     
     return (
         <>
@@ -51,7 +58,7 @@ export default function PreferencesList() {
                 onOpen={open}
                 onClose={close}
             >
-                <Box sx={{position: 'relative', width: isMobile ? '100%' : 400}}>
+                <Box sx={{position: 'relative', width: isMobile ? '100%' : 400, height: '100%'}}>
                     <Box sx={{position: 'absolute', width: '100%', zIndex: 2000}}>
                         <ListToolbar close={close} url="/cardash.jpg">
                             Preferences
@@ -85,15 +92,18 @@ export default function PreferencesList() {
                                 <ListItem key={b} sx={{ m: 0.5, p: 0, width: 'unset' }}>
                                     <Chip 
                                         label={b}
-                                        color={activeBrands.includes(b) ? 'primary' : undefined}
-                                        onClick={() => setBrands([
-                                            ...activeBrands,
-                                            ...(activeBrands.includes(b) ? [] : [b])
-                                        ])}
+                                        // color={activeBrands.includes(b) ? 'primary' : undefined}
+                                        // onClick={() => setBrands([
+                                        //     ...activeBrands,
+                                        //     ...(activeBrands.includes(b) ? [] : [b])
+                                        // ])}
                                     />
                                 </ListItem>
                             ))}
                         </List>
+                    </Box>
+                    <Box sx={{display: 'flex', justifyContent: 'center', p:2}}>
+                        <Button variant='contained' color='info' onClick={handleClick}>Update</Button>
                     </Box>
                 </Box>
             </SwipeableDrawer>

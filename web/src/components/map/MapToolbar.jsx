@@ -9,12 +9,19 @@ import MenuIcon from '@mui/icons-material/List';
 
 import MapButton from './MapButton';
 import { updateMenu } from '../../slices/menuSlice';
+import { fetchData } from '../../slices/stationSlice';
 
 export default function MapToolbar() {
     const dispatch = useDispatch();
 
     const openStationList = () => dispatch(updateMenu('stations'))
     const openPreferencesList = () => dispatch(updateMenu('preferences'))
+
+    const handleRefresh = () => {
+        navigator.geolocation.getCurrentPosition((pos) => 
+            dispatch(fetchData([pos.coords.latitude, pos.coords.longitude]))
+        )
+    }
 
     return (
         <Stack spacing={2} direction="column" sx={{
@@ -24,7 +31,7 @@ export default function MapToolbar() {
         }}>
             <Tooltip title="Centre on me" placement="left">
                 <MapButton >
-                    <MyLocationIcon />
+                    <MyLocationIcon onClick={handleRefresh}/>
                 </MapButton>
             </Tooltip>
             <Tooltip title="Filter stations" placement="left">
