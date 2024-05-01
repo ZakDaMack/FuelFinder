@@ -5,6 +5,7 @@ export const menuSlice = createSlice({
   initialState: {
     stations: false,
     preferences: false,
+    tooltips: false,
   },
   reducers: {
     // get menu you want opened and set to true, close all toher menus

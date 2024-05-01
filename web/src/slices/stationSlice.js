@@ -18,6 +18,7 @@ export const stationSlice = createSlice({
   reducers: {
     getData: state => {
       state.loading = true
+      state.error = null
     },
     getDataSuccess: (state, action) => {
       state.value = action.payload
