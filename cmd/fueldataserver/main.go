@@ -36,6 +36,10 @@ func main() {
 	// spool up grpc server
 	grpcServer := grpc.NewServer()
 	fds, err := controllers.NewFuelDataServer("ofd", mongoUri)
+
+	// on server start, ensrue that the indexes are working, or the queries wont work
+	fds.EnsureIndexes()
+
 	if err != nil {
 		log.Fatalf("failed to setup fueldata server: %v", err)
 	}

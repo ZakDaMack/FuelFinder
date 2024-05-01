@@ -14,6 +14,11 @@ type MongoStore struct {
 	client   *mongo.Client
 }
 
+type Index struct {
+	Key   string
+	Value interface{}
+}
+
 const (
 	collection = "fuel_data"
 )
@@ -99,6 +104,30 @@ func (m *MongoStore) GetDistinctBrands() ([]string, error) {
 		brands = append(brands, b.(string))
 	}
 	return brands, nil
+}
+
+func (m *MongoStore) GetIndexes() (map[string]interface{}, error) {
+	coll := m.client.Database(m.database).Collection(collection)
+	res, err := coll.Indexes().List(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+
+	indexes := map[string]interface{}{}
+	for res.Next(context.TODO()) {
+		var in bson.D
+		res.Current.Index(1).Value().Unmarshal(&in)
+		indexes[in[0].Key] = in[0].Value
+	}
+	return indexes, nil
+}
+
+func (m *MongoStore) CreateIndex(field string, val interface{}) error {
+	coll := m.client.Database(m.database).Collection(collection)
+
+	indexModel := mongo.IndexModel{Keys: bson.D{{Key: field, Value: val}}}
+	_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
+	return err
 }
 
 func milesToRadians(miles float64) float64 {

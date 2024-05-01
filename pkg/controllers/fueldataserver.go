@@ -73,3 +73,23 @@ func (s *FuelDataServer) DistinctBrands(ctx context.Context, _ *fueldata.Empty) 
 	res := &fueldata.Brands{Brands: brands}
 	return res, nil
 }
+
+func (s *FuelDataServer) EnsureIndexes() error {
+	ixs, err := s.store.GetIndexes()
+	if err != nil {
+		return err
+	}
+
+	// does location exist?
+	s.createIfDoesntExist(ixs, "location", "2dsphere")
+	s.createIfDoesntExist(ixs, "created_at", 1)
+	s.createIfDoesntExist(ixs, "site_id", 1)
+	return nil
+}
+
+func (s *FuelDataServer) createIfDoesntExist(indexes map[string]interface{}, key string, val interface{}) {
+	_, ok := indexes[key]
+	if !ok {
+		s.store.CreateIndex(key, val)
+	}
+}
