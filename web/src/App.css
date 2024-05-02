@@ -7,6 +7,14 @@
   width: 280px;
 }
 
+.BottomSheet__rounded, .BottomSheet__rounded .MuiPaper-root {
+  border-radius: 1rem 1rem 0 0 !important;
+}
+
+.leaflet-control-zoom {
+  display: none;
+}
+
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

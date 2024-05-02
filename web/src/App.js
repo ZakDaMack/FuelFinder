@@ -23,6 +23,9 @@ function App() {
         main: grey[500]
       },
     },
+    typography: {
+      fontFamily: '"inter", sans-serif'
+    }
   });
 
   const store = configureStore({

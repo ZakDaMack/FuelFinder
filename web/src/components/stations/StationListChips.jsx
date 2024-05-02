@@ -1,10 +1,12 @@
-import Chip from '@mui/material/Chip';
-import Toolbar from '@mui/material/Toolbar';
-import ListItem from '@mui/material/ListItem';
 import { useDispatch, useSelector } from 'react-redux';
+
+import Chip from '@mui/material/Chip';
+import Box from '@mui/material/Box';
+import ListItem from '@mui/material/ListItem';
+
 import { updateSort } from '../../slices/stationSlice';
 
-export default function ListSortChip() { 
+export default function ListSortChips() { 
     const dispatch = useDispatch()
     const sortList = [
         {text: 'Distance', value: 'distance'},
@@ -17,11 +19,7 @@ export default function ListSortChip() {
     const handleClick = (key) => dispatch(updateSort(key))
 
     return (
-        <Toolbar sx={{
-            p: '8px !important', m: 0,
-            flexWrap: 'wrap'
-        }}> 
-            Sort:
+        <Box display='flex' flexWrap='wrap'>
             {sortList.map((data) => (
                 <ListItem 
                     key={data.value} 
@@ -34,6 +32,6 @@ export default function ListSortChip() {
                     />
                 </ListItem>
             ))}
-        </Toolbar>
+        </Box>
     );
 }

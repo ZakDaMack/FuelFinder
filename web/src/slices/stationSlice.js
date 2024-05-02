@@ -12,7 +12,8 @@ export const stationSlice = createSlice({
     location: [51.4649, -0.1596],
     sortKey: 'distance',
     filters: {
-      radius: 3
+      radius: 3,
+      brands: null
     }
   },
   reducers: {

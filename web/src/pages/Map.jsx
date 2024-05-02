@@ -8,10 +8,12 @@ import { Marker } from 'react-leaflet/Marker'
 import { Icon } from 'leaflet'
 
 import OfdBanner from '../components/map/Banner';
-import StationList from '../components/stations/StationList';
 import StationMarker from '../components/map/StationMarker';
-import MapToolbar from '../components/map/MapToolbar';
 import PreferencesList from '../components/preferences/PreferencesList';
+import SummaryBar from '../components/preferences/SummaryBar';
+import MapZoom from '../components/map/MapZoom';
+import StationListView from '../components/stations/StationListView';
+import ClosedDrawer from '../components/stations/ClosedDrawer';
 
 export default function Map() {
     
@@ -36,9 +38,11 @@ export default function Map() {
             {stations?.map(s => (
                 <StationMarker key={s.site_id} company={s} />
             ))}
-            <StationList />
+            <SummaryBar />
+            <MapZoom />
+            <StationListView />
+            <ClosedDrawer />
             <PreferencesList />
-            <MapToolbar />
             <RecentreAutomatically location={location} />
             {/* <OfdBanner /> */}
         </MapContainer>

@@ -14,7 +14,7 @@ export default function LoadingOverlay() {
         "A car that can go underwater is a Scuba-ru",
         "Filling up the tank",
         "Did you know? A cats favourite car is a Fur-rari",
-        "How did Diesel get the job? He performed well under pressure!",
+        "How did Diesel get the job? It performed well under pressure!",
         "Turning on the ignition",
         "Car puns are exhausting...",
         "RV there yet?",
@@ -26,7 +26,7 @@ export default function LoadingOverlay() {
 
     return ( 
         <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            sx={{ color: '#fff', zIndex: 5000 }}
             open={isLoading}
         >
             <Box sx={{textAlign: 'center'}}>
