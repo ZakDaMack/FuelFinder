@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"main/api/fueldata"
 	"main/internal/models"
-	"main/internal/sanitizer"
+	"main/internal/sanitiser"
 	"net/http"
 	"regexp"
 	"strings"
@@ -64,8 +64,8 @@ func ReadJsonFrom(url string) ([]*fueldata.StationItem, error) {
 			Location: &fueldata.Location{
 				Type: "Point",
 				Coordinates: []float32{
-					float32(sanitizer.ToFloat(s.Location.Longitude)),
-					float32(sanitizer.ToFloat(s.Location.Latitude)),
+					float32(sanitiser.ToFloat(s.Location.Longitude)),
+					float32(sanitiser.ToFloat(s.Location.Latitude)),
 				},
 			},
 			E5:  s.Prices.E5,

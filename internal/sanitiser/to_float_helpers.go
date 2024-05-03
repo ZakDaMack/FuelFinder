@@ -1,11 +1,6 @@
-package sanitizer
+package sanitiser
 
 import "strconv"
-
-func EscapeStrings(jsonBody string) string {
-	// r := regexp.MustCompile(`("longitude"|"latitude"):(".+?")`)
-	return jsonBody
-}
 
 func ToFloat(value interface{}) float64 {
 	// r := regexp.MustCompile(`("longitude"|"latitude"):(".+?")`)

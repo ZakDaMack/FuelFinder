@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"main/api/fueldata"
 	"main/internal/env"
+	"main/internal/sanitiser"
 	"main/internal/scraper"
 	"os"
 	"time"
@@ -49,9 +50,10 @@ func scrapeData(grpcHost string) {
 	client := fueldata.NewFuelDataClient(conn)
 
 	// read through links and then upload to system
-	links, err := scraper.GetTableLinks("https://www.gov.uk/guidance/access-fuel-price-data")
+	url := "https://www.gov.uk/guidance/access-fuel-price-data"
+	links, err := scraper.GetTableLinks(url)
 	if err != nil {
-		slog.Error("could not scrape fuel price data", "url", "https://www.gov.uk/guidance/access-fuel-price-data", "error", err)
+		slog.Error("could not scrape fuel price data", "url", url, "error", err)
 		return
 	}
 	for _, link := range links {
@@ -61,6 +63,11 @@ func scrapeData(grpcHost string) {
 		if err != nil {
 			slog.Error("could not read json", "url", link, "error", err)
 			return
+		}
+
+		// Sanitise the data
+		for _, station := range data {
+			sanitiser.CleanStationItem(station)
 		}
 
 		slog.Debug("collected station data", "link", link, "stations", len(data))
