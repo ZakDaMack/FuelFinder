@@ -5,6 +5,20 @@ on:
     tags: ['*']
 
 jobs:
+  notify-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify slack on build start
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: builds
+          SLACK_COLOR: good # or a specific color like 'good' or '#ff00ff'
+          SLACK_ICON: https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png
+          SLACK_MESSAGE: 'The build is underway, you will be notified when it has finished :rocket:'
+          SLACK_TITLE: Build Started for ${{ github.event.repository.name }} ${{ github.ref_name }}
+          SLACK_USERNAME: GitHub Actions
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        
   build:
     runs-on: ubuntu-latest
     environment: Production
@@ -22,7 +36,7 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-        
+
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
@@ -44,3 +58,21 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          
+  notify-end-state:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [build]
+    steps:   
+      - uses: technote-space/workflow-conclusion-action@v3
+
+      - name: Notify slack on build start
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: builds
+          SLACK_COLOR: ${{ env.WORKFLOW_CONCLUSION }} # or a specific color like 'good' or '#ff00ff'
+          SLACK_ICON: https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png
+          SLACK_MESSAGE: 'The workflow has finished and returned with ${{ env.WORKFLOW_CONCLUSION }} :rocket:'
+          SLACK_TITLE: Build ${{ env.WORKFLOW_CONCLUSION }} for ${{ github.event.repository.name }} ${{ github.ref_name }}
+          SLACK_USERNAME: GitHub Actions
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
