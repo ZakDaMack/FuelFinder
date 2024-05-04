@@ -16,7 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import StationItem from '../Station';
 import StationListChips from './StationListChips';
-import { closeAll, updateMenu } from '../../slices/menuSlice';
+import { closeAll, openMenu } from '../../slices/menuSlice';
 
 export default function StationListView() {
     const dispatch = useDispatch();
@@ -26,7 +26,7 @@ export default function StationListView() {
 
     const isOpen = useSelector((state) => state.menus.stations)
     const close = () => dispatch(closeAll());
-    const open = () => dispatch(updateMenu('stations'));
+    const open = () => dispatch(openMenu('stations'));
 
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
     const stations = useSelector((state) => state.stations.value)
@@ -36,19 +36,26 @@ export default function StationListView() {
         .filter(s => !!s[sortKey])
         .sort((a,b) => a[sortKey] - b[sortKey])
 
-
     useEffect(() => {
         setHeight(chipToolbar.current?.offsetHeight ?? 0)
     }, [chipToolbar.current])
 
     return (
-        <SwipeableDrawer anchor='bottom'
+        <SwipeableDrawer
+            anchor={isMobile ? 'bottom' : 'left'}
             open={isOpen}
             onOpen={open}
             onClose={close}
         >
-            <Paper elevation={0} sx={{position: 'relative', height: '100vh'}}>
-                <AppBar position='fixed' sx={{bgcolor: 'white'}}>
+            <Paper elevation={0} sx={{
+                position: 'relative', 
+                height: '100vh',
+                width: isMobile ? '100%' : 400    
+            }}>
+                <AppBar position='fixed' sx={{
+                    left: 0, bgcolor: 'white',
+                    width: isMobile ? '100%' : 400
+                }}>
                     {/* close button */}
                     <Toolbar sx={{
                         px: 2, pt: 3, pb: 1, display: 'flex',
@@ -67,7 +74,7 @@ export default function StationListView() {
                     </Toolbar>
                 </AppBar>
                 <List>
-                    <Toolbar sx={{p: 4}}></Toolbar>
+                    <Toolbar sx={{p: 5}}></Toolbar>
                     <Toolbar sx={{height: height}} />
                     {filteredStations.length === 0 && (
                         <Typography p={2} mt={4} textAlign='center'>

@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react'
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -10,21 +9,20 @@ import ListItem from '@mui/material/ListItem';
 
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 
-import { updateRadius } from '../../slices/stationSlice';
+import { updateFilters, } from '../../slices/stationSlice';
 
 export default function BrandSelectionChips() {
     const dispatch = useDispatch();
 
-    // const brands = useSelector((state) => state.brands.value);
-    const brands = [];
-    const [activeBrands, setBrands] = useState([
-        // 'BP'
-    ]);
-
-    const updateVals = (val) => {
-        let n = {};
-        Object.keys(brands).forEach((k) => n[k] = val)
-        setBrands(n)
+    const brands = useSelector((state) => state.brands.value);
+    const activeFilter = useSelector((state) => state.stations.filters.brands);
+    
+    const update = (newArr) => dispatch(updateFilters({ brand: newArr }))
+    const toggleBrand = item => {
+        const arr = activeFilter ?? [];
+        const inc = arr.includes(item)
+        const newArr = inc ? arr.filter(i => i !== item) : [ ...arr, item ];
+        update(newArr)
     }
 
     const boxProps = {
@@ -40,20 +38,17 @@ export default function BrandSelectionChips() {
             </Box>
             <Typography component='p' variant='caption' color='error'>(Station filter coming soon)</Typography>
             <Box sx={{display: 'flex', alignItems: 'baseline'}}>
-                <Button disabled color="info" onClick={() => updateVals(true)}>All</Button>
+                <Button color="info" onClick={() => update(null)}>All</Button>
                 <Typography>|</Typography>
-                <Button disabled color="info" onClick={() => updateVals(false)}>None</Button>
+                <Button color="info" onClick={() => update([])}>None</Button>
             </Box>
             <List sx={{display: 'flex', flexWrap: 'wrap',}}>
                 {brands.map((b) => (
                     <ListItem key={b} sx={{ m: 0.5, p: 0, width: 'unset' }}>
                         <Chip 
                             label={b}
-                            // color={activeBrands.includes(b) ? 'primary' : undefined}
-                            // onClick={() => setBrands([
-                            //     ...activeBrands,
-                            //     ...(activeBrands.includes(b) ? [] : [b])
-                            // ])}
+                            color={(activeFilter?.includes(b) ?? true) ? 'primary' : undefined}
+                            onClick={() => toggleBrand(b)}
                         />
                     </ListItem>
                 ))}

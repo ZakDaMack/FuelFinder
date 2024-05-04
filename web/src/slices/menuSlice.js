@@ -8,22 +8,22 @@ export const menuSlice = createSlice({
     tooltips: false,
   },
   reducers: {
-    // get menu you want opened and set to true, close all toher menus
-    updateMenu: (state, action) => {
-        Object.keys(state).forEach(key => 
-            state[key] = (action.payload === key)
-        )
+    openMenu: (state, action) => {
+      state[action.payload] = true
+    },
+    closeMenu: (state, action) => {
+      state[action.payload] = false
     },
     closeAll: (state) => {
-        Object.keys(state).forEach(key => 
-            state[key] = false
-        )
+      Object.keys(state).forEach(key => 
+        state[key] = false
+      )
     },
   }
 })
 
 // actions generated from the slice
-export const { updateMenu, closeAll } = menuSlice.actions
+export const { openMenu, closeMenu, closeAll } = menuSlice.actions
 
 // The reducer
 export default menuSlice.reducer

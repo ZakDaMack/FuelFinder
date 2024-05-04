@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Box from '@mui/material/Box';
@@ -5,14 +6,13 @@ import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 
 import { grey } from '@mui/material/colors';
-import { updateMenu } from '../../slices/menuSlice';
-import { useState } from 'react';
+import { openMenu } from '../../slices/menuSlice';
 
 const SWIPE_DISTANCE = 50;
 
 export default function ClosedDrawer() {
     const dispatch = useDispatch();
-    const handleOpen = () => dispatch(updateMenu('stations'))
+    const handleOpen = () => dispatch(openMenu('stations'))
     const stationLen = useSelector((state) => state.stations.value.length)
 
     const [touchStart, setTouchStart] = useState(null)
@@ -40,7 +40,7 @@ export default function ClosedDrawer() {
             }}></Box> 
             <Box mt={2} mb={6} textAlign='center'>
                 <Typography>
-                    {stationLen} station{stationLen == 1 ? '' : 's'} nearby
+                    {stationLen} station{stationLen === 1 ? '' : 's'} nearby
                 </Typography>
             </Box>
         </Card>

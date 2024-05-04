@@ -70,6 +70,7 @@ export function fetchData() {
     const location = [pos.coords.latitude, pos.coords.longitude]
     dispatch(updateLocation(location))
     const state = getState()
+    
     try {
       const response = await fetch(process.env.REACT_APP_API_URL + '?' + new URLSearchParams({
         latitude: state.stations.location[0],

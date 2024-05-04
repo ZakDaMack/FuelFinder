@@ -13,7 +13,7 @@ import PreferencesList from '../components/preferences/PreferencesList';
 import SummaryBar from '../components/preferences/SummaryBar';
 import MapZoom from '../components/map/MapZoom';
 import StationListView from '../components/stations/StationListView';
-import ClosedDrawer from '../components/stations/ClosedDrawer';
+import StationListToggle from '../components/stations/StationListToggle';
 
 export default function Map() {
     
@@ -38,11 +38,11 @@ export default function Map() {
             {stations?.map(s => (
                 <StationMarker key={s.site_id} company={s} />
             ))}
-            <SummaryBar />
             <MapZoom />
-            <StationListView />
-            <ClosedDrawer />
+            <SummaryBar />
             <PreferencesList />
+            <StationListView />
+            <StationListToggle />
             <RecentreAutomatically location={location} />
             {/* <OfdBanner /> */}
         </MapContainer>

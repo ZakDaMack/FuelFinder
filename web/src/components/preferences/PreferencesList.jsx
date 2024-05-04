@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react'
 
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -9,7 +8,7 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fetchData } from '../../slices/stationSlice';
-import { closeAll, updateMenu } from '../../slices/menuSlice';
+import { closeAll, openMenu } from '../../slices/menuSlice';
 import DistanceSlider from './DistanceSlider';
 import BrandSelectionChips from './BrandSelectionChips';
 
@@ -18,7 +17,7 @@ export default function PreferencesList() {
 
     const isOpen = useSelector((state) => state.menus.preferences)
     const close = () => dispatch(closeAll());
-    const open = () => dispatch(updateMenu('preferences'));
+    const open = () => dispatch(openMenu('preferences'));
     
     const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
 

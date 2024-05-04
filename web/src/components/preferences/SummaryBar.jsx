@@ -1,17 +1,19 @@
+import { useSelector, useDispatch } from 'react-redux';
+
+import { openMenu } from '../../slices/menuSlice';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import { grey } from '@mui/material/colors';
 
 import TuneIcon from '@mui/icons-material/Tune';
 
-import { useSelector, useDispatch } from 'react-redux';
-import { closeAll, updateMenu } from '../../slices/menuSlice';
-import { grey } from '@mui/material/colors';
 
 export default function SummaryBar() {
     const dispatch = useDispatch();
-    const open = () => dispatch(updateMenu('preferences'));
+    const open = () => dispatch(openMenu('preferences'));
 
     const filterNos = useSelector((state) => state.stations.filters.brands?.length ?? 0)
     const radius = useSelector((state) => state.stations.filters.radius)
@@ -30,10 +32,10 @@ export default function SummaryBar() {
             </IconButton>
             <Box sx={{mx: 2}}>
                 <Typography variant='body1'>
-                    Within {radius} mile{radius == 1 ? '' : 's'}
+                    Within {radius} mile{radius === 1 ? '' : 's'}
                 </Typography>
                 <Typography variant='body2' color={grey[600]}>
-                    (+{filterNos} filter{filterNos == 1 ? '' : 's'})
+                    (+{filterNos} filter{filterNos === 1 ? '' : 's'})
                 </Typography>
             </Box>
         </Card>
