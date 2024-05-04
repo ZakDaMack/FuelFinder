@@ -36,7 +36,7 @@ export default function StationItem(props) {
             <Typography variant="subtitle">{address}, {postcode}</Typography>
             <Typography my={1} component='div' variant="body2">
                 {isMobile ? (
-                    <a href="geo:124.028582,-29.201930" target="_blank">Open in map</a>
+                    <a href={`geo:${location.coordinates[1]},${location.coordinates[0]}`} target="_blank">Open in map</a>
                 ) : (
                     <a href={`https://www.google.com/maps/place/${location.coordinates[1]},${location.coordinates[0]}`} target="_blank">Open in Google Maps</a>
                 )}
