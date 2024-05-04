@@ -80,7 +80,7 @@ func (s *FuelDataServer) EnsureIndexes() error {
 		return err
 	}
 
-	// does location exist?
+	// do these indexes exist?
 	s.createIfDoesntExist(ixs, "location", "2dsphere")
 	s.createIfDoesntExist(ixs, "created_at", 1)
 	s.createIfDoesntExist(ixs, "site_id", 1)

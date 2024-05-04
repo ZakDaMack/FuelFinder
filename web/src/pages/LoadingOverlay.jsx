@@ -20,7 +20,7 @@ export default function LoadingOverlay() {
         "RV there yet?",
         "H-Audi, partner."
     ]
-    const [random, setRandom] = useState(Math.floor(Math.random() * puns.length))
+    const [random] = useState(Math.floor(Math.random() * puns.length))
 
     const isLoading = useSelector((state) => state.stations.loading)
 
@@ -32,7 +32,7 @@ export default function LoadingOverlay() {
             <Box sx={{textAlign: 'center'}}>
                 <LocalGasStationIcon sx={{fontSize: 100}} className='animate' />
                 <LoadingTicker />
-                <Typography variant='h5'>
+                <Typography variant='h5' px={1}>
                     {puns[random]}
                 </Typography>
             </Box>
