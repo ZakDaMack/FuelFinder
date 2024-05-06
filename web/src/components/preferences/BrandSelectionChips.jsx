@@ -17,11 +17,12 @@ export default function BrandSelectionChips() {
     const brands = useSelector((state) => state.brands.value);
     const activeFilter = useSelector((state) => state.stations.filters.brands);
     
-    const update = (newArr) => dispatch(updateFilters({ brand: newArr }))
+    const update = (newArr) => dispatch(updateFilters({ brands: newArr }))
     const toggleBrand = item => {
         const arr = activeFilter ?? [];
-        const inc = arr.includes(item)
-        const newArr = inc ? arr.filter(i => i !== item) : [ ...arr, item ];
+        let newArr = arr.includes(item) ? arr.filter(i => i !== item) : [ ...arr, item ];
+        if (brands.length == newArr.length) newArr = null
+        console.log(newArr);
         update(newArr)
     }
 
@@ -36,7 +37,6 @@ export default function BrandSelectionChips() {
                 <LocalGasStationIcon />
                 <Typography ml={1} component='h3' variant='h6'>Stations</Typography>
             </Box>
-            <Typography component='p' variant='caption' color='error'>(Station filter coming soon)</Typography>
             <Box sx={{display: 'flex', alignItems: 'baseline'}}>
                 <Button color="info" onClick={() => update(null)}>All</Button>
                 <Typography>|</Typography>

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import GetUrlParams from '../lib/urlParams';
 
 const RADIUS_MIN = 1;
 const RADIUS_MAX = 20;
@@ -72,10 +73,11 @@ export function fetchData() {
     const state = getState()
     
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + '?' + new URLSearchParams({
+      const response = await fetch(process.env.REACT_APP_API_URL + GetUrlParams({
         latitude: state.stations.location[0],
         longitude: state.stations.location[1],
-        radius: state.stations.filters.radius
+        radius: state.stations.filters.radius,
+        brands: state.stations.filters.brands
       }))
 
       let data = await response.json()
@@ -84,7 +86,7 @@ export function fetchData() {
       } 
       dispatch(getDataSuccess(data))
     } catch (error) {
-      console.log(error);
+      console.error(error);
       dispatch(getDataFailure())
     }
   }

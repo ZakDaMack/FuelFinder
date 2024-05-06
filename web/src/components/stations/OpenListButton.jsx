@@ -16,8 +16,8 @@ export default function OpenListButton() {
     return (
         <Card raised onClick={handleOpen} sx={{
             position: 'absolute',
-            top: 80, left: 0,
-            zIndex: 500, p: 1, m: 2
+            top: 74, left: 0,
+            zIndex: 500, p: 1, m: 3
         }}>
             <Box display='flex'>
                 <Typography>List view ({stationLen})</Typography>
