@@ -2,9 +2,11 @@ package services
 
 import (
 	"context"
+	"log/slog"
 	"main/api/fueldata"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/event"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,12 +22,19 @@ type Index struct {
 }
 
 const (
-	collection = "fuel_data"
+	_collection = "fuel_data"
 )
 
 func NewMongoConnection(uri string, db string) (*MongoStore, error) {
+	monitor := &event.CommandMonitor{
+		Started: func(_ context.Context, e *event.CommandStartedEvent) {
+			slog.Debug("mongo started", "command", e.Command)
+			// fmt.Println(e.Command)
+		},
+	}
+
 	// TODO: sort out contexts
-	options := options.Client().ApplyURI(uri)
+	options := options.Client().ApplyURI(uri).SetMonitor(monitor)
 	client, err := mongo.Connect(context.TODO(), options)
 	if err != nil {
 		return nil, err
@@ -39,13 +48,12 @@ func NewMongoConnection(uri string, db string) (*MongoStore, error) {
 	return c, nil
 }
 
-func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int) ([]fueldata.StationItem, error) {
-	coll := m.client.Database(m.database).Collection(collection)
+func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBrands []string) ([]fueldata.StationItem, error) {
+	coll := m.client.Database(m.database).Collection(_collection)
 
 	// get data
 	// TODO: sort context todo
-	filter := makeAggregatePipeline(lat, long, int(milesToMetres(distanceMiles)))
-	// filter := makeFilter(lat, long, milesToRadians(float64(distanceMiles)))
+	filter := makeAggregatePipeline(lat, long, int(milesToMetres(distanceMiles)), includeBrands)
 	cursor, err := coll.Aggregate(context.TODO(), filter)
 	if err != nil {
 		return nil, err
@@ -69,7 +77,7 @@ func (m *MongoStore) Write(data []*fueldata.StationItem) (int, error) {
 		docs[i] = &d
 	}
 
-	coll := m.client.Database(m.database).Collection(collection)
+	coll := m.client.Database(m.database).Collection(_collection)
 	res, err := coll.InsertMany(context.TODO(), docs)
 	if err != nil {
 		return 0, err
@@ -78,7 +86,7 @@ func (m *MongoStore) Write(data []*fueldata.StationItem) (int, error) {
 }
 
 func (m *MongoStore) Exists(unixTime int64, stationId string) (bool, error) {
-	coll := m.client.Database(m.database).Collection(collection)
+	coll := m.client.Database(m.database).Collection(_collection)
 	query := bson.D{{Key: "createdat", Value: unixTime}, {Key: "siteid", Value: stationId}}
 	err := coll.FindOne(context.TODO(), query).Err()
 
@@ -93,7 +101,7 @@ func (m *MongoStore) Exists(unixTime int64, stationId string) (bool, error) {
 }
 
 func (m *MongoStore) GetDistinctBrands() ([]string, error) {
-	coll := m.client.Database(m.database).Collection(collection)
+	coll := m.client.Database(m.database).Collection(_collection)
 	res, err := coll.Distinct(context.TODO(), "brand", bson.D{})
 	if err != nil {
 		return []string{}, nil
@@ -107,7 +115,7 @@ func (m *MongoStore) GetDistinctBrands() ([]string, error) {
 }
 
 func (m *MongoStore) GetIndexes() (map[string]interface{}, error) {
-	coll := m.client.Database(m.database).Collection(collection)
+	coll := m.client.Database(m.database).Collection(_collection)
 	res, err := coll.Indexes().List(context.TODO())
 	if err != nil {
 		return nil, err
@@ -123,7 +131,7 @@ func (m *MongoStore) GetIndexes() (map[string]interface{}, error) {
 }
 
 func (m *MongoStore) CreateIndex(field string, val interface{}) error {
-	coll := m.client.Database(m.database).Collection(collection)
+	coll := m.client.Database(m.database).Collection(_collection)
 
 	indexModel := mongo.IndexModel{Keys: bson.D{{Key: field, Value: val}}}
 	_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
@@ -153,7 +161,6 @@ func makeFilter(lat, long, distRads float64) bson.D {
 
 /*
 AGGREGATE DATA
-
 [
 	{
 		$geoNear: {
@@ -163,6 +170,7 @@ AGGREGATE DATA
 				coordinates: [parseFloat(longitude), parseFloat(latitude)]
 			},
 			distanceField: 'distance',
+      		query: {"brand": {"$in": ["Tesco", "Esso"]} },
 			maxDistance: milesToMeters(distance),
 			spherical: true
 		}
@@ -179,24 +187,35 @@ AGGREGATE DATA
 			newRoot: { $first: '$records' }
 		}
 	}
-	],
-
-	{ maxTimeMS: 60000, allowDiskUse: true }
+],
+{ maxTimeMS: 60000, allowDiskUse: true }
 */
 
-func makeAggregatePipeline(lat, long float64, distMetres int) bson.A {
+func makeAggregatePipeline(lat, long float64, distMetres int, brands []string) bson.A {
+	geoNear := bson.D{
+		{Key: "key", Value: "location"},
+		{Key: "near", Value: bson.D{
+			{Key: "type", Value: "Point"},
+			{Key: "coordinates", Value: bson.A{long, lat}},
+		}},
+		{Key: "distanceField", Value: "distance"},
+		{Key: "maxDistance", Value: distMetres},
+		{Key: "spherical", Value: true},
+	}
+
+	if brands != nil {
+		geoNear = append(geoNear, bson.E{
+			Key: "query", Value: bson.D{
+				{Key: "brand", Value: bson.D{
+					{Key: "$in", Value: brands},
+				}},
+			}},
+		)
+	}
+
 	return bson.A{
 		bson.D{{
-			Key: "$geoNear", Value: bson.D{
-				{Key: "key", Value: "location"},
-				{Key: "near", Value: bson.D{
-					{Key: "type", Value: "Point"},
-					{Key: "coordinates", Value: bson.A{long, lat}},
-				}},
-				{Key: "distanceField", Value: "distance"},
-				{Key: "maxDistance", Value: distMetres},
-				{Key: "spherical", Value: true},
-			},
+			Key: "$geoNear", Value: geoNear,
 		}},
 		bson.D{{
 			Key: "$sort", Value: bson.D{{

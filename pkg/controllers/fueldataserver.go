@@ -23,7 +23,13 @@ func NewFuelDataServer(db, uri string) (*FuelDataServer, error) {
 }
 
 func (s *FuelDataServer) QueryArea(ctx context.Context, fence *fueldata.Geofence) (*fueldata.StationItems, error) {
-	queryRes, err := s.store.QueryArea(float64(fence.Latitude), float64(fence.Longitude), int(fence.Radius))
+	queryRes, err := s.store.QueryArea(
+		float64(fence.Latitude),
+		float64(fence.Longitude),
+		int(fence.Radius),
+		fence.Brands,
+	)
+
 	if err != nil {
 		return nil, err
 	}

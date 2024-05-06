@@ -37,7 +37,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	fds, err := controllers.NewFuelDataServer("ofd", mongoUri)
 
-	// on server start, ensrue that the indexes are working, or the queries wont work
+	// on server start, ensure that the indexes are working, or the queries wont work
 	fds.EnsureIndexes()
 
 	if err != nil {
