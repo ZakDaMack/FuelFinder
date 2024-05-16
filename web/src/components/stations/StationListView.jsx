@@ -34,11 +34,11 @@ export default function StationListView() {
 
     const filteredStations = stations
         .filter(s => !!s[sortKey])
-        .sort((a,b) => a[sortKey] - b[sortKey])
+        .sort((a,b) => (a[sortKey] - b[sortKey]) || (a.distance - b.distance)) // sort by specified key, if equal, sort by dist
 
     useEffect(() => {
         setHeight(chipToolbar.current?.offsetHeight ?? 0)
-    }, [chipToolbar.current])
+    }, [chipToolbar])
 
     return (
         <SwipeableDrawer

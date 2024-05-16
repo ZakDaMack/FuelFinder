@@ -7,6 +7,10 @@
   width: 280px;
 }
 
+.PreferencesList__dialog .MuiPaper-root.MuiDialog-paper {
+  margin: 0 !important
+}
+
 .BottomSheet__rounded, .BottomSheet__rounded .MuiPaper-root {
   border-radius: 1rem 1rem 0 0 !important;
 }

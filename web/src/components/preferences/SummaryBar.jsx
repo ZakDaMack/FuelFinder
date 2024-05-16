@@ -13,7 +13,10 @@ import TuneIcon from '@mui/icons-material/Tune';
 
 export default function SummaryBar() {
     const dispatch = useDispatch();
-    const open = () => dispatch(openMenu('preferences'));
+    const open = (e) => {
+        e.stopPropagation()
+        dispatch(openMenu('preferences'))
+    }
 
     const filterNos = useSelector((state) => state.stations.filters.brands?.length ?? 0)
     const radius = useSelector((state) => state.stations.filters.radius)

@@ -7,6 +7,7 @@ import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { grey } from '@mui/material/colors';
 
@@ -17,7 +18,9 @@ import calendar from 'dayjs/plugin/calendar';
 dayjs.extend(calendar)
 
 export default function StationItem(props) {
-    const { distance, brand, address, postcode, b7, e5, e10, created_at } = props.company;
+    const { distance, brand, location, address, postcode, b7, e5, e10, created_at } = props.company;
+
+    const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
 
     const formattedDistance = distance.toLocaleString('en-GB', { maximumFractionDigits: 0 });
     const getValue = (val) => val ? `${(Math.round(val * 10) / 10).toFixed(1)} p/L` : 'N/A';
@@ -31,6 +34,13 @@ export default function StationItem(props) {
                 </Typography>
             </Box>
             <Typography variant="subtitle">{address}, {postcode}</Typography>
+            <Typography my={1} component='div' variant="body2">
+                {isMobile ? (
+                    <a href={`geo:${location.coordinates[1]},${location.coordinates[0]}`} target="_blank">Open in map</a>
+                ) : (
+                    <a href={`https://www.google.com/maps/place/${location.coordinates[1]},${location.coordinates[0]}`} target="_blank">Open in Google Maps</a>
+                )}
+            </Typography>
             <List>
                 <ListItem disablePadding>
                     <ListItemAvatar>

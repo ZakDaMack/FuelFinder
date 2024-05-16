@@ -12,8 +12,15 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 export default function MapZoom() {
     const map = useMap();
-    const zoomIn = () => map.zoomIn()
-    const zoomOut = () => map.zoomOut()
+    const zoomIn = (e) => {
+        e.stopPropagation()
+        map.zoomIn()
+    }
+
+    const zoomOut = (e) => {
+        e.stopPropagation()
+        map.zoomOut()
+    }
 
     return (
         <Card raised sx={{

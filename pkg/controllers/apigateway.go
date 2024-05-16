@@ -24,6 +24,10 @@ func (g *Gateway) GetStations(c *gin.Context) {
 	lat, _ := strconv.ParseFloat(c.Query("latitude"), 32)
 	long, _ := strconv.ParseFloat(c.Query("longitude"), 32)
 	radius, _ := strconv.ParseFloat(c.Query("radius"), 32)
+	brands, ok := c.GetQueryArray("brands")
+	if !ok {
+		brands = nil
+	}
 
 	if radius < 1 || radius > 20 {
 		c.JSON(400, gin.H{
@@ -37,6 +41,7 @@ func (g *Gateway) GetStations(c *gin.Context) {
 		Latitude:  float32(lat),
 		Longitude: float32(long),
 		Radius:    float32(radius),
+		Brands:    brands,
 	})
 
 	if err != nil {
