@@ -14,6 +14,12 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+type Job struct {
+	url              string
+	stations         []*fueldata.StationItem
+	uploadedStations int32
+}
+
 func main() {
 	// set up logging
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -56,29 +62,84 @@ func scrapeData(grpcHost string) {
 		slog.Error("could not scrape fuel price data", "url", url, "error", err)
 		return
 	}
-	for _, link := range links {
-		slog.Info("reading json", "url", link)
 
-		data, err := scraper.ReadJsonFrom(link)
-		if err != nil {
-			slog.Error("could not read json", "url", link, "error", err)
-			return
-		}
-
-		// Sanitise the data
-		for _, station := range data {
-			sanitiser.CleanStationItem(station)
-		}
-
-		slog.Debug("collected station data", "link", link, "stations", len(data))
-
-		req := &fueldata.StationItems{Items: data}
-		res, err := client.Upload(context.TODO(), req)
-		if err != nil {
-			slog.Error("could not read json", "url", link, "error", err)
-			return
-		}
-
-		slog.Debug("uploaded station data", "stations", res.Count)
+	// GO CHANNEL PIPELINE
+	// stage 1: convert array to jobs
+	jobs := createJobsChannel(links)
+	// stage 2: collect stations from jobs
+	res := fetchData(jobs)
+	// stage 3: sanitize data
+	res2 := sanitizeData(res)
+	// stage 4: save
+	res3 := uploadData(res2, client)
+	// finally print done line
+	for j := range res3 {
+		slog.Info("finished job for station url", "count", j.uploadedStations, "url", j.url)
 	}
+}
+
+func createJobsChannel(items []string) <-chan Job {
+	out := make(chan Job)
+	go func(arr []string) {
+		for _, i := range arr {
+			out <- Job{
+				url: i,
+			}
+		}
+		close(out)
+	}(items)
+
+	return out
+}
+
+func fetchData(in <-chan Job) <-chan Job {
+	out := make(chan Job)
+	go func() {
+		for job := range in {
+			data, err := scraper.ReadJsonFrom(job.url)
+			if err != nil {
+				slog.Error("could not read json", "url", job.url, "error", err)
+				continue
+			}
+
+			job.stations = data
+			out <- job
+		}
+		close(out)
+	}()
+
+	return out
+}
+
+func sanitizeData(in <-chan Job) <-chan Job {
+	out := make(chan Job)
+	go func() {
+		for job := range in {
+			// Sanitise the data
+			for _, station := range job.stations {
+				sanitiser.CleanStationItem(station)
+			}
+			out <- job
+		}
+		close(out)
+	}()
+
+	return out
+}
+
+func uploadData(in <-chan Job, client fueldata.FuelDataClient) <-chan Job {
+	out := make(chan Job)
+	go func() {
+		for job := range in {
+			req := &fueldata.StationItems{Items: job.stations}
+			res, err := client.Upload(context.TODO(), req)
+			if err != nil {
+				slog.Error("could not upload station items", "url", job.url, "error", err)
+				continue
+			}
+			job.uploadedStations = res.Count
+		}
+		close(out)
+	}()
+	return out
 }
