@@ -63,6 +63,8 @@ func scrapeData(grpcHost string) {
 		return
 	}
 
+	slog.Info("fetched companies from gov website", "count", len(links))
+
 	// GO CHANNEL PIPELINE
 	// stage 1: convert array to jobs
 	jobs := createJobsChannel(links)
