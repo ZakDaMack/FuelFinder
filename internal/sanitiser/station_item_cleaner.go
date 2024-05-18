@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+func IsValidItem(item *fueldata.StationItem) bool {
+	// if brand name isnt valid, exclude
+	if len(item.Brand) == 0 {
+		return false
+	}
+
+	return true
+}
+
 func CleanStationItem(item *fueldata.StationItem) {
 	slog.Debug("cleaning item", "brand", item.Brand)
 	item.Brand = cleanBrandName(item.Brand)

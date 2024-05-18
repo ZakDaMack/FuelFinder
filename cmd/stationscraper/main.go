@@ -70,12 +70,14 @@ func scrapeData(grpcHost string) {
 	jobs := createJobsChannel(links)
 	// stage 2: collect stations from jobs
 	res := fetchData(jobs)
-	// stage 3: sanitize data
-	res2 := sanitizeData(res)
-	// stage 4: save
-	res3 := uploadData(res2, client)
+	// stage 3: filter data
+	res2 := filterData(res)
+	// stage 4: sanitize data
+	res3 := sanitizeData(res2)
+	// stage 5: save
+	res4 := uploadData(res3, client)
 	// finally print done line
-	for j := range res3 {
+	for j := range res4 {
 		slog.Info("finished job for station url", "count", j.uploadedStations, "url", j.url)
 	}
 }
@@ -105,6 +107,26 @@ func fetchData(in <-chan Job) <-chan Job {
 			}
 
 			job.stations = data
+			out <- job
+		}
+		close(out)
+	}()
+
+	return out
+}
+
+func filterData(in <-chan Job) <-chan Job {
+	out := make(chan Job)
+	go func() {
+		for job := range in {
+			// Sanitise the data
+			sanitisedStations := make([]*fueldata.StationItem, 0)
+			for _, station := range job.stations {
+				if sanitiser.IsValidItem(station) {
+					sanitisedStations = append(sanitisedStations, station)
+				}
+			}
+			job.stations = sanitisedStations
 			out <- job
 		}
 		close(out)
