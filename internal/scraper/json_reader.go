@@ -3,7 +3,7 @@ package scraper
 import (
 	"encoding/json"
 	"fmt"
-	"main/api/fueldata"
+	"main/api/fuelfinder"
 	"main/internal/models"
 	"main/internal/sanitiser"
 	"net/http"
@@ -17,7 +17,7 @@ const (
 )
 
 // the main must return (interface{}, error)
-func ReadJsonFrom(url string) ([]*fueldata.StationItem, error) {
+func ReadJsonFrom(url string) ([]*fuelfinder.StationItem, error) {
 
 	if url == "" {
 		return nil, fmt.Errorf("url cannot be empty")
@@ -52,16 +52,16 @@ func ReadJsonFrom(url string) ([]*fueldata.StationItem, error) {
 	// TODO: Sense check the price data, if it looks off, invalidate the json and report it
 
 	// convert inputted format to 2D store format
-	var convertedData []*fueldata.StationItem
+	var convertedData []*fuelfinder.StationItem
 	for _, s := range priceData.Stations {
 		// append to list
-		convertedData = append(convertedData, &fueldata.StationItem{
+		convertedData = append(convertedData, &fuelfinder.StationItem{
 			CreatedAt: createdAt.Unix(),
 			SiteId:    s.SiteId,
 			Brand:     s.Brand,
 			Address:   s.Address,
 			Postcode:  s.Postcode,
-			Location: &fueldata.Location{
+			Location: &fuelfinder.Location{
 				Type: "Point",
 				Coordinates: []float32{
 					float32(sanitiser.ToFloat(s.Location.Longitude)),
@@ -84,7 +84,7 @@ func createRequest(url string) (*http.Request, error) {
 		return nil, err
 	}
 
-	// NOTE: need to addd the headers to emulate an actual request
+	// NOTE: need to add the headers to emulate an actual request
 	r := regexp.MustCompile(`http.?:\/\/(.+?)\/`)  // gets host name
 	host := r.FindAllStringSubmatch(url, -1)[0][1] // 0 gets first regex match, 1 gets match group within the regex
 

@@ -4,42 +4,37 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"main/api/fueldata"
+	"main/internal/api"
 	"main/internal/env"
-	"main/pkg/controllers"
+	"main/pkg/fuelfinder"
+	"net/http"
 	"os"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
 	// set up logging
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 	slog.SetDefault(logger)
 
 	// get env vars
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
 	port := env.GetInt("PORT", 8080)
 
-	// set up grpc client
-	conn, err := grpc.Dial(grpcHost, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	client, err := fuelfinder.NewClient(grpcHost)
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}
-
-	// close conn once done, gen client
-	defer conn.Close()
-	client := fueldata.NewFuelDataClient(conn)
+	defer client.Connection.Close()
 
 	// set up http client, register routes
-	r := gin.Default()
-	gw := &controllers.Gateway{Client: &client}
-	r.GET("/", gw.GetStations)
-	r.GET("/ping", gw.GetPing)
-	r.GET("/brands", gw.GetBrands)
+	gateway := api.NewGateway(&client.Commands)
 
-	r.Run(fmt.Sprintf(":%s", strconv.Itoa(port)))
+	addr := fmt.Sprintf(":%s", strconv.Itoa(port))
+	err = http.ListenAndServe(addr, &gateway.Mux)
+	if err != nil {
+		log.Fatalf("error starting http server: %v", err)
+	}
 }

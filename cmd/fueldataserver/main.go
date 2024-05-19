@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"main/api/fueldata"
 	"main/internal/env"
-	"main/pkg/controllers"
+	"main/pkg/fuelfinder"
 	"net"
 	"os"
 	"strconv"
-
-	"google.golang.org/grpc"
 )
 
 func main() {
 	// set up logging
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 	slog.SetDefault(logger)
 
 	// get env vars
@@ -26,7 +25,8 @@ func main() {
 	slog.Info("setting up server...")
 	slog.Info("gRPC port opened", "port", port)
 
-	lis, err := net.Listen("tcp", fmt.Sprint(":", strconv.Itoa(port)))
+	addr := fmt.Sprint(":", strconv.Itoa(port))
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -34,18 +34,12 @@ func main() {
 	slog.Info("connecting to mongo", "uri", mongoUri)
 
 	// spool up grpc server
-	grpcServer := grpc.NewServer()
-	fds, err := controllers.NewFuelDataServer("ofd", mongoUri)
-
-	// on server start, ensure that the indexes are working, or the queries wont work
-	fds.EnsureIndexes()
-
+	grpcServer, err := fuelfinder.NewGrpcServer("ofd", mongoUri)
 	if err != nil {
 		log.Fatalf("failed to setup fueldata server: %v", err)
 	}
-	fueldata.RegisterFuelDataServer(grpcServer, fds)
 
-	slog.Info("serving server", "uri", lis.Addr().String())
+	slog.Info("starting server", "uri", lis.Addr().String())
 	err = grpcServer.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to serve: %v", err)

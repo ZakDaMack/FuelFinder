@@ -2,11 +2,11 @@ package sanitiser
 
 import (
 	"log/slog"
-	"main/api/fueldata"
+	"main/api/fuelfinder"
 	"strings"
 )
 
-func IsValidItem(item *fueldata.StationItem) bool {
+func IsValidItem(item *fuelfinder.StationItem) bool {
 	// if brand name isnt valid, exclude
 	if len(item.Brand) == 0 {
 		return false
@@ -15,7 +15,7 @@ func IsValidItem(item *fueldata.StationItem) bool {
 	return true
 }
 
-func CleanStationItem(item *fueldata.StationItem) {
+func CleanStationItem(item *fuelfinder.StationItem) {
 	slog.Debug("cleaning item", "brand", item.Brand)
 	item.Brand = cleanBrandName(item.Brand)
 }

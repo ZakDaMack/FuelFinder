@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package fueldata;
+package fuelfinder;
 
-option go_package = "main/pkg/fueldata";
+option go_package = "main/pkg/fuelfinder";
 
-service FuelData {
+service FuelFinder {
     rpc QueryArea(Geofence) returns (StationItems);
     rpc Upload(StationItems) returns (UploadedItems);
     rpc DistinctBrands(Empty) returns (Brands);

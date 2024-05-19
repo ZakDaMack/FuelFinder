@@ -1,9 +1,10 @@
-package services
+package database
 
 import (
 	"context"
 	"log/slog"
-	"main/api/fueldata"
+	"main/api/fuelfinder"
+	"main/internal/conversions"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/event"
@@ -48,12 +49,13 @@ func NewMongoConnection(uri string, db string) (*MongoStore, error) {
 	return c, nil
 }
 
-func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBrands []string) ([]fueldata.StationItem, error) {
+func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBrands []string) ([]fuelfinder.StationItem, error) {
 	coll := m.client.Database(m.database).Collection(_collection)
 
-	// get data
+	distMetres := conversions.MilesToMetres(distanceMiles)
+	filter := MakeAggregatePipeline(lat, long, int(distMetres), includeBrands)
+
 	// TODO: sort context todo
-	filter := makeAggregatePipeline(lat, long, int(milesToMetres(distanceMiles)), includeBrands)
 	cursor, err := coll.Aggregate(context.TODO(), filter)
 	if err != nil {
 		return nil, err
@@ -61,7 +63,7 @@ func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBran
 
 	// decode results into array data
 	// TODO: is there a mroe effecient way of doing this?
-	var results []fueldata.StationItem
+	var results []fuelfinder.StationItem
 	err = cursor.All(context.TODO(), &results)
 	if err != nil {
 		return nil, err
@@ -71,7 +73,7 @@ func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBran
 }
 
 // TODO: dont write if the values already exist
-func (m *MongoStore) Write(data []*fueldata.StationItem) (int, error) {
+func (m *MongoStore) Write(data []*fuelfinder.StationItem) (int, error) {
 	docs := make([]interface{}, len(data))
 	for i, d := range data {
 		docs[i] = &d
@@ -136,106 +138,4 @@ func (m *MongoStore) CreateIndex(field string, val interface{}) error {
 	indexModel := mongo.IndexModel{Keys: bson.D{{Key: field, Value: val}}}
 	_, err := coll.Indexes().CreateOne(context.TODO(), indexModel)
 	return err
-}
-
-func milesToRadians(miles float64) float64 {
-	return miles / 3963.2
-}
-
-func milesToMetres(miles int) float64 {
-	return float64(miles) * 1609.344
-}
-
-func makeFilter(lat, long, distRads float64) bson.D {
-	return bson.D{{
-		Key: "location", Value: bson.D{{
-			Key: "$geoWithin", Value: bson.D{{
-				Key: "$centerSphere", Value: bson.A{
-					bson.A{long, lat},
-					distRads,
-				},
-			}},
-		}},
-	}}
-}
-
-/*
-AGGREGATE DATA
-[
-	{
-		$geoNear: {
-			key: 'location',
-			near: {
-				type: 'Point',
-				coordinates: [parseFloat(longitude), parseFloat(latitude)]
-			},
-			distanceField: 'distance',
-      		query: {"brand": {"$in": ["Tesco", "Esso"]} },
-			maxDistance: milesToMeters(distance),
-			spherical: true
-		}
-	},
-	{ $sort: { createdat: -1 } },
-	{
-		$group: {
-			_id: '$siteid',
-			records: { $push: '$$ROOT' }
-		}
-	},
-	{
-		$replaceRoot: {
-			newRoot: { $first: '$records' }
-		}
-	}
-],
-{ maxTimeMS: 60000, allowDiskUse: true }
-*/
-
-func makeAggregatePipeline(lat, long float64, distMetres int, brands []string) bson.A {
-	geoNear := bson.D{
-		{Key: "key", Value: "location"},
-		{Key: "near", Value: bson.D{
-			{Key: "type", Value: "Point"},
-			{Key: "coordinates", Value: bson.A{long, lat}},
-		}},
-		{Key: "distanceField", Value: "distance"},
-		{Key: "maxDistance", Value: distMetres},
-		{Key: "spherical", Value: true},
-	}
-
-	if brands != nil {
-		geoNear = append(geoNear, bson.E{
-			Key: "query", Value: bson.D{
-				{Key: "brand", Value: bson.D{
-					{Key: "$in", Value: brands},
-				}},
-			}},
-		)
-	}
-
-	return bson.A{
-		bson.D{{
-			Key: "$geoNear", Value: geoNear,
-		}},
-		bson.D{{
-			Key: "$sort", Value: bson.D{{
-				Key: "createdat", Value: -1,
-			}},
-		}},
-		bson.D{{
-			Key: "$group", Value: bson.D{
-				{Key: "_id", Value: "$siteid"},
-				{Key: "records", Value: bson.D{
-					{Key: "$push", Value: "$$ROOT"},
-				}},
-			},
-		}},
-		bson.D{{
-			Key: "$replaceRoot", Value: bson.D{{
-				Key: "newRoot", Value: bson.D{{
-					Key: "$first", Value: "$records",
-				}},
-			}},
-		}},
-	}
 }

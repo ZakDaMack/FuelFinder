@@ -6,7 +6,7 @@ compile:
 	go build -o bin/stationscraper cmd/stationscraper/main.go
 
 protogen:
-	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative api/fueldata/fueldata.proto 
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative api/fuelfinder/fuelfinder.proto 
 
 dockerbuild:
 	docker build -t ofd-frontend . -f ./build/frontend.Dockerfile --network host

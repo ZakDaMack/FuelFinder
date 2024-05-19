@@ -1,13 +1,13 @@
 package sanitiser
 
 import (
-	"main/api/fueldata"
+	"main/api/fuelfinder"
 	"main/internal/assert"
 	"testing"
 )
 
 func TestCleanStationItem(t *testing.T) {
-	item := &fueldata.StationItem{
+	item := &fuelfinder.StationItem{
 		Brand: "ESSO ",
 	}
 
@@ -16,7 +16,7 @@ func TestCleanStationItem(t *testing.T) {
 }
 
 func TestBrandCapitalisation(t *testing.T) {
-	item := &fueldata.StationItem{
+	item := &fuelfinder.StationItem{
 		Brand: "Apple green ",
 	}
 
@@ -24,11 +24,20 @@ func TestBrandCapitalisation(t *testing.T) {
 	assert.Equal("Apple Green", item.Brand)
 }
 
+func TestEmptyBrandname(t *testing.T) {
+	item := &fuelfinder.StationItem{
+		Brand: "",
+	}
+
+	// will panic if test fails
+	CleanStationItem(item)
+}
+
 // Tests that variations of a prior issue become equivalent
 func TestVariantsEquivalent(t *testing.T) {
-	itemOne := &fueldata.StationItem{Brand: "JET "}
-	itemTwo := &fueldata.StationItem{Brand: "JET"}
-	itemThree := &fueldata.StationItem{Brand: "Jet"}
+	itemOne := &fuelfinder.StationItem{Brand: "JET "}
+	itemTwo := &fuelfinder.StationItem{Brand: "JET"}
+	itemThree := &fuelfinder.StationItem{Brand: "Jet"}
 
 	CleanStationItem(itemOne)
 	CleanStationItem(itemTwo)
