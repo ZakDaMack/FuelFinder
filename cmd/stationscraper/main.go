@@ -48,14 +48,14 @@ func main() {
 			slog.Info("job triggered", "ticker_time", t)
 			go scraper.NewScraper(url, data)
 		case job := <-data:
-			slog.Info("job passed to upload", "url", job.Url, "items", len(job.Stations))
+			slog.Debug("job passed to upload", "url", job.Url, "items", len(job.Stations))
 			uploaded, err := client.Commands.Upload(context.TODO(), &fuelfinderproto.StationItems{
 				Items: job.Stations,
 			})
 			if err != nil {
 				slog.Error("error uploading station data", "url", job.Url, "error", err)
 			} else {
-				slog.Info("finished job for station url", "url", job.Url, "count", uploaded.Count)
+				slog.Info("finished job for station url", "url", job.Url, "uploaded", uploaded.Count)
 			}
 		}
 	}

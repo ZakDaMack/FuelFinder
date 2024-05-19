@@ -3,10 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"main/api/fuelfinder"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -43,9 +43,7 @@ func (g *ApiGateway) getStations(w http.ResponseWriter, r *http.Request) {
 	lat, _ := strconv.ParseFloat(r.URL.Query().Get("latitude"), 32)
 	long, _ := strconv.ParseFloat(r.URL.Query().Get("longitude"), 32)
 	radius, _ := strconv.ParseFloat(r.URL.Query().Get("radius"), 32)
-	brands := r.URL.Query().Get("brands")
-
-	fmt.Print(brands)
+	brandQuery := r.URL.Query().Get("brands")
 
 	if radius < 1 || radius > 20 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,12 +53,18 @@ func (g *ApiGateway) getStations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get brands query string and calculate val
+	brands := make([]string, 0)
+	if brandQuery != "" {
+		brands = strings.Split(brandQuery, ",")
+	}
+
 	service := *g.client
 	val, err := service.QueryArea(context.TODO(), &fuelfinder.Geofence{
 		Latitude:  float32(lat),
 		Longitude: float32(long),
 		Radius:    float32(radius),
-		Brands:    []string{brands},
+		Brands:    brands,
 	})
 
 	if err != nil {
