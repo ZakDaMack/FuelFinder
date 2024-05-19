@@ -11,21 +11,24 @@ import (
 )
 
 type ApiGateway struct {
-	Mux    http.ServeMux
-	client *fuelfinder.FuelFinderClient
+	Handler http.Handler
+	client  *fuelfinder.FuelFinderClient
 }
 
 func NewGateway(c *fuelfinder.FuelFinderClient) *ApiGateway {
 	// create a new http server
+	mux := http.NewServeMux()
 	gw := &ApiGateway{
 		client: c,
-		Mux:    *http.NewServeMux(),
 	}
 
 	// attach funcs, then return
-	gw.Mux.HandleFunc("/", gw.getStations)
-	gw.Mux.HandleFunc("/ping", gw.getPing)
-	gw.Mux.HandleFunc("/brands", gw.getBrands)
+	mux.HandleFunc("/", gw.getStations)
+	mux.HandleFunc("/ping", gw.getPing)
+	mux.HandleFunc("/brands", gw.getBrands)
+
+	//attach middleware to mux
+	gw.Handler = log(mux)
 	return gw
 }
 

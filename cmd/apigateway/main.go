@@ -33,7 +33,7 @@ func main() {
 	gateway := api.NewGateway(&client.Commands)
 
 	addr := fmt.Sprintf(":%s", strconv.Itoa(port))
-	err = http.ListenAndServe(addr, &gateway.Mux)
+	err = http.ListenAndServe(addr, gateway.Handler)
 	if err != nil {
 		log.Fatalf("error starting http server: %v", err)
 	}
