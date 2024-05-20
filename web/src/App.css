@@ -15,7 +15,7 @@
   border-radius: 1rem 1rem 0 0 !important;
 }
 
-.leaflet-control-zoom {
+.leaflet-control-zoom, .leaflet-control-attribution {
   display: none;
 }
 

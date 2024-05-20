@@ -27,7 +27,7 @@ export default function ListSortChips() {
                 >
                     <Chip
                         label={data.text}
-                        color={sortKey === data.value ? 'primary' : undefined}
+                        color={sortKey === data.value ? 'secondary' : undefined}
                         onClick={() => handleClick(data.value)}
                     />
                 </ListItem>

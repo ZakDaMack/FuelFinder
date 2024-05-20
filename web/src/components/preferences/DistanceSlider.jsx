@@ -26,7 +26,7 @@ export default function DistanceSlider() {
                 <Typography ml={1} component='h3' variant='h6'>Distance (miles)</Typography>
             </Box>
             <Box {...boxProps}>
-                <Slider color="info" value={radius} onChange={(e, v) => setRadius(v)} min={1} max={20} sx={{m:1, width: '95%'}} />
+                <Slider value={radius} onChange={(e, v) => setRadius(v)} min={1} max={20} sx={{m:1, width: '95%'}} />
                 <Typography ml={2}>{radius}</Typography>
             </Box>
         </Box>

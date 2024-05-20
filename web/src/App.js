@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import './App.css';
 import Map from './pages/Map'
+import IntroDialog from './pages/IntroDialog';
 import LoadingOverlay from './pages/LoadingOverlay';
 import Init from './components/Init'
 import ErrorSnackbar from './components/ErrorSnackbar';
@@ -19,9 +20,13 @@ function App() {
   const theme = createTheme({
     palette: {
       primary: {
-        // main: '#D5FC7F'
-        main: grey[500]
+        main: '#66C745',
+        dark: '#00568A'
+        // main: grey[500]
       },
+      secondary: {
+        main: '#ADA9A4'
+      }
     },
     typography: {
       fontFamily: '"inter", sans-serif'
@@ -40,6 +45,7 @@ function App() {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <IntroDialog />
         <LoadingOverlay />
         <Init />
         <Map />

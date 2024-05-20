@@ -47,7 +47,7 @@ export default function BrandSelectionChips() {
                     <ListItem key={b} sx={{ m: 0.5, p: 0, width: 'unset' }}>
                         <Chip 
                             label={b}
-                            color={(activeFilter?.includes(b) ?? true) ? 'primary' : undefined}
+                            color={(activeFilter?.includes(b) ?? true) ? 'secondary' : undefined}
                             onClick={() => toggleBrand(b)}
                         />
                     </ListItem>

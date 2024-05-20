@@ -61,9 +61,9 @@ export default function PreferencesList() {
                 <BrandSelectionChips />
             </Box>
             <DialogActions sx={{display: 'flex', justifyContent: 'center', p:2}}>
-                <Button variant='text' color='info' onClick={handleClose}>Cancel</Button>
+                <Button variant='text' color='error' onClick={handleClose}>Cancel</Button>
                 <Box sx={{width: 10}}></Box>
-                <Button variant='contained' color='info' onClick={handleUpdate}>Update</Button>
+                <Button variant='contained' color='primary' onClick={handleUpdate}>Update</Button>
             </DialogActions>
         </Dialog>
     );
