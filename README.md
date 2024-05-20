@@ -28,4 +28,4 @@ The three backend microservices entrypoints can be found under the `cmd/` folder
 The project consists of a number of different projects, with the FuelFinder server connecting to a mongo server, reachable via gRPC. 
 The scraper is timed to run every 15 minutes by default and will upload the data to the FuelFinder server, which can then be reachable at the web SPA via the api gateway service. (It would be nice to interact with the FuelFinder server directly at some point) 
 
-![fuelfinder architecture](/docs/arch_drawing.png)
+![fuelfinder architecture](/docs/arch_drawing_dark.png)
