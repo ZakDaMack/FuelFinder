@@ -25,13 +25,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: zakdamack/ofd-frontend
+          - image: zakdamack/fuelfinder-frontend
             dockerfile: build/frontend.Dockerfile
-          - image: zakdamack/ofd-server
+          - image: zakdamack/fuelfinder-server
             dockerfile: build/server.Dockerfile
-          - image: zakdamack/ofd-scraper
+          - image: zakdamack/fuelfinder-scraper
             dockerfile: build/scraper.Dockerfile
-          - image: zakdamack/ofd-gateway
+          - image: zakdamack/fuelfinder-gateway
             dockerfile: build/gateway.Dockerfile
     steps:
       - name: Check out the repo
