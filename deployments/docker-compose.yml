@@ -17,7 +17,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: ofd-frontend
+    image: fuelfinder-frontend
     build: 
       network: host
       context: ..
@@ -25,7 +25,7 @@ services:
 
   server:
     container_name: server
-    image: ofd-server
+    image: fuelfinder-server
     build:
       context: ..
       dockerfile:  build/server.Dockerfile
@@ -37,7 +37,7 @@ services:
 
   scraper:
     container_name: scraper
-    image: ofd-scraper
+    image: fuelfinder-scraper
     build: 
       context: ..
       dockerfile:  build/scraper.Dockerfile
@@ -49,7 +49,7 @@ services:
 
   gateway:
     container_name: gateway
-    image: ofd-gateway
+    image: fuelfinder-gateway
     build: 
       context: ..
       dockerfile:  build/gateway.Dockerfile

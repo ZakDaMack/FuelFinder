@@ -3,11 +3,11 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o bin/fueldataserver cmd/fueldataserver/main.go
+RUN go build -o bin/fuelfinderserver cmd/fuelfinderserver/main.go
 
-FROM alpine:latest AS ofd-fueldataserver
+FROM alpine:latest AS fuelfinder-fueldataserver
 WORKDIR /app
-COPY --from=go-build /app/bin/fueldataserver .
+COPY --from=go-build /app/bin/fuelfinderserver .
 ENV PORT=50051
 ENV MONGO_URI="mongodb://database"
-CMD ["/app/fueldataserver"]
+CMD ["/app/fuelfinderserver"]

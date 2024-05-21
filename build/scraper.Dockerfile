@@ -5,7 +5,7 @@ RUN go mod download
 COPY . .
 RUN go build -o bin/stationscraper cmd/stationscraper/main.go
 
-FROM alpine:latest AS ofd-stationscraper
+FROM alpine:latest AS fuelfinder-stationscraper
 WORKDIR /app
 COPY --from=go-build /app/bin/stationscraper .
 COPY scripts/stationscraper_cron.sh .
