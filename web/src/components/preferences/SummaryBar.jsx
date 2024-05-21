@@ -1,5 +1,4 @@
 import { useSelector, useDispatch } from 'react-redux';
-
 import { openMenu } from '../../slices/menuSlice';
 
 import Box from '@mui/material/Box';
@@ -9,13 +8,18 @@ import IconButton from '@mui/material/IconButton';
 import { grey } from '@mui/material/colors';
 
 import TuneIcon from '@mui/icons-material/Tune';
-
+import InfoIcon from '@mui/icons-material/Info';
 
 export default function SummaryBar() {
     const dispatch = useDispatch();
-    const open = (e) => {
+    const openPrefs = (e) => {
         e.stopPropagation()
         dispatch(openMenu('preferences'))
+    }
+    
+    const openInfo = (e) => {
+        e.stopPropagation()
+        dispatch(openMenu('info'))
     }
 
     const filterNos = useSelector((state) => state.stations.filters.brands?.length ?? 0)
@@ -30,7 +34,7 @@ export default function SummaryBar() {
             borderRadius: '5rem',
             zIndex: 2000, m: 2, p:1
         }}>
-            <IconButton size='large' sx={{bgcolor: 'black'}} onClick={open}>
+            <IconButton size='large' sx={{bgcolor: 'black'}} onClick={openPrefs}>
                 <TuneIcon sx={{color: 'white'}} />
             </IconButton>
             <Box sx={{mx: 2}}>
@@ -41,6 +45,9 @@ export default function SummaryBar() {
                     (+{filterNos} filter{filterNos === 1 ? '' : 's'})
                 </Typography>
             </Box>
+            <IconButton color='primary' size='small' onClick={openInfo}>
+                <InfoIcon />
+            </IconButton>
         </Card>
     );
 }

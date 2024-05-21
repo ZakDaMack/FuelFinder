@@ -6,6 +6,7 @@ export const menuSlice = createSlice({
     stations: false,
     preferences: false,
     tooltips: false,
+    info: false,
   },
   reducers: {
     openMenu: (state, action) => {

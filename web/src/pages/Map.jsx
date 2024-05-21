@@ -7,7 +7,6 @@ import { useMap } from 'react-leaflet/hooks'
 import { Marker } from 'react-leaflet/Marker' 
 import { Icon } from 'leaflet'
 
-import OfdBanner from '../components/map/Banner';
 import StationMarker from '../components/map/StationMarker';
 import PreferencesList from '../components/preferences/PreferencesList';
 import SummaryBar from '../components/preferences/SummaryBar';
@@ -22,8 +21,8 @@ export default function Map() {
 
     const carIcon = new Icon ({
         iconUrl : '/car.png',
-        iconSize : [40,40], // size of the icon
-        iconAnchor : [20,20], // point of the icon which will correspond to marker's location
+        iconSize : [40,30], // size of the icon
+        iconAnchor : [20,15], // point of the icon which will correspond to marker's location
         popupAnchor : [-3, -76] // point from which the popup should open relative to the iconAnchor
     });
 
@@ -44,7 +43,6 @@ export default function Map() {
             <StationListView />
             <StationListToggle />
             <RecentreAutomatically location={location} />
-            {/* <OfdBanner /> */}
         </MapContainer>
     );
 }

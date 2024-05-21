@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { closeMenu } from '../slices/menuSlice';
+import { StoreVersion } from '../lib/getAppVersion';
 
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
@@ -9,26 +13,26 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-export default function IntroDialog() {
 
-    const vers = 1
+export default function IntroDialog() {
+    const dispatch = useDispatch();
+    const isOpen = useSelector((state) => state.menus.info)
+
     const changes = [
         "Filter by range and brands",
         "Sort list view by distance/price",
         "New, fresh mobile-first design"
     ];
 
-    const storedVersion = localStorage.getItem("vers") ?? 0
-    const [open, setOpen] = useState(storedVersion < vers)
     const [dontShow, setDontShow] = useState(false)
 
     const close = () => {
-        if (dontShow) localStorage.setItem("vers", vers)
-        setOpen(false)
+        if (dontShow) StoreVersion()
+        dispatch(closeMenu('info'))
     }
 
     return ( 
-        <Dialog sx={{zIndex: 10000}} transitionDuration={{enter: 0, exit: 500}} open={open}>
+        <Dialog sx={{zIndex: 10000}} transitionDuration={{enter: 0, exit: 500}} open={isOpen}>
             <DialogContent sx={{
                 '& li:not(:last-child)': { pb: 0.5 },
                 '& > .MuiTypography-root:not(:first-child)': {
