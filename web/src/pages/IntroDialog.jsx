@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
@@ -31,7 +30,7 @@ export default function IntroDialog() {
     return ( 
         <Dialog sx={{zIndex: 10000}} transitionDuration={{enter: 0, exit: 500}} open={open}>
             <DialogContent sx={{
-                '& li': { pb: 0.5 },
+                '& li:not(:last-child)': { pb: 0.5 },
                 '& > .MuiTypography-root:not(:first-child)': {
                     pt: 3
                 }
@@ -49,9 +48,9 @@ export default function IntroDialog() {
                 </Typography>
 
                 <Typography align='justify'>
-                    FuelFinder is an open source project developed by <a href="https://zakdowsett.co.uk/" target="_blank">Zak Dowsett</a>.
+                    FuelFinder is an open source project with the aim of saving you money.
                     The app will show you the cheapest fuel prices in your area by using data provided
-                    by brands participating in the <a href="https://www.gov.uk/guidance/access-fuel-price-data" target="_blank">UK gov scheme</a> to
+                    by brands participating in the <Link href="https://www.gov.uk/guidance/access-fuel-price-data">UK gov scheme</Link> to
                     give drivers access to live fuel prices and keep prices down.
                 </Typography>
                 <Typography>
@@ -59,7 +58,7 @@ export default function IntroDialog() {
                     use the map or list view to view your results.
                 </Typography>
                 
-                <Typography variant='h6' compoonent='h4'>Latest Changes</Typography>
+                <Typography variant='h6' compoonent='h4'>What's new?</Typography>
                 <Box component='ul' px={3} my={1}>
                     {changes.map(x => (
                         <Typography component='li'>{x}</Typography>
@@ -69,23 +68,23 @@ export default function IntroDialog() {
                 <Typography variant='h6' compoonent='h4'>Attribution</Typography>
                 <Box component='ul' px={3} my={1}>
                     <Typography component='li' sx={{'& > *': {pr:1}}}>
-                        <a href="https://leafletjs.com" target="_blank" title="A JavaScript library for interactive maps">
+                        <Link href="https://leafletjs.com">
                             Leaflet
-                        </a>
+                        </Link>
                         <span aria-hidden="true">|</span>
                         <span>©</span>
-                        <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>
+                        <Link href="https://www.openstreetmap.org/copyright">OpenStreetMap</Link>
                         <span>contributors</span>
                     </Typography>
                     <Typography component='li'>
-                        <a href="https://github.com/ZakDaMack/FuelFinder" target="_blank">
+                        <Link href="https://github.com/ZakDaMack/FuelFinder">
                             FuelFinder
-                        </a> by <a href="https://zakdowsett.co.uk/" target="_blank">
+                        </Link> by <Link href="https://zakdowsett.co.uk/">
                             Zak Dowsett
-                        </a>
+                        </Link>
                     </Typography>
                     <Typography component='li'>
-                        Report any issues <a href="https://github.com/ZakDaMack/FuelFinder/issues/new" target="_blank">here</a>
+                        Report any issues <Link href="https://github.com/ZakDaMack/FuelFinder/issues/new">here</Link>
                     </Typography>
                 </Box>
 
@@ -99,3 +98,7 @@ export default function IntroDialog() {
         </Dialog>
     );
 }
+
+const Link = ({ href, children }) => (
+    <a href={href} target="_blank" rel="noreferrer">{children}</a>
+);
