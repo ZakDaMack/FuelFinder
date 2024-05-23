@@ -34,8 +34,8 @@ export default function SummaryBar() {
             borderRadius: '5rem',
             zIndex: 2000, m: 2, p:1
         }}>
-            <IconButton size='large' sx={{bgcolor: 'black'}} onClick={openPrefs}>
-                <TuneIcon sx={{color: 'white'}} />
+            <IconButton size='large' sx={{background: 'black !important'}} onClick={openPrefs}>
+                <TuneIcon sx={{fill: 'white'}} />
             </IconButton>
             <Box sx={{mx: 2}}>
                 <Typography variant='body1'>

@@ -32,7 +32,13 @@ export default function IntroDialog() {
     }
 
     return ( 
-        <Dialog sx={{zIndex: 10000}} transitionDuration={{enter: 0, exit: 500}} open={isOpen}>
+        <Dialog transitionDuration={{enter: 0, exit: 500}} open={isOpen} sx={{
+            zIndex: 10000,
+            '& .MuiDialog-paper': {
+                margin: 2,
+                maxHeight: 'calc(100% - 32px)'
+            }
+        }}>
             <DialogContent sx={{
                 '& li:not(:last-child)': { pb: 0.5 },
                 '& > .MuiTypography-root:not(:first-child)': {
@@ -65,7 +71,7 @@ export default function IntroDialog() {
                 <Typography variant='h6' compoonent='h4'>What's new?</Typography>
                 <Box component='ul' px={3} my={1}>
                     {changes.map(x => (
-                        <Typography component='li'>{x}</Typography>
+                        <Typography component='li' key={x}>{x}</Typography>
                     ))}
                 </Box>
 
@@ -94,7 +100,7 @@ export default function IntroDialog() {
 
             </DialogContent>
             <DialogActions>
-                <FormControlLabel label="Don't show this again" control={
+                <FormControlLabel label="Don't show again" control={
                     <Checkbox value={dontShow} onChange={(e, c) =>setDontShow(c)} />
                 } />
                 <Button variant='contained' onClick={close}>Ok, got it</Button>

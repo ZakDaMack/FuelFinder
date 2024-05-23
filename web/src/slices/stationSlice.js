@@ -27,9 +27,9 @@ export const stationSlice = createSlice({
       state.loading = false
       state.error = null
     },
-    getDataFailure: (state) => {
+    getDataFailure: (state, action) => {
       state.loading = false
-      state.error = "Failed to contact network"
+      state.error = action.payload
     },
     updateLocation: (state, action) => {
       state.location = action.payload
@@ -63,16 +63,21 @@ export default stationSlice.reducer
 // Asynchronous thunk action
 export function fetchData() {
   return async (dispatch, getState) => {
-    dispatch(getData())
-    const pos = await new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject);
-    });
-
-    const location = [pos.coords.latitude, pos.coords.longitude]
-    dispatch(updateLocation(location))
-    const state = getState()
-    
     try {
+      dispatch(getData())
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const location = [pos.coords.latitude, pos.coords.longitude]
+      dispatch(updateLocation(location))
+    } catch (error) {
+      dispatch(getDataFailure("Unable to get location"))
+      return
+    }
+
+    try {
+      const state = getState()
       const response = await fetch(process.env.REACT_APP_API_URL + GetUrlParams({
         latitude: state.stations.location[0],
         longitude: state.stations.location[1],
@@ -84,10 +89,10 @@ export function fetchData() {
       if (!Array.isArray(data)) {
         data = []
       } 
+
       dispatch(getDataSuccess(data))
     } catch (error) {
-      console.error(error);
-      dispatch(getDataFailure())
+      dispatch(getDataFailure("Failed to contact network"))
     }
   }
 }

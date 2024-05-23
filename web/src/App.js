@@ -13,7 +13,6 @@ import menuSlice from './slices/menuSlice';
 import stationsSlice from './slices/stationSlice'
 import brandSlice from './slices/brandSlice';
 
-import { grey } from '@mui/material/colors';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 
 function App() {
@@ -26,7 +25,13 @@ function App() {
       },
       secondary: {
         main: '#ADA9A4'
-      }
+      },
+      black: {
+        main: '#000000',
+        light: '#E9DB5D',
+        dark: '#A29415',
+        contrastText: '#FFFFFF',
+      },
     },
     typography: {
       fontFamily: '"inter", sans-serif'

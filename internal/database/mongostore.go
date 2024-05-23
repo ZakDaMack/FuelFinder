@@ -29,7 +29,7 @@ const (
 func NewMongoConnection(uri string, db string) (*MongoStore, error) {
 	monitor := &event.CommandMonitor{
 		Started: func(_ context.Context, e *event.CommandStartedEvent) {
-			slog.Debug("mongo started", "command", e.Command)
+			slog.Debug("mongo started", "command", e.Command.String())
 			// fmt.Println(e.Command)
 		},
 	}

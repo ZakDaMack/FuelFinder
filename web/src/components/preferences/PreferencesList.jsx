@@ -48,6 +48,7 @@ export default function PreferencesList() {
             PaperProps={isMobile ? {sx: {
                 bottom: 0,
                 width: '100%',
+                maxHeight: '75%',
                 position: 'absolute',
                 borderRadius: '4px 4px 0 0',
             }}: undefined}
