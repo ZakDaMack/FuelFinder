@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"log/slog"
@@ -9,7 +10,9 @@ import (
 	"main/pkg/fuelfinder"
 	"net/http"
 	"os"
-	"strconv"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -30,11 +33,30 @@ func main() {
 	defer client.Connection.Close()
 
 	// set up http client, register routes
-	gateway := api.NewGateway(&client.Commands)
+	addr := fmt.Sprintf(":%d", port)
+	server := api.NewGateway(&client.Commands, addr)
 
-	addr := fmt.Sprintf(":%s", strconv.Itoa(port))
-	err = http.ListenAndServe(addr, gateway.Handler)
+	// listen for signal kill
+	sigChan := make(chan os.Signal, 2)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	go func() {
+		err = server.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatalf("error starting http server: %v", err)
+		}
+	}()
+
+	// wait for SIGKILL
+	s := <-sigChan
+	slog.Info("app killed through signal", "signal", s.String())
+
+	//shutdown server with 5 second limit
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err = server.Shutdown(ctx)
 	if err != nil {
-		log.Fatalf("error starting http server: %v", err)
+		log.Fatalf("error shutting down http server: %v", err)
 	}
+
 }

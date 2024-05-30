@@ -5,6 +5,8 @@ import (
 	"log"
 	"log/slog"
 	"main/internal/env"
+	"os/signal"
+	"syscall"
 	"time"
 
 	fuelfinderproto "main/api/fuelfinder"
@@ -36,12 +38,17 @@ func main() {
 	}
 	defer client.Connection.Close()
 
+	// listen for signal kill
+	sigChan := make(chan os.Signal, 2)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
 	// make an outbound channel for new stationdata
 	data := make(chan scraper.Job)
 
 	slog.Debug("creating ticker")
 	ticker := time.NewTicker(time.Duration(interval) * time.Minute)
 
+outer:
 	for {
 		select {
 		case t := <-ticker.C:
@@ -57,6 +64,9 @@ func main() {
 			} else {
 				slog.Info("finished job for station url", "url", job.Url, "uploaded", uploaded.Count)
 			}
+		case s := <-sigChan:
+			slog.Info("app killed through signal", "signal", s.String())
+			break outer
 		}
 	}
 }
