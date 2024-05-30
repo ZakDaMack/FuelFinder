@@ -22,3 +22,12 @@ func GetInt(key string, dflt int) int {
 	}
 	return cast
 }
+
+func GetBool(key string, dflt bool) bool {
+	val := Get(key, strconv.FormatBool(dflt))
+	cast, err := strconv.ParseBool(val)
+	if err != nil {
+		panic(err)
+	}
+	return cast
+}

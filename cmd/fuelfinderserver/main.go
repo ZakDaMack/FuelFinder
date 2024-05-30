@@ -14,15 +14,18 @@ import (
 )
 
 func main() {
-	// set up logging
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}))
-	slog.SetDefault(logger)
-
 	// get env vars
 	port := env.GetInt("PORT", 50051)
 	mongoUri := env.Get("MONGO_URI", "mongodb://localhost:27017")
+	debugMode := env.GetBool("DEBUG_MODE", false)
+
+	// set up logging
+	options := &slog.HandlerOptions{}
+	if debugMode {
+		options.Level = slog.LevelDebug
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stdout, options))
+	slog.SetDefault(logger)
 
 	slog.Info("setting up server...")
 	slog.Info("gRPC port opened", "port", port)

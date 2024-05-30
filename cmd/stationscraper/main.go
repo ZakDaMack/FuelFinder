@@ -16,20 +16,22 @@ import (
 )
 
 func main() {
-	// set up logging
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}))
-	slog.SetDefault(logger)
-
-	slog.Info("scraper started")
-
 	// get env vars
-	slog.Debug("getting env vars")
 	url := "https://www.gov.uk/guidance/access-fuel-price-data" // fixed for now
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
 	interval := env.GetInt("INTERVAL", 1)
+	debugMode := env.GetBool("DEBUG_MODE", false)
+
+	// set up logging
+	options := &slog.HandlerOptions{}
+	if debugMode {
+		options.Level = slog.LevelDebug
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stdout, options))
+	slog.SetDefault(logger)
 	slog.Debug("got env vars", "host", grpcHost, "interval", interval)
+
+	slog.Info("scraper started")
 
 	// create client
 	client, err := fuelfinder.NewClient(grpcHost)

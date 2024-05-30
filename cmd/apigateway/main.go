@@ -16,15 +16,18 @@ import (
 )
 
 func main() {
-	// set up logging
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}))
-	slog.SetDefault(logger)
-
 	// get env vars
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
 	port := env.GetInt("PORT", 8080)
+	debugMode := env.GetBool("DEBUG_MODE", false)
+
+	// set up logging
+	options := &slog.HandlerOptions{}
+	if debugMode {
+		options.Level = slog.LevelDebug
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stdout, options))
+	slog.SetDefault(logger)
 
 	client, err := fuelfinder.NewClient(grpcHost)
 	if err != nil {
