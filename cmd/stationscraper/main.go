@@ -20,7 +20,7 @@ func main() {
 	url := "https://www.gov.uk/guidance/access-fuel-price-data" // fixed for now
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
 	interval := env.GetInt("INTERVAL", 1)
-	debugMode := env.GetBool("DEBUG_MODE", false)
+	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
 
 	// set up logging
 	options := &slog.HandlerOptions{}
@@ -29,8 +29,8 @@ func main() {
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stdout, options))
 	slog.SetDefault(logger)
-	slog.Debug("got env vars", "host", grpcHost, "interval", interval)
 
+	slog.Debug("got env vars", "host", grpcHost, "interval", interval)
 	slog.Info("scraper started")
 
 	// create client
@@ -39,6 +39,11 @@ func main() {
 		log.Fatalf("could not connect: %v", err)
 	}
 	defer client.Connection.Close()
+
+	ctx := context.Background()
+	ctx.
+		ch := <-ctx.Done()
+	// ctx
 
 	// listen for signal kill
 	sigChan := make(chan os.Signal, 2)

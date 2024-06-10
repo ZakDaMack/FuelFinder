@@ -19,7 +19,7 @@ func main() {
 	// get env vars
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
 	port := env.GetInt("PORT", 8080)
-	debugMode := env.GetBool("DEBUG_MODE", false)
+	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
 
 	// set up logging
 	options := &slog.HandlerOptions{}

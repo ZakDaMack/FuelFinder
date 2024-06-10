@@ -17,7 +17,7 @@ func main() {
 	// get env vars
 	port := env.GetInt("PORT", 50051)
 	mongoUri := env.Get("MONGO_URI", "mongodb://localhost:27017")
-	debugMode := env.GetBool("DEBUG_MODE", false)
+	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
 
 	// set up logging
 	options := &slog.HandlerOptions{}

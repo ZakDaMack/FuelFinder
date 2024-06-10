@@ -31,3 +31,12 @@ func GetBool(key string, dflt bool) bool {
 	}
 	return cast
 }
+
+func ExistsAndNotFalse(key string) bool {
+	val, ok := os.LookupEnv(key)
+	cast, err := strconv.ParseBool(val)
+	if err != nil {
+		return ok
+	}
+	return ok && cast
+}
