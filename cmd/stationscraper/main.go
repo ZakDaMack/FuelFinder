@@ -21,6 +21,7 @@ func main() {
 	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
 	interval := env.GetInt("INTERVAL", 1)
 	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
+	immediate := env.ExistsAndNotFalse("IMMEDIATE")
 
 	// set up logging
 	options := &slog.HandlerOptions{}
@@ -40,37 +41,51 @@ func main() {
 	}
 	defer client.Connection.Close()
 
-	ctx := context.Background()
-	ctx.
-		ch := <-ctx.Done()
-	// ctx
-
 	// listen for signal kill
 	sigChan := make(chan os.Signal, 2)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
 	// make an outbound channel for new stationdata
 	data := make(chan scraper.Job)
+	defer close(data)
 
+	// create ticker depending on if immediate or not
 	slog.Debug("creating ticker")
-	ticker := time.NewTicker(time.Duration(interval) * time.Minute)
+	var dur time.Duration
+	if immediate {
+		dur = 1 * time.Second
+	} else {
+		dur = time.Duration(interval) * time.Minute
+	}
+	ticker := time.NewTicker(dur)
+
+	// create cancel context
+	ctx, cancel := context.WithCancel(context.Background())
 
 outer:
 	for {
 		select {
 		case t := <-ticker.C:
+			if immediate {
+				ticker.Stop()
+			}
 			slog.Info("job triggered", "ticker_time", t)
-			go scraper.NewScraper(url, data)
+			go func(cncl context.CancelFunc) {
+				scraper.NewScraper(url, data)
+				cncl()
+			}(cancel)
 		case job := <-data:
 			slog.Debug("job passed to upload", "url", job.Url, "items", len(job.Stations))
-			uploaded, err := client.Commands.Upload(context.TODO(), &fuelfinderproto.StationItems{
-				Items: job.Stations,
-			})
+			items := &fuelfinderproto.StationItems{Items: job.Stations}
+			uploaded, err := client.Commands.Upload(context.TODO(), items)
 			if err != nil {
 				slog.Error("error uploading station data", "url", job.Url, "error", err)
 			} else {
 				slog.Info("finished job for station url", "url", job.Url, "uploaded", uploaded.Count)
 			}
+		case <-ctx.Done():
+			slog.Info("app killed after completion")
+			break outer
 		case s := <-sigChan:
 			slog.Info("app killed through signal", "signal", s.String())
 			break outer
