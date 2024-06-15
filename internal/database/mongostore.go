@@ -49,11 +49,11 @@ func NewMongoConnection(uri string, db string) (*MongoStore, error) {
 	return c, nil
 }
 
-func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBrands []string) ([]fuelfinder.StationItem, error) {
+func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBrands []string, includeFueltypes []string) ([]fuelfinder.StationItem, error) {
 	coll := m.client.Database(m.database).Collection(_collection)
 
 	distMetres := conversions.MilesToMetres(distanceMiles)
-	filter := MakeAggregatePipeline(lat, long, int(distMetres), includeBrands)
+	filter := MakeAggregatePipeline(lat, long, int(distMetres), includeBrands, includeFueltypes)
 
 	// TODO: sort context todo
 	cursor, err := coll.Aggregate(context.TODO(), filter)

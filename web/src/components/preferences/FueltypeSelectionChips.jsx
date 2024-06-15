@@ -11,30 +11,36 @@ import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 
 import { updateFilters, } from '../../slices/stationSlice';
 
-export default function BrandSelectionChips() {
+const boxProps = {
+    display: 'flex',
+    alignItems: 'center'
+}
+
+const types = {
+    Super: "e5",
+    Petrol: "e10",
+    Diesel: "b7",
+    SDV: "sdv"
+}
+
+export default function FuelTypeSelectionChips() {
     const dispatch = useDispatch();
 
-    const brands = useSelector((state) => state.brands.value);
-    const activeFilter = useSelector((state) => state.stations.filters.brands);
-    
-    const update = (newArr) => dispatch(updateFilters({ brands: newArr }))
-    const toggleBrand = item => {
+    const activeFilter = useSelector((state) => state.stations.filters.fueltypes);
+    const update = (newArr) => dispatch(updateFilters({ fueltypes: newArr }))
+
+    const toggleType = item => {
         const arr = activeFilter ?? [];
         let newArr = arr.includes(item) ? arr.filter(i => i !== item) : [ ...arr, item ];
-        if (brands.length === newArr.length) newArr = null
+        if (types.length === newArr.length) newArr = null
         update(newArr)
-    }
-
-    const boxProps = {
-        display: 'flex',
-        alignItems: 'center'
     }
     
     return (
         <Box>
             <Box {...boxProps}>
                 <LocalGasStationIcon />
-                <Typography ml={1} component='h3' variant='h6'>Stations</Typography>
+                <Typography ml={1} component='h3' variant='h6'>Fuel Types</Typography>
             </Box>
             <Box sx={{display: 'flex', alignItems: 'baseline'}}>
                 <Button color="info" onClick={() => update(null)}>All</Button>
@@ -42,15 +48,15 @@ export default function BrandSelectionChips() {
                 <Button color="info" onClick={() => update([])}>None</Button>
             </Box>
             <List sx={{display: 'flex', flexWrap: 'wrap',}}>
-                {brands.map((b) => {
-                    const isActive = activeFilter?.includes(b) ?? true
+                {Object.entries(types).map(([key, value]) => {
+                    const isActive = activeFilter?.includes(value) ?? true
                     return (
-                        <ListItem key={b} sx={{ m: 0.5, p: 0, width: 'unset' }}>
+                        <ListItem key={value} sx={{ m: 0.5, p: 0, width: 'unset' }}>
                             <Chip 
-                                label={b}
+                                label={key}
                                 sx={{boxShadow: isActive ? 2 : 0}}
                                 color={isActive ? 'primary' : undefined}
-                                onClick={() => toggleBrand(b)}
+                                onClick={() => toggleType(value)}
                             />
                         </ListItem>
                     )

@@ -21,6 +21,7 @@ message Geofence {
     float latitude = 2;
     float radius = 3;
     repeated string brands = 4;
+    repeated string fueltype = 5;
 }
 
 message StationItem {

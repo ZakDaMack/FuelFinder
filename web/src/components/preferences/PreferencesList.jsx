@@ -14,6 +14,7 @@ import { fetchData, updateFilters } from '../../slices/stationSlice';
 import { closeMenu } from '../../slices/menuSlice';
 import DistanceSlider from './DistanceSlider';
 import BrandSelectionChips from './BrandSelectionChips';
+import FuelTypeSelectionChips from './FueltypeSelectionChips';
 
 export default function PreferencesList() {
     const dispatch = useDispatch();
@@ -60,6 +61,8 @@ export default function PreferencesList() {
                 <DistanceSlider />
                 <Box m={3}></Box>
                 <BrandSelectionChips />
+                <Box m={3}></Box>
+                <FuelTypeSelectionChips />
             </Box>
             <DialogActions sx={{display: 'flex', justifyContent: 'center', p:2}}>
                 <Button variant='text' color='error' onClick={handleClose}>Cancel</Button>

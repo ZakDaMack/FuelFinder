@@ -13,7 +13,7 @@ AGGREGATE DATA
 				coordinates: [parseFloat(longitude), parseFloat(latitude)]
 			},
 			distanceField: 'distance',
-      		query: {"brand": {"$in": ["Tesco", "Esso"]} },
+      		query: {"brand": {"$in": ["Tesco", "Esso"]}, "$or": [{ "sdv": {"$gt": 0} }]},
 			maxDistance: milesToMeters(distance),
 			spherical: true
 		}
@@ -47,7 +47,7 @@ func MakeFilter(lat, long, distRads float64) bson.D {
 	}}
 }
 
-func MakeAggregatePipeline(lat, long float64, distMetres int, brands []string) bson.A {
+func MakeAggregatePipeline(lat, long float64, distMetres int, brands []string, fueltypes []string) bson.A {
 	geoNear := bson.D{
 		{Key: "key", Value: "location"},
 		{Key: "near", Value: bson.D{
@@ -59,9 +59,19 @@ func MakeAggregatePipeline(lat, long float64, distMetres int, brands []string) b
 		{Key: "spherical", Value: true},
 	}
 
-	if brands != nil {
+	if brands != nil || fueltypes != nil {
+
+		var types []bson.D
+		for _, t := range fueltypes {
+			types = append(types, fieldGT(t, 0))
+		}
+
+		var queries []bson.E
+		queries = append(queries, or(types))
+
 		geoNear = append(geoNear, bson.E{
 			Key: "query", Value: bson.D{
+				...queries,
 				{Key: "brand", Value: bson.D{
 					{Key: "$in", Value: brands},
 				}},
@@ -93,5 +103,21 @@ func MakeAggregatePipeline(lat, long float64, distMetres int, brands []string) b
 				}},
 			}},
 		}},
+	}
+}
+
+func fieldGT(field string, value int) bson.D {
+	return bson.D{{
+		Key: field, Value: bson.D{{
+			Key: "$gt", Value: value,
+		}},
+	}}
+}
+
+func or(fields []bson.D) bson.E {
+	return bson.E{
+		Key: "$or", Value: bson.A{
+			fields,
+		},
 	}
 }

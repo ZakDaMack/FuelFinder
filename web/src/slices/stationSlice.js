@@ -14,7 +14,8 @@ export const stationSlice = createSlice({
     sortKey: 'distance',
     filters: {
       radius: 3,
-      brands: null
+      brands: null,
+      fueltypes: null
     }
   },
   reducers: {
@@ -81,8 +82,7 @@ export function fetchData() {
       const response = await fetch(process.env.REACT_APP_API_URL + GetUrlParams({
         latitude: state.stations.location[0],
         longitude: state.stations.location[1],
-        radius: state.stations.filters.radius,
-        brands: state.stations.filters.brands
+        ...state.stations.filters,
       }))
 
       let data = await response.json()

@@ -19,9 +19,7 @@ export default function IntroDialog() {
     const isOpen = useSelector((state) => state.menus.info)
 
     const changes = [
-        "Filter by range and brands",
-        "Sort list view by distance/price",
-        "New, fresh mobile-first design"
+        "Added the ability to filter by fuel type"
     ];
 
     const [dontShow, setDontShow] = useState(false)
