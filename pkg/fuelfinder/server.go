@@ -46,6 +46,7 @@ func (s *Server) QueryArea(ctx context.Context, fence *fuelfinder.Geofence) (*fu
 		float64(fence.Longitude),
 		int(fence.Radius),
 		fence.Brands,
+		fence.Fueltype,
 	)
 
 	if err != nil {

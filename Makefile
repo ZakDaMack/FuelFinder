@@ -13,3 +13,6 @@ dockerbuild:
 	docker build -t fuelfinder-server . -f ./build/server.Dockerfile
 	docker build -t fuelfinder-scraper . -f ./build/scraper.Dockerfile
 	docker build -t fuelfinder-gateway . -f ./build/gateway.Dockerfile
+
+compose:
+	docker compose -f deployments/docker-compose.yml up -d --build

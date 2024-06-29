@@ -59,26 +59,35 @@ func MakeAggregatePipeline(lat, long float64, distMetres int, brands []string, f
 		{Key: "spherical", Value: true},
 	}
 
-	if brands != nil || fueltypes != nil {
+	// do we need to do any additional filtering?
+	var queries []bson.E
 
+	if brands != nil {
+		queries = append(queries, bson.E{
+			Key: "brand",
+			Value: bson.D{{
+				Key: "$in", Value: brands,
+			}},
+		})
+	}
+
+	if fueltypes != nil {
 		var types []bson.D
 		for _, t := range fueltypes {
 			types = append(types, fieldGT(t, 0))
 		}
 
-		var queries []bson.E
 		queries = append(queries, or(types))
-
-		geoNear = append(geoNear, bson.E{
-			Key: "query", Value: bson.D{
-				...queries,
-				{Key: "brand", Value: bson.D{
-					{Key: "$in", Value: brands},
-				}},
-			}},
-		)
 	}
 
+	if len(queries) != 0 {
+		geoNear = append(geoNear, bson.E{
+			Key:   "query",
+			Value: queries,
+		})
+	}
+
+	// return the remiaining aggregate
 	return bson.A{
 		bson.D{{
 			Key: "$geoNear", Value: geoNear,
@@ -116,8 +125,6 @@ func fieldGT(field string, value int) bson.D {
 
 func or(fields []bson.D) bson.E {
 	return bson.E{
-		Key: "$or", Value: bson.A{
-			fields,
-		},
+		Key: "$or", Value: fields,
 	}
 }

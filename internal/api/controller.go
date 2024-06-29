@@ -22,9 +22,9 @@ func NewGateway(c *fuelfinder.FuelFinderClient, addr string) *http.Server {
 	gw := &ApiGateway{client: c}
 
 	// attach funcs, then return
-	mux.HandleFunc("/", gw.getStations)
 	mux.HandleFunc("/ping", gw.getPing)
 	mux.HandleFunc("/brands", gw.getBrands)
+	mux.HandleFunc("/", gw.getStations)
 
 	//attach middleware to mux
 	gw.Handler = log(mux)
@@ -46,6 +46,7 @@ func (g *ApiGateway) getStations(w http.ResponseWriter, r *http.Request) {
 	long, _ := strconv.ParseFloat(r.URL.Query().Get("longitude"), 32)
 	radius, _ := strconv.ParseFloat(r.URL.Query().Get("radius"), 32)
 	brandQuery := r.URL.Query().Get("brands")
+	fueltypeQuery := r.URL.Query().Get("fueltypes")
 
 	if radius < 1 || radius > 20 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,10 +56,16 @@ func (g *ApiGateway) getStations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// get brands query string and calculate val
+	// get brands query string and convert to array
 	brands := make([]string, 0)
 	if brandQuery != "" {
 		brands = strings.Split(brandQuery, ",")
+	}
+
+	// get fueltypes query string and convert to array
+	fueltypes := make([]string, 0)
+	if fueltypeQuery != "" {
+		fueltypes = strings.Split(fueltypeQuery, ",")
 	}
 
 	service := *g.client
@@ -67,6 +74,7 @@ func (g *ApiGateway) getStations(w http.ResponseWriter, r *http.Request) {
 		Longitude: float32(long),
 		Radius:    float32(radius),
 		Brands:    brands,
+		Fueltype:  fueltypes,
 	})
 
 	if err != nil {

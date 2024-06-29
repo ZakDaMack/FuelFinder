@@ -7,9 +7,9 @@ import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 
-import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
+import BusinessIcon from '@mui/icons-material/Business';
 
-import { updateFilters, } from '../../slices/stationSlice';
+import { updateFilters } from '../../slices/stationSlice';
 
 export default function BrandSelectionChips() {
     const dispatch = useDispatch();
@@ -33,7 +33,7 @@ export default function BrandSelectionChips() {
     return (
         <Box>
             <Box {...boxProps}>
-                <LocalGasStationIcon />
+                <BusinessIcon />
                 <Typography ml={1} component='h3' variant='h6'>Stations</Typography>
             </Box>
             <Box sx={{display: 'flex', alignItems: 'baseline'}}>
