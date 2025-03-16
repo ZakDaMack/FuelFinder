@@ -45,11 +45,9 @@ export default brandSlice.reducer
 export function fetchBrands() {
   return async (dispatch: AppDispatch) => {
     try {
-      const response = await fetch(process.env.REACT_APP_API_URL + 'brands')
+      const response = await fetch(import.meta.env.VITE_APP_API_URL + 'brands')
       let data = await response.json()
-      if (!Array.isArray(data)) {
-        data = []
-      } 
+      if (!Array.isArray(data)) data = []
       dispatch(getDataSuccess(data))
     } catch (error) {
       console.log(error);

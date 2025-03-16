@@ -6,14 +6,14 @@ import { Toaster } from "@/components/ui/sonner"
 import { store } from './store'
 import Map from './components/map'
 import Init from './components/init'
-
-import './index.css'
+import Preferences from './components/preferences'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
       <Init />
       <Map />
+      <Preferences />
     </Provider>
     <Toaster />
   </StrictMode>,

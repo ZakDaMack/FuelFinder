@@ -98,7 +98,7 @@ export function fetchData() {
 
     try {
       const state = getState()
-      const response = await fetch(process.env.REACT_APP_API_URL + GetUrlParams({
+      const response = await fetch(import.meta.env.VITE_APP_API_URL + GetUrlParams({
         latitude: state.stations.location[0],
         longitude: state.stations.location[1],
         ...state.stations.filters,

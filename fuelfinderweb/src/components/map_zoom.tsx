@@ -19,7 +19,7 @@ export default function MapZoom() {
     }
 
     return (
-        <div className='bg-white shadow-lg rounded absolute top-4 right-4 z-[1000]'>
+        <div className='bg-white dark:bg-white shadow-lg rounded absolute top-4 right-4 z-[1000]'>
             <Button size='icon' className='rounded-b-none size-9' onClick={zoomIn}>
                 <FontAwesomeIcon size='lg' className='text-primary' icon={faPlus} />
             </Button>
