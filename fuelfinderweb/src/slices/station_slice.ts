@@ -7,7 +7,7 @@ import { AppDispatch, AppStore, RootState } from '@/store';
 const RADIUS_MIN = 1;
 const RADIUS_MAX = 20;
 
-interface StationStore {
+export interface StationStore {
   value: Station[],
   loading: boolean,
   error?: string, 
@@ -16,7 +16,7 @@ interface StationStore {
   filters: StationFilters,
 }
 
-interface StationFilters {
+export interface StationFilters {
   radius: number,
   brands?: string[],
   fuel_types?: string[]

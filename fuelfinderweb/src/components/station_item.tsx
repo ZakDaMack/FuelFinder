@@ -9,6 +9,7 @@ import { faGasPump } from "@fortawesome/free-solid-svg-icons";
 
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
+import BrandLogo from "./brand_logo";
 dayjs.extend(calendar)
 
 interface StationProps {
@@ -33,7 +34,8 @@ const StationItem: FC<StationProps> = ({ station }) => {
         <div>
             {/* header */}
             <div className="flex justify-between items-center">
-                <h3 className="uppercase text-2xl">{station.brand}</h3>
+                {/* <h3 className="uppercase text-2xl">{station.brand}</h3> */}
+                <BrandLogo brand={station.brand} />
                 <span className="m-0 p-0">{formattedDistance} metres away</span>
             </div>
 

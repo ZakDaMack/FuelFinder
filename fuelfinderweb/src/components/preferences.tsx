@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { cn } from "@/lib/utils";
+import { useForm } from 'react-hook-form'
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { closeMenu, openMenu } from "@/slices/menu_slice";
@@ -20,6 +21,7 @@ import {
 import { Slider } from "./ui/slider";
 import { Button } from "./ui/button";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { fetchData, StationFilters, updateFilters } from "@/slices/station_slice";
 
 
 const Preferences: FC = () => {
@@ -62,8 +64,19 @@ export default Preferences;
 
  
 const PreferencesForm: FC = () => {
+  const dispatch = useAppDispatch();
   const brands = useAppSelector(s => s.brands.value);
   const filters = useAppSelector(s => s.stations.filters);
+
+  const { setValue, reset, watch, handleSubmit } = useForm({ defaultValues: filters })
+  const filterValues = watch()
+
+  const handleCancelClick = () => { dispatch(closeMenu('preferences')); reset(); }
+  const onData = (data: StationFilters) => {
+    dispatch(updateFilters(data));
+    dispatch(fetchData());
+    dispatch(closeMenu('preferences'))
+  }
 
   return (
     <form className="space-y-5 pt-5">
@@ -71,33 +84,33 @@ const PreferencesForm: FC = () => {
       <div>
         <h4 className="text-lg">Distance (miles)</h4>
         <div className="flex gap-3 mt-3">
-          <Slider value={[filters.radius]} min={1} max={20} />
-          {filters.radius}
+          <Slider value={[filterValues.radius]} onValueChange={(vals) => setValue('radius', vals[0])} min={1} max={20} />
+          {filterValues.radius}
         </div>
       </div>
 
       <div>
         <h4 className="text-lg">Brands</h4>
-        <ToggleGroup type='multiple'>
+        <ToggleGroup type='multiple' value={filterValues.brands} onValueChange={(vals) => setValue('brands', vals)}>
           {brands.map(b => (
-            <ToggleGroupItem className="m-1 rounded" value={b}>{b}</ToggleGroupItem>
+            <ToggleGroupItem key={b} className="m-1 rounded" value={b}>{b}</ToggleGroupItem>
           ))}
         </ToggleGroup>
       </div>
 
       <div className="text-lg">
         <h4>Fuel Type</h4>
-        <ToggleGroup type='multiple'>
-            <ToggleGroupItem className="rounded" value='e10'>Petrol (E10)</ToggleGroupItem>
-            <ToggleGroupItem className="rounded" value='e5'>Super (E5)</ToggleGroupItem>
-            <ToggleGroupItem className="rounded" value='b7'>Diesel (B7)</ToggleGroupItem>
-            <ToggleGroupItem className="rounded" value='sdv'>SDV</ToggleGroupItem>
+        <ToggleGroup type='multiple' value={filterValues.fuel_types} onValueChange={(vals) => setValue('fuel_types', vals)}>
+            <ToggleGroupItem className="m-1 rounded" value='e10'>Petrol (E10)</ToggleGroupItem>
+            <ToggleGroupItem className="m-1 rounded" value='e5'>Super (E5)</ToggleGroupItem>
+            <ToggleGroupItem className="m-1 rounded" value='b7'>Diesel (B7)</ToggleGroupItem>
+            <ToggleGroupItem className="m-1 rounded" value='sdv'>SDV</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
       <div className="flex gap-2 justify-center">
-        <Button variant='destructive-ghost'>Cancel</Button>
-        <Button>Update</Button>
+        <Button type="button" variant='destructive-ghost' onClick={handleCancelClick}>Cancel</Button>
+        <Button type="button" onClick={handleSubmit(onData)}>Update</Button>
       </div>
 
     </form>
