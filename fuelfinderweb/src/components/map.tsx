@@ -1,24 +1,23 @@
 import { FC, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '@/store';
 
-import { MapContainer } from 'react-leaflet/MapContainer'
-import { TileLayer } from 'react-leaflet/TileLayer' 
 import { useMap } from 'react-leaflet/hooks'
 import { Marker } from 'react-leaflet/Marker' 
 import { Icon, LatLngExpression } from 'leaflet'
+import { TileLayer } from 'react-leaflet/TileLayer' 
+import { MapContainer } from 'react-leaflet/MapContainer'
 
 // import StationMarker from '../components/map/StationMarker';
 // import PreferencesList from '../components/preferences/PreferencesList';
 // import SummaryBar from '../components/preferences/SummaryBar';
 import MapZoom from './map_zoom';
 import Overview from './overview';
-import { useAppSelector } from '@/store';
+import StationMarker from './station_marker';
 // import StationListView from '../components/stations/StationListView';
 // import StationListToggle from '../components/stations/StationListToggle';
 
 export default function Map() {
-    
-    // const stations = useSelector((state) => state.stations.value)
+    const stations = useAppSelector((state) => state.stations.value)
     const location = useAppSelector((state) => state.stations.location)
 
     const carIcon = new Icon({
@@ -35,9 +34,9 @@ export default function Map() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <Marker position={location} icon={carIcon} />
-            {/* {stations?.map(s => (
-                <StationMarker key={s.site_id} company={s} />
-            ))} */}
+            {stations?.map(s => (
+                <StationMarker key={s.site_id} station={s} />
+            ))}
             <MapZoom />
             <Overview />
             {/* <SummaryBar />

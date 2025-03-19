@@ -69,7 +69,7 @@ const PreferencesForm: FC = () => {
     <form className="space-y-5 pt-5">
 
       <div>
-        <h4>Distance (miles)</h4>
+        <h4 className="text-lg">Distance (miles)</h4>
         <div className="flex gap-3 mt-3">
           <Slider value={[filters.radius]} min={1} max={20} />
           {filters.radius}
@@ -77,26 +77,26 @@ const PreferencesForm: FC = () => {
       </div>
 
       <div>
-        <h4>Brands</h4>
+        <h4 className="text-lg">Brands</h4>
         <ToggleGroup type='multiple'>
           {brands.map(b => (
-            <ToggleGroupItem value={b}>{b}</ToggleGroupItem>
+            <ToggleGroupItem className="m-1 rounded" value={b}>{b}</ToggleGroupItem>
           ))}
         </ToggleGroup>
       </div>
 
-      <div>
+      <div className="text-lg">
         <h4>Fuel Type</h4>
         <ToggleGroup type='multiple'>
-            <ToggleGroupItem className="rounded-full" value='e10'>Petrol</ToggleGroupItem>
-            <ToggleGroupItem value='e5'>Super (E5)</ToggleGroupItem>
-            <ToggleGroupItem value='b7'>Diesel</ToggleGroupItem>
-            <ToggleGroupItem value='sdv'>SDV</ToggleGroupItem>
+            <ToggleGroupItem className="rounded" value='e10'>Petrol (E10)</ToggleGroupItem>
+            <ToggleGroupItem className="rounded" value='e5'>Super (E5)</ToggleGroupItem>
+            <ToggleGroupItem className="rounded" value='b7'>Diesel (B7)</ToggleGroupItem>
+            <ToggleGroupItem className="rounded" value='sdv'>SDV</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
-      <div className="flex gap-4 justify-center">
-        <Button variant='destructive'>Cancel</Button>
+      <div className="flex gap-2 justify-center">
+        <Button variant='destructive-ghost'>Cancel</Button>
         <Button>Update</Button>
       </div>
 
