@@ -12,7 +12,7 @@ export default function Overview() {
     const filterLength = 1
 
     return (
-        <div className='bg-card shadow-lg flex items-center gap-3 p-2 rounded-full absolute top-4 left-4 z-[1000]'>
+        <div className='bg-card shadow-lg flex items-center gap-3 p-2 rounded-full absolute top-4 left-4 z-[20000]'>
             <Button size='icon' className='rounded-full bg-black size-12 aspect-square' onClick={openPreferences}>
                 <FontAwesomeIcon size='4x' icon={faSliders} />
             </Button>

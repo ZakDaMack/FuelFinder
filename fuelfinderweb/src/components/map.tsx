@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react';
-import { useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 
 import { useMap } from 'react-leaflet/hooks'
 import { Marker } from 'react-leaflet/Marker' 
@@ -13,12 +13,18 @@ import { MapContainer } from 'react-leaflet/MapContainer'
 import MapZoom from './map_zoom';
 import Overview from './overview';
 import StationMarker from './station_marker';
+import StationList from './station_list';
+import { Button } from './ui/button';
+import { openMenu } from '@/slices/menu_slice';
 // import StationListView from '../components/stations/StationListView';
 // import StationListToggle from '../components/stations/StationListToggle';
 
 export default function Map() {
     const stations = useAppSelector((state) => state.stations.value)
     const location = useAppSelector((state) => state.stations.location)
+
+    const dispatch = useAppDispatch();
+    const open = () => dispatch(openMenu('stations'))
 
     const carIcon = new Icon({
         iconUrl: '/car.png',
@@ -39,10 +45,8 @@ export default function Map() {
             ))}
             <MapZoom />
             <Overview />
-            {/* <SummaryBar />
-            <PreferencesList />
-            <StationListView />
-            <StationListToggle /> */}
+            
+        <Button onClick={open} className="absolute bottom-4 left-4 z-[1000]">test</Button>
             <RecentreAutomatically location={location} />
         </MapContainer>
     );

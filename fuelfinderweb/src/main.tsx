@@ -7,6 +7,7 @@ import { store } from './store'
 import Map from './components/map'
 import Init from './components/init'
 import Preferences from './components/preferences'
+import StationList from './components/station_list'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <Init />
       <Map />
       <Preferences />
+      <StationList />
     </Provider>
     <Toaster />
   </StrictMode>,
