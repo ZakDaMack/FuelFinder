@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { useAppDispatch, useAppSelector } from "@/store";
 
@@ -29,9 +29,12 @@ const StationList: FC = () => {
   const close = () => dispatch(closeMenu('stations'))
 
   const stations = useAppSelector(s => s.stations.value)
-  const filteredStations = stations
-    .filter(s => !!s[sortBy as keyof Station])
-    .sort((a,b) => ((a[sortBy as keyof Station] as number) - (b[sortBy as keyof Station] as number)) || (a.distance - b.distance)) // sort by specified key, if equal, sort by dist
+  const filteredStations = useMemo(() => {
+    return stations
+      .filter(s => !!s[sortBy as keyof Station])
+      .sort((a,b) => ((a[sortBy as keyof Station] as number) - (b[sortBy as keyof Station] as number)) || (a.distance - b.distance))
+      // sort by specified key, if equal, sort by dist
+  }, [stations, sortBy]) 
    
   if (isDesktop) {
     return (
