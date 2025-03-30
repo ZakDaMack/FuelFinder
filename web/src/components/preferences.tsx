@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { useForm } from 'react-hook-form'
+import { useForm } from "react-hook-form"
 import { useMediaQuery } from "@uidotdev/usehooks";
 
 import { useAppDispatch, useAppSelector } from "@/store";
