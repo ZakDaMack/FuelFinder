@@ -5,21 +5,12 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { Station } from "@/models/station";
 import { closeMenu, openMenu } from "@/slices/menu_slice";
 
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-} from "@/components/ui/sheet";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer"
-
-import StationItem from "./station_item";
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { Button } from "./ui/button";
+import StationItem from "./station_item";
+import { Sheet, SheetClose, SheetContent } from "./ui/sheet";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 
