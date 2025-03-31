@@ -5,7 +5,7 @@ COPY web/package*.json ./
 RUN npm config set registry https://registry.npmjs.org/
 RUN npm ci
 COPY web .
-ENV REACT_APP_API_URL="/api/"
+ENV VITE_APP_API_URL="/api/"
 RUN npm run build
 
 # production stage
