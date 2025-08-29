@@ -1,6 +1,6 @@
 package database
 
-import "go.mongodb.org/mongo-driver/bson"
+import "go.mongodb.org/mongo-driver/v2/bson"
 
 /*
 AGGREGATE DATA

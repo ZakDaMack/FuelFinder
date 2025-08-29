@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"main/api/fuelfinder"
-	"main/internal/models"
 	"main/internal/sanitiser"
 	"net/http"
 	"regexp"
@@ -16,9 +15,7 @@ const (
 	dateTimeLayout = "02/01/2006 15:04:05"
 )
 
-// the main must return (interface{}, error)
 func ReadJsonFrom(url string) ([]*fuelfinder.StationItem, error) {
-
 	if url == "" {
 		return nil, fmt.Errorf("url cannot be empty")
 	}
@@ -34,7 +31,7 @@ func ReadJsonFrom(url string) ([]*fuelfinder.StationItem, error) {
 	defer resp.Body.Close()
 
 	// Create an empty struct and unmarshal the body
-	var priceData models.PriceDataset
+	var priceData PriceDataset
 	err = json.NewDecoder(resp.Body).Decode(&priceData)
 	if err != nil {
 		return nil, err

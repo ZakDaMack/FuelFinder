@@ -1,4 +1,4 @@
-package models
+package scraper
 
 // incoming data types
 type PriceDataset struct {
@@ -13,8 +13,8 @@ type StationDataset struct {
 	Postcode string `json:"postcode"`
 	Location struct {
 		// FIXME: Is there a better way of handling a mix of string|float64?
-		Latitude  interface{} `json:"latitude"`
-		Longitude interface{} `json:"longitude"`
+		Latitude  any `json:"latitude"`
+		Longitude any `json:"longitude"`
 	} `json:"location"`
 	Prices struct {
 		E5  float32 `json:"e5"`

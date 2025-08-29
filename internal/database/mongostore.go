@@ -19,7 +19,7 @@ type MongoStore struct {
 
 type Index struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 
 const (
@@ -74,7 +74,7 @@ func (m *MongoStore) QueryArea(lat, long float64, distanceMiles int, includeBran
 
 // TODO: dont write if the values already exist
 func (m *MongoStore) Write(data []*fuelfinder.StationItem) (int, error) {
-	docs := make([]interface{}, len(data))
+	docs := make([]any, len(data))
 	for i, d := range data {
 		docs[i] = &d
 	}
@@ -116,14 +116,14 @@ func (m *MongoStore) GetDistinctBrands() ([]string, error) {
 	return brands, nil
 }
 
-func (m *MongoStore) GetIndexes() (map[string]interface{}, error) {
+func (m *MongoStore) GetIndexes() (map[string]any, error) {
 	coll := m.client.Database(m.database).Collection(_collection)
 	res, err := coll.Indexes().List(context.TODO())
 	if err != nil {
 		return nil, err
 	}
 
-	indexes := map[string]interface{}{}
+	indexes := map[string]any{}
 	for res.Next(context.TODO()) {
 		var in bson.D
 		res.Current.Index(1).Value().Unmarshal(&in)

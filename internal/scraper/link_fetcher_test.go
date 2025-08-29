@@ -1,8 +1,9 @@
 package scraper
 
 import (
-	"main/internal/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetTableLinks(t *testing.T) {
@@ -12,5 +13,5 @@ func TestGetTableLinks(t *testing.T) {
 		t.Fatalf("getTableLinks throws error. %v", err)
 	}
 
-	assert.NotEmpty(links)
+	assert.NotEmpty(t, links)
 }

@@ -2,8 +2,9 @@ package sanitiser
 
 import (
 	"main/api/fuelfinder"
-	"main/internal/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCleanStationItem(t *testing.T) {
@@ -12,7 +13,7 @@ func TestCleanStationItem(t *testing.T) {
 	}
 
 	CleanStationItem(item)
-	assert.Equal("Esso", item.Brand)
+	assert.Equal(t, "Esso", item.Brand)
 }
 
 func TestBrandCapitalisation(t *testing.T) {
@@ -21,7 +22,7 @@ func TestBrandCapitalisation(t *testing.T) {
 	}
 
 	CleanStationItem(item)
-	assert.Equal("Apple Green", item.Brand)
+	assert.Equal(t, "Apple Green", item.Brand)
 }
 
 func TestEmptyBrandname(t *testing.T) {
