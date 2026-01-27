@@ -10,7 +10,7 @@ import Preferences from './components/preferences'
 import StationList from './components/station_list'
 import IntroDialog from './components/intro_dialog'
 
-import LoginPage from './pages/login'
+import LoginPage from './pages/auth/login_form'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
