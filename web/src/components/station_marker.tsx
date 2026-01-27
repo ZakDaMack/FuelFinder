@@ -2,17 +2,13 @@ import { FC } from "react";
 
 import { Station } from "@/models/station";
 
-import { Icon } from "leaflet";
+import { DivIcon, Icon } from "leaflet";
+import { renderToString } from 'react-dom/server';
 import StationItem from "./station_item";
 import { Popup } from 'react-leaflet/Popup' 
 import { Marker } from 'react-leaflet/Marker' 
-
-const stationIcon = new Icon({
-  iconUrl: "/station.png",
-  iconSize: [40, 55], // size of the icon
-  iconAnchor: [20, 55], // point of the icon which will correspond to marker's location
-  popupAnchor: [0, -52], // point from which the popup should open relative to the iconAnchor
-});
+import BrandLogo from "./brand_logo";
+import { cn } from "@/lib/utils";
 
 interface StationProps {
     station: Station;
@@ -20,12 +16,46 @@ interface StationProps {
 
 const StationMarker: FC<StationProps> = ({ station }) => {
     const coords = [...station.location.coordinates].reverse() as [number, number];
+
+    const stationIcon = new DivIcon({
+      html: renderToString(
+        <div className={cn(
+          `bg-white relative border rounded-xl grid place-items-center 
+          [&_img]:max-h-[32px]! [&_img]:max-w-[50px]! w-full h-full
+
+          shadow-sm hover:shadow-lg transition-transform duration-200
+          hover:-translate-y-1 hover:scale-105 will-change-transform
+
+          before:content-[""] before:absolute before:bottom-[-9px]
+          before:left-1/2 before:-translate-x-1/2 before:w-0 before:h-0
+          before:border-l-[9px] before:border-l-transparent
+          before:border-r-[9px] before:border-r-transparent
+          before:border-t-[9px] before:border-t-gray-200
+          after:content-[''] after:absolute after:bottom-[-8px]
+          after:left-1/2 after:-translate-x-1/2
+          after:w-0 after:h-0
+          after:border-l-[8px] after:border-l-transparent
+          after:border-r-[8px] after:border-r-transparent
+          after:border-t-[8px] after:border-t-white`
+        )}>
+          <BrandLogo brand={station.brand} />
+          <div className="text-center border rounded-xl w-full mx-1 p-[1px]">
+            <p>{station.e10}p</p>
+          </div>
+        </div>
+      ),
+      className: '', // to remove default 'leaflet-div-icon' class styles
+      iconSize: [60, 60], // size of the icon
+      iconAnchor: [30, 69], // point of the icon which will correspond to marker's location
+      popupAnchor: [0, -30], // point from which the popup should open relative to the iconAnchor
+    });
+
     return (
-        <Marker position={coords} icon={stationIcon}>
-          <Popup minWidth={300}>
-            <StationItem station={station} />
-          </Popup>
-        </Marker>
+      <Marker position={coords} icon={stationIcon}>
+        <Popup minWidth={300}>
+          <StationItem station={station} />
+        </Popup>
+      </Marker>
     )
 }
 

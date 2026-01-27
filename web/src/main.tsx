@@ -10,6 +10,8 @@ import Preferences from './components/preferences'
 import StationList from './components/station_list'
 import IntroDialog from './components/intro_dialog'
 
+import LoginPage from './pages/login'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
@@ -19,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
       <Init />
       <Map />
     </Provider>
+    <LoginPage />
     <Toaster />
   </StrictMode>,
 )
