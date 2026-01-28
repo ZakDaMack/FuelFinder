@@ -21,7 +21,7 @@ const StationMarker: FC<StationProps> = ({ station }) => {
       html: renderToString(
         <div className={cn(
           `bg-white relative border rounded-xl grid place-items-center 
-          [&_img]:max-h-[32px]! [&_img]:max-w-[50px]! w-full h-full
+          [&_img]:max-h-[32px]! [&_img]:max-w-[50px]! w-full p-1 space-y-1
 
           shadow-sm hover:shadow-lg transition-transform duration-200
           hover:-translate-y-1 hover:scale-105 will-change-transform
@@ -39,14 +39,17 @@ const StationMarker: FC<StationProps> = ({ station }) => {
           after:border-t-[8px] after:border-t-white`
         )}>
           <BrandLogo brand={station.brand} />
-          <div className="text-center border rounded-xl w-full mx-1 p-[1px]">
-            <p>{station.e10}p</p>
+          <div className="border rounded-xl w-full mx-1 p-[1px] bg-linear-to-r from-green-400 to-green-700">
+            <p className="text-xs text-white text-center">{station.e10 ?? '-'}</p>
+          </div>
+          <div className="border rounded-xl w-full mx-1 p-[1px] bg-linear-to-r from-yellow-400 to-yellow-700">
+            <p className="text-xs text-white text-center">{station.b7 ?? '-'}</p>
           </div>
         </div>
       ),
       className: '', // to remove default 'leaflet-div-icon' class styles
-      iconSize: [60, 60], // size of the icon
-      iconAnchor: [30, 69], // point of the icon which will correspond to marker's location
+      iconSize: [60, 100], // size of the icon
+      iconAnchor: [30, 109], // point of the icon which will correspond to marker's location
       popupAnchor: [0, -30], // point from which the popup should open relative to the iconAnchor
     });
 
