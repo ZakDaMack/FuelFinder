@@ -38,7 +38,7 @@ export default function Map() {
             <Overview />
             <StationSummary />
             <LoadingIndicator />
-         
+        
             <RecentreAutomatically location={location} />
         </MapContainer>
     );

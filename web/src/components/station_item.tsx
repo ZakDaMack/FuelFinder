@@ -14,6 +14,7 @@ dayjs.extend(calendar)
 
 interface StationProps {
     station: Station;
+    onHover?: (enter: boolean) => void;
 }
 
 const fuels = {
@@ -23,7 +24,7 @@ const fuels = {
     // 'sdv':{colour: '', title: 'SDV'},
 }
 
-const StationItem: FC<StationProps> = ({ station }) => {
+const StationItem: FC<StationProps> = ({ station, onHover }) => {
     const coords = `${station.location.coordinates[1]},${station.location.coordinates[0]}`
     const formattedDistance = station.distance >= 1000 ? (station.distance/1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) : station.distance.toLocaleString('en-GB', { maximumFractionDigits: 0 });
 
@@ -31,7 +32,11 @@ const StationItem: FC<StationProps> = ({ station }) => {
     const isMobile = useMediaQuery("(max-width: 768px)")  
 
     return (
-        <div className="space-y-4">
+        <div 
+            onMouseEnter={() => onHover && onHover(true)} 
+            onMouseLeave={() => onHover && onHover(false)}
+            className={cn("space-y-4", { 'hover:bg-neutral-100': !!onHover })} 
+        >
             {/* header */}
             <div className="flex justify-between items-center">
                 {/* <h3 className="uppercase text-2xl">{station.brand}</h3> */}
@@ -42,7 +47,7 @@ const StationItem: FC<StationProps> = ({ station }) => {
             </div>
 
             {/* address */}
-            <p className="text-sm">{station.address}, {station.postcode}</p>
+            <p className="text-sm">{station.address}{station.address.endsWith(station.postcode) ? '' : `, ${station.postcode}`}</p>
 
             {/* open in maps */}
             <div className="text-sm text-blue-600 cursor-pointer">

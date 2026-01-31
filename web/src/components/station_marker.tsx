@@ -19,8 +19,8 @@ const StationMarker: FC<StationProps> = ({ station }) => {
 
     const stationIcon = new DivIcon({
       html: renderToString(
-        <div className={cn(
-          `bg-white relative border rounded-xl grid place-items-center 
+        <div data-site-id={station.site_id} className={cn(
+          `bg-white relative border rounded-2xl grid place-items-center 
           [&_img]:max-h-[32px]! [&_img]:max-w-[50px]! w-full p-1 space-y-1
 
           shadow-sm hover:shadow-lg transition-transform duration-200
@@ -55,7 +55,7 @@ const StationMarker: FC<StationProps> = ({ station }) => {
 
     return (
       <Marker position={coords} icon={stationIcon}>
-        <Popup minWidth={300}>
+        <Popup minWidth={300} className="[&_.leaflet-popup-content-wrapper]:rounded-2xl!">
           <StationItem station={station} />
         </Popup>
       </Marker>

@@ -21,7 +21,7 @@ createRoot(document.getElementById('root')!).render(
       <Init />
       <Map />
     </Provider>
-    <LoginPage />
+    {/* <LoginPage /> */}
     <Toaster />
   </StrictMode>,
 )

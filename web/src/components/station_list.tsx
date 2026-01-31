@@ -8,16 +8,15 @@ import { closeMenu, openMenu } from "@/slices/menu_slice";
 import { Button } from "./ui/button";
 import StationItem from "./station_item";
 import { Sheet, SheetClose, SheetContent } from "./ui/sheet";
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioItem, DropdownMenuRadioGroup } from "./ui/dropdown-menu";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDownShortWide, faClose, faSort } from "@fortawesome/free-solid-svg-icons";
 
 const snapPoints = ['170px', '600px', 1];
 
 const StationList: FC = () => {
-  
   const dispatch = useAppDispatch();
   const [sortBy, setSortBy] = useState<string>('distance');
   const [snap, setSnap] = useState<number|string|null>(snapPoints[0]);
@@ -36,6 +35,13 @@ const StationList: FC = () => {
       // sort by specified key, if equal, sort by dist
   }, [stations, sortBy]) 
    
+  const handleHover = (enter: boolean, siteId: string) => {
+    if (!isDesktop) return;
+    const el = document.querySelector(`div[data-site-id='${siteId}']`)
+    const classes = ['scale-120', '-translate-y-3', 'shadow-xl', 'shadow-black/30'];
+    enter ? el?.classList.add(...classes) : el?.classList.remove(...classes);
+  }
+
   if (isDesktop) {
     return (
       <Sheet open={isOpen} modal={false}>
@@ -45,14 +51,27 @@ const StationList: FC = () => {
               <FontAwesomeIcon icon={faClose} />
             </Button>
           </SheetClose>
-          <div className="pt-24 px-4">
-            <p>Sort by:</p>
-            <ToggleGroup type='single' value={sortBy} onValueChange={setSortBy}>
-                <ToggleGroupItem className="m-1 ml-0 rounded" value='distance'>Distance</ToggleGroupItem>
-                <ToggleGroupItem className="m-1 rounded" value='e10'>Petrol</ToggleGroupItem>
-                <ToggleGroupItem className="m-1 rounded" value='e5'>Super</ToggleGroupItem>
-                <ToggleGroupItem className="m-1 rounded" value='b7'>Diesel</ToggleGroupItem>
-            </ToggleGroup>
+          <div className="pt-24 px-4 flex justify-between items-center">
+            <p className='text-lg font-semibold pl-2'>{filteredStations.length} stations nearby</p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <FontAwesomeIcon className="mr-2" icon={faArrowDownShortWide} />
+                  <FontAwesomeIcon fontSize={10} icon={faSort} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-40 z-[10000]" align="end">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Sort By</DropdownMenuLabel>
+                   <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+                    <DropdownMenuRadioItem value="distance">Distance</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="e5">Petrol</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="e10">Super</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="b7">Diesel</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           {filteredStations.length == 0 && (
             <div className="p-4 h-full grid">
@@ -64,7 +83,7 @@ const StationList: FC = () => {
           )}
           <div className="border-t [&>div]:border-b-4 [&>div]:p-4 overflow-y-auto">
             {filteredStations.map(s => (
-              <StationItem key={s.site_id} station={s} />
+              <StationItem key={s.site_id} station={s} onHover={(enter) => handleHover(enter, s.site_id)} />
             ))}
           </div>
         </SheetContent>

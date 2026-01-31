@@ -29,10 +29,10 @@ const IntroDialog: FC = () => {
 
     return ( 
         <Dialog open={isOpen}>    
-            <DialogContent hideClose className='z-[30000]'>
+            <DialogContent hideClose className='z-[30000] rounded-2xl'>
                 <DialogHeader>
-                    <DialogTitle className='text-base font-normal text-3xl'>
-                        Welcome to <span className='text-primary font-semibold bg-clip-text text-transparent bg-linear-45 from-primary from-60% to-blue-700'>FuelFinder</span>
+                    <DialogTitle className='font-normal text-3xl'>
+                        Welcome to <span className='font-semibold bg-clip-text text-transparent bg-linear-45 from-primary from-60% to-blue-700'>FuelFinder</span>
                     </DialogTitle>
                 </DialogHeader>
                 <div className='space-y-6'>

@@ -19,7 +19,7 @@ export default function MapZoom() {
     }
 
     return (
-        <div className='shadow-lg rounded absolute top-4 right-4 z-[1000]' onClick={(e) => e.stopPropagation()}>
+        <div className='shadow-lg rounded-3xl overflow-hidden absolute top-4 right-4 z-[1000]' onDoubleClick={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
             <Button size='icon' variant='secondary' className='rounded-b-none size-9' onClick={zoomIn}>
                 <FontAwesomeIcon size='lg' className='text-neutral-900' icon={faPlus} />
             </Button>
