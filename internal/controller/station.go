@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type StationController interface {
@@ -17,9 +16,9 @@ type stationController struct {
 	stationsRepo repository.StationRepository
 }
 
-func NewStationController(db *mongo.Database) StationController {
+func NewStationController() StationController {
 	return &stationController{
-		stationsRepo: repository.NewMongoStationRepo(db),
+		stationsRepo: repository.NewStationRepo(),
 	}
 }
 

@@ -2,23 +2,22 @@ package main
 
 import (
 	"context"
-	"log"
 	"log/slog"
+	"main/internal/database"
 	"main/internal/env"
 	"os/signal"
 	"syscall"
 	"time"
 
-	fuelfinderproto "main/api/fuelfinder"
 	"main/internal/scraper"
-	"main/pkg/fuelfinder"
 	"os"
 )
 
 func main() {
 	// get env vars
 	url := "https://www.gov.uk/guidance/access-fuel-price-data" // fixed for now
-	grpcHost := env.Get("GRPC_HOST", "localhost:50051")
+	mongoUri := env.Get("MONGO_URI", "mongodb://localhost:27017")
+	dbName := "ofd"
 	interval := env.GetInt("INTERVAL", 1)
 	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
 	immediate := env.ExistsAndNotFalse("IMMEDIATE")
@@ -31,15 +30,16 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, options))
 	slog.SetDefault(logger)
 
-	slog.Debug("got env vars", "host", grpcHost, "interval", interval)
 	slog.Info("scraper started")
 
-	// create client
-	client, err := fuelfinder.NewClient(grpcHost)
+	// connect to mongo
+	conn, err := database.NewMongoConnection(mongoUri, dbName)
 	if err != nil {
-		log.Fatalf("could not connect: %v", err)
+		slog.Error("error connecting to mongo", "error", err)
+		return
 	}
-	defer client.Connection.Close()
+
+	defer conn.Close()
 
 	// listen for signal kill
 	sigChan := make(chan os.Signal, 2)
@@ -76,8 +76,20 @@ outer:
 			}(cancel)
 		case job := <-data:
 			slog.Debug("job passed to upload", "url", job.Url, "items", len(job.Stations))
-			items := &fuelfinderproto.StationItems{Items: job.Stations}
-			uploaded, err := client.Commands.Upload(context.TODO(), items)
+
+			// check if files already exists, if so, return
+			exists, err := conn.Exists(job.Stations[0].CreatedAt, job.Stations[0].SiteId)
+			if err != nil {
+				return nil, err
+			}
+
+			if exists {
+				res.Count = 0
+				return res, nil
+			}
+
+			writeRes, err := conn.Write(items.Items)
+
 			if err != nil {
 				slog.Error("error uploading station data", "url", job.Url, "error", err)
 			} else {
