@@ -22,9 +22,9 @@ func (g *GeometryPoint) Scan(val any) error {
 		return fmt.Errorf("cannot convert %T to GeometryPoint", val)
 	}
 
-	// Handle both WKT and EWKT
 	if strings.HasPrefix(s, "SRID=") {
-		_, err := fmt.Sscanf(s, "SRID=%*d;POINT(%f %f)", &g.X, &g.Y)
+		var srid int
+		_, err := fmt.Sscanf(s, "SRID=%d;POINT(%f %f)", &srid, &g.X, &g.Y)
 		return err
 	}
 
@@ -34,7 +34,6 @@ func (g *GeometryPoint) Scan(val any) error {
 
 // Value implements driver.Valuer
 func (g GeometryPoint) Value() (driver.Value, error) {
-	// IMPORTANT: include SRID
 	return fmt.Sprintf(
 		"SRID=4326;POINT(%f %f)",
 		g.X,

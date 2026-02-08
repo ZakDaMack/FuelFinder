@@ -1,5 +1,7 @@
 package scraper
 
+import "time"
+
 // incoming data types
 type PriceDataset struct {
 	LastUpdated string           `json:"last_updated"`
@@ -22,4 +24,5 @@ type StationDataset struct {
 		B7  float32 `json:"b7"`
 		SDV float32 `json:"sdv"`
 	} `json:"prices"`
+	CreatedAt *time.Time `json:"-"` // to be set when processing
 }

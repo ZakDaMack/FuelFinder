@@ -3,8 +3,6 @@ package scraper
 import (
 	"encoding/json"
 	"fmt"
-	"main/api/fuelfinder"
-	"main/internal/sanitiser"
 	"net/http"
 	"regexp"
 	"strings"
@@ -15,7 +13,7 @@ const (
 	dateTimeLayout = "02/01/2006 15:04:05"
 )
 
-func ReadJsonFrom(url string) ([]*fuelfinder.StationItem, error) {
+func ReadJsonFrom(url string) ([]StationDataset, error) {
 	if url == "" {
 		return nil, fmt.Errorf("url cannot be empty")
 	}
@@ -39,7 +37,7 @@ func ReadJsonFrom(url string) ([]*fuelfinder.StationItem, error) {
 
 	// parse the time. Can we read it?
 	// NOTE - jetlocal use the wrong string format
-	priceData.LastUpdated = strings.Replace(priceData.LastUpdated, "-", "/", -1)
+	priceData.LastUpdated = strings.ReplaceAll(priceData.LastUpdated, "-", "/")
 	createdAt, err := time.Parse(dateTimeLayout, priceData.LastUpdated)
 	if err != nil {
 		return nil, err
@@ -48,31 +46,12 @@ func ReadJsonFrom(url string) ([]*fuelfinder.StationItem, error) {
 	// TODO: There was a data field providing a different price format, where is it?
 	// TODO: Sense check the price data, if it looks off, invalidate the json and report it
 
-	// convert inputted format to 2D store format
-	var convertedData []*fuelfinder.StationItem
-	for _, s := range priceData.Stations {
-		// append to list
-		convertedData = append(convertedData, &fuelfinder.StationItem{
-			CreatedAt: createdAt.Unix(),
-			SiteId:    s.SiteId,
-			Brand:     s.Brand,
-			Address:   s.Address,
-			Postcode:  s.Postcode,
-			Location: &fuelfinder.Location{
-				Type: "Point",
-				Coordinates: []float32{
-					float32(sanitiser.ToFloat(s.Location.Longitude)),
-					float32(sanitiser.ToFloat(s.Location.Latitude)),
-				},
-			},
-			E5:  s.Prices.E5,
-			E10: s.Prices.E10,
-			B7:  s.Prices.B7,
-			Sdv: s.Prices.SDV,
-		})
+	// move last updated to each station
+	for i := range priceData.Stations {
+		priceData.Stations[i].CreatedAt = &createdAt
 	}
 
-	return convertedData, nil
+	return priceData.Stations, nil
 }
 
 func createRequest(url string) (*http.Request, error) {

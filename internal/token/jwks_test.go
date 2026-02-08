@@ -17,7 +17,7 @@ func TestNewJWKS(t *testing.T) {
 	privatePEM, err := GeneratePEM()
 	assert.NoError(t, err)
 
-	jwks, err := NewJKWS(privatePEM)
+	jwks, err := GetJWKS(privatePEM)
 	assert.NoError(t, err)
 	assert.Len(t, jwks.Keys, 1)
 
@@ -29,7 +29,7 @@ func TestNewJWKS(t *testing.T) {
 	assert.NotEmpty(t, jwks.Keys[0].E)
 }
 
-func TestGetJKWS(t *testing.T) {
+func TestGetJWKS(t *testing.T) {
 	// sample JWKS URL
 	url := "https://www.googleapis.com/oauth2/v3/certs"
 	jwks, err := GetJWKS(url)

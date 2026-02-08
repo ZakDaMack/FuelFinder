@@ -1,20 +1,29 @@
 services:
   database:
     container_name: database
-    image: mongo:latest
+    platform: linux/x86_64
+    image: postgis/postgis:18-3.6-alpine
     ports:
-      - 27017:27017
-    volumes:
-      - mongodata:/data/db
-
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=fuelfinder
+      - POSTGRES_USER=databaseuser
+      - POSTGRES_PASSWORD=secretpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   proxy:
     container_name: reverseproxy
     image: nginx:alpine
+    depends_on:
+      - stationapi
+      - frontend
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - 8000:80
-
   frontend:
     container_name: frontend
     image: fuelfinder-frontend
@@ -22,20 +31,21 @@ services:
       network: host
       context: ..
       dockerfile:  build/frontend.Dockerfile
-
-  server:
-    container_name: server
-    image: fuelfinder-server
+  stationapi:
+    container_name: stationapi
+    image: fuelfinder-stationapi
     build:
       context: ..
-      dockerfile:  build/server.Dockerfile
+      dockerfile:  build/stationapi.Dockerfile
     ports:
-      - 50051:50051
+      - 8080:8080
+    depends_on:
+      database:
+        condition: service_healthy
     environment:
-      - PORT=50051
+      - PORT=8080
       - DEBUG_MODE=false
-      - MONGO_URI=mongodb://database
-
+      - POSTGIS_DSN=postgres://databaseuser:secretpassword@database:5432/fuelfinder?sslmode=disable
   scraper:
     container_name: scraper
     image: fuelfinder-scraper
@@ -43,24 +53,14 @@ services:
       context: ..
       dockerfile:  build/scraper.Dockerfile
     depends_on:
-      - server
+      database:
+        condition: service_healthy
     environment:
-      - GRPC_HOST=server:50051
+      - IMMEDIATE=true
       - DEBUG_MODE=false
-      - INTERVAL=15
-
-  gateway:
-    container_name: gateway
-    image: fuelfinder-gateway
-    build: 
-      context: ..
-      dockerfile:  build/gateway.Dockerfile
-    depends_on:
-      - server
-    environment:
-      - PORT=8080
-      - DEBUG_MODE=false
-      - GRPC_HOST=server:50051
+      - SCRAPER_INTERVAL=15
+      - SCRAPER_URL=https://www.gov.uk/guidance/access-fuel-price-data
+      - POSTGIS_DSN=postgres://databaseuser:secretpassword@database:5432/fuelfinder?sslmode=disable
 
 volumes:
-  mongodata:
+  postgisdata:

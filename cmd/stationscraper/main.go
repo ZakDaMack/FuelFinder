@@ -2,23 +2,27 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
-	"main/internal/database"
-	"main/internal/env"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"main/internal/dao"
+	"main/internal/database"
+	"main/internal/env"
+	"main/internal/repository"
+	"main/internal/sanitiser"
 	"main/internal/scraper"
-	"os"
 )
 
 func main() {
 	// get env vars
-	url := "https://www.gov.uk/guidance/access-fuel-price-data" // fixed for now
-	mongoUri := env.Get("MONGO_URI", "mongodb://localhost:27017")
-	dbName := "ofd"
-	interval := env.GetInt("INTERVAL", 1)
+	url := env.Get("SCRAPER_URL", "https://www.gov.uk/guidance/access-fuel-price-data")
+	databaseDSN := env.Get("POSTGIS_DSN", "postgres://localhost:5432/ofd?sslmode=disable")
+
+	interval := env.GetInt("SCRAPER_INTERVAL", 1)
 	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
 	immediate := env.ExistsAndNotFalse("IMMEDIATE")
 
@@ -32,14 +36,19 @@ func main() {
 
 	slog.Info("scraper started")
 
-	// connect to mongo
-	conn, err := database.NewMongoConnection(mongoUri, dbName)
+	slog.Info("getting envs", "url", url, "dsn", databaseDSN, "debug", debugMode)
+
+	// connect to database
+	db, err := database.MakePostgresDB(databaseDSN)
 	if err != nil {
-		slog.Error("error connecting to mongo", "error", err)
+		slog.Error("error connecting to database", "error", err)
 		return
 	}
 
-	defer conn.Close()
+	defer database.ClosePostgresDB(db)
+
+	// set up repository connection
+	repo := repository.NewStationRepo(db)
 
 	// listen for signal kill
 	sigChan := make(chan os.Signal, 2)
@@ -74,30 +83,44 @@ outer:
 				scraper.NewScraper(url, data)
 				cncl()
 			}(cancel)
+
 		case job := <-data:
 			slog.Debug("job passed to upload", "url", job.Url, "items", len(job.Stations))
 
-			// check if files already exists, if so, return
-			exists, err := conn.Exists(job.Stations[0].CreatedAt, job.Stations[0].SiteId)
-			if err != nil {
-				return nil, err
-			}
+			// insert stations into database
+			errs := make([]error, 0)
+			for _, station := range job.Stations {
+				err = repo.Insert(ctx, &dao.Station{
+					SiteID:   station.SiteId,
+					Brand:    station.Brand,
+					Address:  station.Address,
+					Postcode: station.Postcode,
+					Location: dao.GeometryPoint{
+						X: sanitiser.ToFloat(station.Location.Longitude),
+						Y: sanitiser.ToFloat(station.Location.Latitude),
+					},
+					E5:        sql.NullFloat64{Float64: float64(station.Prices.E5), Valid: true},
+					E10:       sql.NullFloat64{Float64: float64(station.Prices.E10), Valid: true},
+					B7:        sql.NullFloat64{Float64: float64(station.Prices.B7), Valid: true},
+					SDV:       sql.NullFloat64{Float64: float64(station.Prices.SDV), Valid: true},
+					CreatedAt: *station.CreatedAt,
+				})
 
-			if exists {
-				res.Count = 0
-				return res, nil
-			}
+				if err != nil {
+					errs = append(errs, err)
+				}
+			} // end for
 
-			writeRes, err := conn.Write(items.Items)
-
-			if err != nil {
-				slog.Error("error uploading station data", "url", job.Url, "error", err)
+			if len(errs) > 0 {
+				slog.Error("error uploading station data", "url", job.Url, "successes", len(job.Stations)-len(errs), "failures", len(errs), "errors", errs)
 			} else {
-				slog.Info("finished job for station url", "url", job.Url, "uploaded", uploaded.Count)
+				slog.Info("finished job for station url", "url", job.Url, "uploaded", len(job.Stations))
 			}
+
 		case <-ctx.Done():
 			slog.Info("app killed after completion")
 			break outer
+
 		case s := <-sigChan:
 			slog.Info("app killed through signal", "signal", s.String())
 			break outer

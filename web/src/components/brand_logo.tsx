@@ -31,6 +31,7 @@ const BrandLogo: FC<{ brand: string}> = ({ brand }) => {
             case 'SHELL': return ShellLogo
             case 'TEXACO': return TexacoLogo
             case 'COOP': return CoopLogo
+            case 'CO-OP': return CoopLogo
             case 'ESSO': return EssoLogo
             case 'HARVEST ENERGY': return HarvestEnergyLogo
             case 'MORRISONS': return MorrisonsLogo

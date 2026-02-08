@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"main/internal/dao"
-	"main/internal/database"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -21,13 +20,13 @@ type postgresUserRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepo() UserRepository {
-	if err := database.DBInstance.AutoMigrate(&dao.User{}); err != nil {
+func NewUserRepo(db *gorm.DB) UserRepository {
+	if err := db.AutoMigrate(&dao.User{}); err != nil {
 		log.Fatalf("Failed to migrate user schema: %v", err)
 	}
 
 	return &postgresUserRepository{
-		db: database.DBInstance,
+		db: db,
 	}
 }
 

@@ -33,10 +33,10 @@ func TestCreateUser(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	repo := NewUserRepo()
+	repo := NewUserRepo(db)
 
 	user, err := repo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
@@ -67,10 +67,10 @@ func TestGetUser(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	repo := NewUserRepo()
+	repo := NewUserRepo(db)
 	_, err = repo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 
@@ -111,10 +111,10 @@ func TestUpdateUser(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	repo := NewUserRepo()
+	repo := NewUserRepo(db)
 	user, err := repo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 
@@ -150,11 +150,11 @@ func TestDeleteUser(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	repo := NewUserRepo()
-	NewRefreshTokenRepo() // need to spool migrations for relational integrity
+	repo := NewUserRepo(db)
+	NewRefreshTokenRepo(db) // need to spool migrations for relational integrity
 	user, err := repo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 

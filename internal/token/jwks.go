@@ -35,14 +35,18 @@ var (
 	cachedKeys  map[string]*rsa.PublicKey
 )
 
-func NewJKWS(privateKeyPEM string) (*JWKS, error) {
+func NewJWKS(privateKeyPEM string) (*JWKS, error) {
 	block, _ := pem.Decode([]byte(privateKeyPEM))
 	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	pubKey := key.PublicKey
+	return NewJWKSFromKey(key)
+}
+
+func NewJWKSFromKey(privateKey *rsa.PrivateKey) (*JWKS, error) {
+	pubKey := privateKey.PublicKey
 	v7, _ := uuid.NewV7()
 	jwk := JWK{
 		Kid: v7.String(),

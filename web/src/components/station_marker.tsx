@@ -1,21 +1,21 @@
 import { FC } from "react";
+import { cn } from "@/lib/utils";
+import { renderToString } from 'react-dom/server';
 
 import { Station } from "@/models/station";
 
-import { DivIcon, Icon } from "leaflet";
-import { renderToString } from 'react-dom/server';
+import { DivIcon } from "leaflet";
+import BrandLogo from "./brand_logo";
 import StationItem from "./station_item";
 import { Popup } from 'react-leaflet/Popup' 
 import { Marker } from 'react-leaflet/Marker' 
-import BrandLogo from "./brand_logo";
-import { cn } from "@/lib/utils";
 
 interface StationProps {
     station: Station;
 }
 
 const StationMarker: FC<StationProps> = ({ station }) => {
-    const coords = [...station.location.coordinates].reverse() as [number, number];
+    const coords = [station.latitude, station.longitude] as [number, number];
 
     const stationIcon = new DivIcon({
       html: renderToString(
@@ -40,14 +40,14 @@ const StationMarker: FC<StationProps> = ({ station }) => {
         )}>
           <BrandLogo brand={station.brand} />
           <div className="border rounded-xl w-full mx-1 p-[1px] bg-linear-to-r from-green-400 to-green-700">
-            <p className="text-xs text-white text-center">{station.e10 ?? '-'}</p>
+            <p className="text-xs text-white text-center">{!!station.e10 && station.e10 > 0 ? station.e10 : '-'}</p>
           </div>
           <div className="border rounded-xl w-full mx-1 p-[1px] bg-linear-to-r from-yellow-400 to-yellow-700">
-            <p className="text-xs text-white text-center">{station.b7 ?? '-'}</p>
+            <p className="text-xs text-white text-center">{!!station.b7 && station.b7 > 0 ? station.b7 : '-'}</p>
           </div>
         </div>
       ),
-      className: '', // to remove default 'leaflet-div-icon' class styles
+      className: 'flex! items-end hover:z-[10000]!', // to remove default 'leaflet-div-icon' class styles
       iconSize: [60, 100], // size of the icon
       iconAnchor: [30, 109], // point of the icon which will correspond to marker's location
       popupAnchor: [0, -100], // point from which the popup should open relative to the iconAnchor

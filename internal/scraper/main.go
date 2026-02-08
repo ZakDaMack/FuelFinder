@@ -2,17 +2,14 @@ package scraper
 
 import (
 	"log/slog"
-	"main/api/fuelfinder"
-	"main/internal/sanitiser"
 )
 
 type Job struct {
 	Url      string
-	Stations []*fuelfinder.StationItem
+	Stations []StationDataset
 }
 
 func NewScraper(url string, out chan Job) error {
-
 	// read through links and then upload to system
 	links, err := GetTableLinks(url)
 	if err != nil {
@@ -79,12 +76,11 @@ func filterData(in <-chan Job) <-chan Job {
 	out := make(chan Job)
 	go func() {
 		for job := range in {
-			filtered := make([]*fuelfinder.StationItem, 0)
+			filtered := make([]StationDataset, 0)
 			for _, station := range job.Stations {
-				if sanitiser.IsValidItem(station) {
+				if IsValidItem(&station) {
 					filtered = append(filtered, station)
 				}
-
 			}
 
 			job.Stations = filtered
@@ -101,8 +97,8 @@ func sanitizeData(in <-chan Job) <-chan Job {
 	go func() {
 		for job := range in {
 			// Sanitise the data
-			for _, station := range job.Stations {
-				sanitiser.CleanStationItem(station)
+			for i := range job.Stations {
+				cleanStationItem(&job.Stations[i])
 			}
 			out <- job
 		}

@@ -7,10 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	DBInstance *gorm.DB
-)
-
 func MakePostgresDB(dsn string) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -27,6 +23,13 @@ func MakePostgresDB(dsn string) (*gorm.DB, error) {
 	sqlDB.SetMaxIdleConns(25)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
-	DBInstance = db
 	return db, nil
+}
+
+func ClosePostgresDB(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Close()
 }

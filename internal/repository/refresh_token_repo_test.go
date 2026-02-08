@@ -34,11 +34,11 @@ func TestCreateRefreshToken(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	userRepo := NewUserRepo()
-	repo := NewRefreshTokenRepo()
+	userRepo := NewUserRepo(db)
+	repo := NewRefreshTokenRepo(db)
 	user, err := userRepo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 
@@ -74,11 +74,11 @@ func TestGetRefreshToken(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	userRepo := NewUserRepo()
-	repo := NewRefreshTokenRepo()
+	userRepo := NewUserRepo(db)
+	repo := NewRefreshTokenRepo(db)
 	user, err := userRepo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 
@@ -122,11 +122,11 @@ func TestDeleteRefreshToken(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	userRepo := NewUserRepo()
-	repo := NewRefreshTokenRepo()
+	userRepo := NewUserRepo(db)
+	repo := NewRefreshTokenRepo(db)
 	user, err := userRepo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 
@@ -167,11 +167,11 @@ func TestUserRelationCascadeDelete(t *testing.T) {
 	dsn, err := pgContainer.ConnectionString(ctx)
 	assert.NoError(t, err)
 
-	_, err = database.MakePostgresDB(dsn)
+	db, err := database.MakePostgresDB(dsn)
 	assert.NoError(t, err)
 
-	userRepo := NewUserRepo()
-	repo := NewRefreshTokenRepo()
+	userRepo := NewUserRepo(db)
+	repo := NewRefreshTokenRepo(db)
 	user, err := userRepo.Create(ctx, "z.dowsett@email.com", "password", "Zak", "Dowsett")
 	assert.NoError(t, err)
 

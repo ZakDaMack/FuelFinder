@@ -21,12 +21,12 @@ const fuels = {
     'e5'  : {colour: 'from-blue-400 to-blue-700', title: 'Super'},
     'e10' : {colour: 'from-green-400 to-green-700', title: 'Petrol'},
     'b7'  : {colour: 'from-yellow-400 to-yellow-700', title: 'Diesel'},
-    // 'sdv':{colour: '', title: 'SDV'},
+    // 'sdv':{colour: 'from-orange-400 to-orange-700', title: 'SDV'},
 }
 
 const StationItem: FC<StationProps> = ({ station, onHover }) => {
-    const coords = `${station.location.coordinates[1]},${station.location.coordinates[0]}`
-    const formattedDistance = station.distance >= 1000 ? (station.distance/1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) : station.distance.toLocaleString('en-GB', { maximumFractionDigits: 0 });
+    const coords = `${station.longitude},${station.latitude}`
+    const formattedDistance = (station.distance ?? 0) >= 1000 ? (station.distance!/1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) : station.distance?.toLocaleString('en-GB', { maximumFractionDigits: 0 });
 
     const getValue = (val?: number) => val ? `${(Math.round(val * 10) / 10).toFixed(1)} p/L` : 'N/A';
     const isMobile = useMediaQuery("(max-width: 768px)")  
@@ -42,7 +42,7 @@ const StationItem: FC<StationProps> = ({ station, onHover }) => {
                 {/* <h3 className="uppercase text-2xl">{station.brand}</h3> */}
                 <BrandLogo brand={station.brand} />
                 <span className="text-sm m-0 p-0">
-                    {formattedDistance}{station.distance >= 1000 ? 'km' : ' metres'} away
+                    {formattedDistance}{(station.distance ?? 0) >= 1000 ? 'km' : ' metres'} away
                 </span>
             </div>
 
@@ -79,7 +79,7 @@ const StationItem: FC<StationProps> = ({ station, onHover }) => {
 
             {/* footer */}
             <div className='text-right text-xs text-neutral-400'>
-                <p>Last Updated {dayjs.unix(station.created_at).calendar()}</p>
+                <p>Last Updated {dayjs(station.created_at).calendar()}</p>
             </div>
         </div>
     );

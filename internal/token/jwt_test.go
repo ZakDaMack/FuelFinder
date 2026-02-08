@@ -10,10 +10,10 @@ import (
 )
 
 func TestCreateJWT(t *testing.T) {
-	key, err := rsa.GenerateKey(rand.Reader, 256)
+	key, err := rsa.GenerateKey(rand.Reader, 1024)
 	assert.NoError(t, err)
 
-	p := NewJWTProvider(Options{
+	p := NewJWTProvider(&Options{
 		PrivateKey:   key,
 		IssuerHost:   "http://localhost:8080",
 		AudienceHost: "http://localhost:8080",

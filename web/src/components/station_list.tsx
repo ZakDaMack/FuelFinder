@@ -9,7 +9,7 @@ import { Button } from "./ui/button";
 import StationItem from "./station_item";
 import { Sheet, SheetClose, SheetContent } from "./ui/sheet";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuRadioItem, DropdownMenuRadioGroup } from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuRadioItem, DropdownMenuRadioGroup } from "./ui/dropdown-menu";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDownShortWide, faClose, faSort } from "@fortawesome/free-solid-svg-icons";
@@ -30,15 +30,15 @@ const StationList: FC = () => {
   const stations = useAppSelector(s => s.stations.value)
   const filteredStations = useMemo(() => {
     return stations
-      .filter(s => !!s[sortBy as keyof Station])
-      .sort((a,b) => ((a[sortBy as keyof Station] as number) - (b[sortBy as keyof Station] as number)) || (a.distance - b.distance))
+      .filter(s => !!s[sortBy as keyof Station] && s[sortBy as keyof Station] as number > 0)
+      .sort((a,b) => ((a[sortBy as keyof Station] as number) - (b[sortBy as keyof Station] as number)) || ((a.distance ?? 0) - (b.distance ?? 0)))
       // sort by specified key, if equal, sort by dist
   }, [stations, sortBy]) 
    
   const handleHover = (enter: boolean, siteId: string) => {
     if (!isDesktop) return;
     const el = document.querySelector(`div[data-site-id='${siteId}']`)
-    const classes = ['scale-120', '-translate-y-3', 'shadow-xl', 'shadow-black/30'];
+    const classes = ['scale-120', '-translate-y-3', 'shadow-xl', 'shadow-black/30', 'z-[10000]!'];
     enter ? el?.classList.add(...classes) : el?.classList.remove(...classes);
   }
 
@@ -65,8 +65,8 @@ const StationList: FC = () => {
                   <DropdownMenuLabel>Sort By</DropdownMenuLabel>
                    <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
                     <DropdownMenuRadioItem value="distance">Distance</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="e5">Petrol</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="e10">Super</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="e10">Petrol</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="e5">Super</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="b7">Diesel</DropdownMenuRadioItem>
                   </DropdownMenuRadioGroup>
                 </DropdownMenuGroup>

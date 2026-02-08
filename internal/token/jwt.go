@@ -26,9 +26,9 @@ type JWTProvider struct {
 	options *Options
 }
 
-func NewJWTProvider(options Options) *JWTProvider {
+func NewJWTProvider(options *Options) *JWTProvider {
 	return &JWTProvider{
-		options: &options,
+		options: options,
 	}
 }
 

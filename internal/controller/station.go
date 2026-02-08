@@ -1,46 +1,67 @@
 package controller
 
 import (
-	"main/internal/model"
-	"main/internal/repository"
+	"log/slog"
+	"main/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type StationController interface {
-	Index(ctx *gin.Context)
+	GetQuery(ctx *gin.Context)
+	GetBrands(ctx *gin.Context)
 }
 
 type stationController struct {
-	stationsRepo repository.StationRepository
+	stationService service.StationService
 }
 
-func NewStationController() StationController {
+func NewStationControllerFromSupplier(supplier service.Supplier) StationController {
+	return NewStationController(supplier.GetStationService())
+}
+
+func NewStationController(stationSvc service.StationService) StationController {
 	return &stationController{
-		stationsRepo: repository.NewStationRepo(),
+		stationService: stationSvc,
 	}
 }
 
-func (c *stationController) Index(ctx *gin.Context) {
-	lat := ctx.GetFloat64("latitude")
-	long := ctx.GetFloat64("longitude")
-	radius := ctx.GetInt("radius")
-	brandQuery := ctx.GetStringSlice("brands")
-	fueltypes := ctx.GetStringSlice("fueltypes")
-
-	if radius < 1 || radius > 20 {
-		ctx.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Message: "Radius must be between 1 and 20",
-		})
+func (c *stationController) GetQuery(ctx *gin.Context) {
+	// get coords from query params and parse into slice of floats
+	coords, err := getDelimitedFloatQueryParam(ctx, "coords")
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	stations, err := c.stationsRepo.GetStations(ctx, lat, long, radius, brandQuery, fueltypes)
+	// get brands and parse into slice
+	brandQuery := getDelimitedQueryParam(ctx, "brands")
+
+	// get fuel types and parse into slice
+	fuelQuery := getDelimitedQueryParam(ctx, "fueltypes")
+
+	slog.Info("got query", "coords", coords, "brands", brandQuery, "fueltypes", fuelQuery)
+	stations, err := c.stationService.GetStations(ctx, coords, brandQuery, fuelQuery)
+	if err != nil {
+		if err.Error() == service.IncorrectCoordsError || err.Error() == service.DistanceTooGreatError {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			ctx.AbortWithError(http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	slog.Info("got stations", "len", len(stations))
+	ctx.JSON(200, stations)
+}
+
+func (c *stationController) GetBrands(ctx *gin.Context) {
+	brands, err := c.stationService.GetBrands(ctx)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.JSON(200, stations)
+	ctx.JSON(200, brands)
 }

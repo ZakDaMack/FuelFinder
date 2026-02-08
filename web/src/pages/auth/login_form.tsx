@@ -12,6 +12,7 @@ const LoginPage: FC<LoginProps> = ({ children }) => {
         <main className='w-full h-screen bg-[url(/map_bg.png)] bg-cover relative'>
             <div className='absolute top-0 bottom-0 left-0 right-0 backdrop-blur-xs' />
             <div className='bg-white/20 dark:bg-black/20 backdrop-blur-md border h-screen absolute right-0 w-1/2 grid p-6 z-10'>
+            {children}
                 {/* logo */}
                 <div className='flex gap-2 items-center h-10'>
                     <img height={50} width={50} src='/favicon.ico' />

@@ -27,12 +27,10 @@ jobs:
         include:
           - image: zakdamack/fuelfinder-frontend
             dockerfile: build/frontend.Dockerfile
-          - image: zakdamack/fuelfinder-server
-            dockerfile: build/server.Dockerfile
+          - image: zakdamack/fuelfinder-stationapi
+            dockerfile: build/stationapi.Dockerfile
           - image: zakdamack/fuelfinder-scraper
             dockerfile: build/scraper.Dockerfile
-          - image: zakdamack/fuelfinder-gateway
-            dockerfile: build/gateway.Dockerfile
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -40,6 +38,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
+          registry: ghcr.io
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
     
@@ -47,7 +46,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ matrix.image }}
+          images: ghcr.io/${{ matrix.image }}
           tags: type=semver,pattern={{version}}
       
       - name: Build and push Docker image
@@ -66,7 +65,7 @@ jobs:
     steps:   
       - uses: technote-space/workflow-conclusion-action@v3
 
-      - name: Notify slack on build start
+      - name: Notify slack on build end
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: builds

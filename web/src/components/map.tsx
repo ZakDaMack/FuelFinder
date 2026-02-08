@@ -1,14 +1,16 @@
 import { FC, useEffect } from 'react';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
 
-import { useMap } from 'react-leaflet/hooks'
-import { Marker } from 'react-leaflet/Marker' 
-import { Icon, LatLngExpression } from 'leaflet'
+import { LatLngExpression } from 'leaflet'
 import { TileLayer } from 'react-leaflet/TileLayer' 
 import { MapContainer } from 'react-leaflet/MapContainer'
+import { useMap, useMapEvents } from 'react-leaflet/hooks'
+
+import { fetchData } from '@/slices/station_slice';
 
 import MapZoom from './map_zoom';
 import Overview from './overview';
+import CarMarker from './car_marker';
 import StationMarker from './station_marker';
 import StationSummary from './station_summary';
 import LoadingIndicator from './loading_indicator';
@@ -16,13 +18,6 @@ import LoadingIndicator from './loading_indicator';
 export default function Map() {
     const stations = useAppSelector((state) => state.stations.value)
     const location = useAppSelector((state) => state.stations.location)
-
-    const carIcon = new Icon({
-        iconUrl: '/car.png',
-        iconSize: [40,30], // size of the icon
-        iconAnchor: [20,15], // point of the icon which will correspond to marker's location
-        popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
-    });
 
     return (
         <MapContainer center={location} zoom={13} scrollWheelZoom={false} className="w-screen h-screen [&>.leaflet-control-container]:hidden">
@@ -33,11 +28,12 @@ export default function Map() {
             {stations?.map(s => (
                 <StationMarker key={s.site_id} station={s} />
             ))}
-            <Marker position={location} icon={carIcon} />
+            <CarMarker coords={location} />
             <MapZoom />
             <Overview />
             <StationSummary />
             <LoadingIndicator />
+            <BoundsListener />
         
             <RecentreAutomatically location={location} />
         </MapContainer>
@@ -56,3 +52,16 @@ const RecentreAutomatically: FC<RecentreProps> = ({ location }) => {
     }, [location]);
     return null;
 };
+
+const BoundsListener: FC = () => {
+    const dispatch = useAppDispatch();
+    const map = useMapEvents({
+        moveend: () => {
+            dispatch(fetchData(map.getBounds()));
+        },
+        zoomend: () => {
+            dispatch(fetchData(map.getBounds()));
+        }
+    });
+    return null;
+}

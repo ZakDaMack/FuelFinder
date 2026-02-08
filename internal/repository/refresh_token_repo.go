@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"main/internal/dao"
-	"main/internal/database"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -20,12 +19,12 @@ type postgresRefreshTokenRepository struct {
 	db *gorm.DB
 }
 
-func NewRefreshTokenRepo() RefreshTokenRepository {
-	if err := database.DBInstance.AutoMigrate(&dao.RefreshToken{}); err != nil {
+func NewRefreshTokenRepo(db *gorm.DB) RefreshTokenRepository {
+	if err := db.AutoMigrate(&dao.RefreshToken{}); err != nil {
 		log.Fatalf("Failed to migrate refresh token schema: %v", err)
 	}
 	return &postgresRefreshTokenRepository{
-		db: database.DBInstance,
+		db: db,
 	}
 }
 
