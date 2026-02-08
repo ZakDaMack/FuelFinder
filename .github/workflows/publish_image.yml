@@ -4,6 +4,11 @@ on:
   push:
     tags: ['*']
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GHCR
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   notify-start:
     runs-on: ubuntu-latest
