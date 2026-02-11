@@ -11,8 +11,10 @@ API and front end to show cheapest fuel in your area, provided by gov fuel price
 The Department for Energy Security and Net Zero has stated it will publish its consultation on the end-state solution in March 2024. (Although I am unsure if this has come to fruition). The government eventually plans to make this madnatory for all brands as well as be a live data stream for developers to consume.
 
 ## Todo
-- Filter stations by type of fuel available (eg. Only if diesel is available at location) 
-- Stationscraper option to only run once, then quit
+- Add auth ready for mobile app
+- Get averages in area
+- Show station history
+- Login screen
 
 ## Current Datasets
 Datasets can be found on the government website [here](https://www.gov.uk/guidance/access-fuel-price-data). These are constantly updated and the station scraper script will collect any new entries that appear here.

@@ -23,7 +23,16 @@ jobs:
           SLACK_TITLE: Build Started for ${{ github.event.repository.name }} ${{ github.ref_name }}
           SLACK_USERNAME: GitHub Actions
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        
+          
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: go test -v ./... -coverprofile=coverage.out
+
   build:
     runs-on: ubuntu-latest
     environment: Production

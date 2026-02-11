@@ -1,0 +1,35 @@
+name: Publish Docker Image CI
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: go test -v ./... -coverprofile=coverage.out
+
+  notify-end-state:
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    needs: [test]
+    steps:   
+      - uses: technote-space/workflow-conclusion-action@v3
+
+      - name: Notify discord on build end
+        uses: stegzilla/discord-notify@v2
+        with:
+          webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
+          colour: ${{ env.WORKFLOW_CONCLUSION }} 
+          title: Test Failed
+          message: Test failed for ${{ github.event.repository.name }} ${{ github.ref_name }} 
+          include_image: true
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          username: GitHub Actions
