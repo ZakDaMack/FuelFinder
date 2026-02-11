@@ -27,9 +27,9 @@ jobs:
         uses: stegzilla/discord-notify@v2
         with:
           webhook_url: ${{ secrets.DISCORD_WEBHOOK }}
-          colour: ${{ env.WORKFLOW_CONCLUSION }} 
+          colour: error # ${{ env.WORKFLOW_CONCLUSION }} 
           title: Test Failed
-          message: Test failed for ${{ github.event.repository.name }} ${{ github.ref_name }} 
+          message: "Tests failed for ${{ github.event.repository.name }} on branch ${{ github.ref_name }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           include_image: true
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           username: GitHub Actions
