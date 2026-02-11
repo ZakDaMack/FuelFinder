@@ -13,4 +13,5 @@ ENV PORT=8080
 ENV DEBUG_MODE=false
 ENV POSTGIS_DSN="postgres://database:5432/fuelfinder?sslmode=disable"
 
+EXPOSE 8080
 CMD ["/app/stationapi"]
