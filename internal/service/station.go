@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 	"main/internal/dao"
 	"main/internal/geo"
 	"main/internal/model"
 	"main/internal/repository"
+	"net/http"
 
 	"gorm.io/gorm"
 )
@@ -19,6 +19,7 @@ const (
 type StationService interface {
 	GetBrands(ctx context.Context) ([]string, error)
 	GetStations(ctx context.Context, coords []float64, stations []string, fuelTypes []string) ([]model.StationResponse, error)
+	GetStationsBySiteID(ctx context.Context, siteID string) ([]model.StationResponse, error)
 }
 
 type stationService struct {
@@ -33,13 +34,26 @@ func NewStationService(db *gorm.DB) StationService {
 
 // GetBrands retrieves the list of unique station brands. Requires no authentication.
 func (s *stationService) GetBrands(ctx context.Context) ([]string, error) {
-	return s.repo.GetBrands(ctx)
+	res, err := s.repo.GetBrands(ctx)
+	if err != nil {
+		return nil, &model.ErrorResponse{
+			Code:    "internal_error",
+			Message: "unable to retrieve station brands",
+			Status:  http.StatusInternalServerError,
+			Err:     err,
+		}
+	}
+	return res, nil
 }
 
 // GetStations retrieves stations within the specified bounding box and filters.
 func (s *stationService) GetStations(ctx context.Context, coords []float64, stations []string, fuelTypes []string) ([]model.StationResponse, error) {
 	if len(coords) != 4 {
-		return nil, errors.New(IncorrectCoordsError)
+		return nil, &model.ErrorResponse{
+			Code:    "invalid_input",
+			Message: IncorrectCoordsError,
+			Status:  http.StatusBadRequest,
+		}
 	}
 
 	// get points
@@ -49,7 +63,11 @@ func (s *stationService) GetStations(ctx context.Context, coords []float64, stat
 	// if distance is greater than 50km, return error to prevent expensive query
 	distance := geo.CalculateDistance(topLeft, bottomRight)
 	if distance > 50000 {
-		return nil, errors.New(DistanceTooGreatError)
+		return nil, &model.ErrorResponse{
+			Code:    "invalid_input",
+			Message: DistanceTooGreatError,
+			Status:  http.StatusBadRequest,
+		}
 	}
 
 	daoStations, err := s.repo.GetStations(
@@ -61,7 +79,40 @@ func (s *stationService) GetStations(ctx context.Context, coords []float64, stat
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, &model.ErrorResponse{
+			Code:    "internal_error",
+			Message: "unable to retrieve stations",
+			Status:  http.StatusInternalServerError,
+			Err:     err,
+		}
+	}
+
+	var stationResponses []model.StationResponse
+	for _, daoStation := range daoStations {
+		stationResponses = append(stationResponses, model.FromDAO(&daoStation))
+	}
+
+	return stationResponses, nil
+}
+
+func (s *stationService) GetStationsBySiteID(ctx context.Context, siteID string) ([]model.StationResponse, error) {
+	daoStations, err := s.repo.GetStationsBySiteID(ctx, siteID)
+	if err != nil {
+		return nil, &model.ErrorResponse{
+			Code:    "internal_error",
+			Message: "unable to retrieve stations with the provided site ID",
+			Status:  http.StatusInternalServerError,
+			Err:     err,
+		}
+	}
+
+	if len(daoStations) == 0 {
+		return nil, &model.ErrorResponse{
+			Code:    "not_found",
+			Message: "no stations found with the provided site ID",
+			Status:  http.StatusNotFound,
+			Err:     gorm.ErrRecordNotFound,
+		}
 	}
 
 	var stationResponses []model.StationResponse

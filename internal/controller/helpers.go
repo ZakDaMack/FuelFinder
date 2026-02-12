@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
+	"main/internal/model"
 	"strconv"
 	"strings"
 
@@ -33,4 +35,23 @@ func getDelimitedFloatQueryParam(ctx *gin.Context, paramName string) ([]float64,
 		floatValues = append(floatValues, floatVal)
 	}
 	return floatValues, nil
+}
+
+// handles app defined errors and aborts if not nil
+func handleError(ctx *gin.Context, err error) {
+	if err == nil {
+		return
+	}
+
+	// if our custom error type, extract status and message
+	var appErr *model.ErrorResponse
+	if errors.As(err, &appErr) {
+		ctx.AbortWithStatusJSON(appErr.Status, appErr.Message)
+	}
+
+	// else just return 500 with generic message
+	ctx.AbortWithError(500, &model.ErrorResponse{
+		Code:    "internal_error",
+		Message: err.Error(),
+	})
 }

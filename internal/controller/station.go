@@ -3,7 +3,6 @@ package controller
 import (
 	"log/slog"
 	"main/internal/service"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +10,7 @@ import (
 type StationController interface {
 	GetQuery(ctx *gin.Context)
 	GetBrands(ctx *gin.Context)
+	GetStations(ctx *gin.Context)
 }
 
 type stationController struct {
@@ -30,10 +30,7 @@ func NewStationController(stationSvc service.StationService) StationController {
 func (c *stationController) GetQuery(ctx *gin.Context) {
 	// get coords from query params and parse into slice of floats
 	coords, err := getDelimitedFloatQueryParam(ctx, "coords")
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
+	handleError(ctx, err)
 
 	// get brands and parse into slice
 	brandQuery := getDelimitedQueryParam(ctx, "brands")
@@ -43,14 +40,7 @@ func (c *stationController) GetQuery(ctx *gin.Context) {
 
 	slog.Info("got query", "coords", coords, "brands", brandQuery, "fueltypes", fuelQuery)
 	stations, err := c.stationService.GetStations(ctx, coords, brandQuery, fuelQuery)
-	if err != nil {
-		if err.Error() == service.IncorrectCoordsError || err.Error() == service.DistanceTooGreatError {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		} else {
-			ctx.AbortWithError(http.StatusInternalServerError, err)
-		}
-		return
-	}
+	handleError(ctx, err)
 
 	slog.Info("got stations", "len", len(stations))
 	ctx.JSON(200, stations)
@@ -58,10 +48,15 @@ func (c *stationController) GetQuery(ctx *gin.Context) {
 
 func (c *stationController) GetBrands(ctx *gin.Context) {
 	brands, err := c.stationService.GetBrands(ctx)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	handleError(ctx, err)
 
 	ctx.JSON(200, brands)
+}
+
+func (c *stationController) GetStations(ctx *gin.Context) {
+	siteID := ctx.Param("site_id")
+	stations, err := c.stationService.GetStationsBySiteID(ctx, siteID)
+	handleError(ctx, err)
+
+	ctx.JSON(200, stations)
 }

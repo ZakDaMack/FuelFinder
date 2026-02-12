@@ -16,6 +16,7 @@ type StationRepository interface {
 	Insert(ctx context.Context, station *dao.Station) error
 	Exists(ctx context.Context, siteID string, createdAt time.Time) (bool, error)
 	GetStations(ctx context.Context, topLeft, bottomRight dao.GeometryPoint, includeBrands, includeFueltypes []string) ([]dao.Station, error)
+	GetStationsBySiteID(ctx context.Context, siteID string) ([]dao.Station, error)
 }
 
 type postgresStationRepository struct {
@@ -102,6 +103,16 @@ func (r *postgresStationRepository) GetStations(ctx context.Context, topLeft, bo
 	query = query.Order("stations.site_id, stations.created_at DESC")
 
 	err := query.Find(&results).Error
+	return results, err
+}
+
+func (r *postgresStationRepository) GetStationsBySiteID(ctx context.Context, siteID string) ([]dao.Station, error) {
+	var results []dao.Station
+	err := r.db.WithContext(ctx).Model(&dao.Station{}).
+		Where("site_id = ?", siteID).
+		Order("created_at DESC").
+		Find(&results).Error
+
 	return results, err
 }
 
