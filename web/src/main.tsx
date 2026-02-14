@@ -2,26 +2,18 @@ import { StrictMode } from 'react'
 import { Provider } from 'react-redux'
 import { createRoot } from 'react-dom/client'
 import { Toaster } from "@/components/ui/sonner"
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { store } from './store'
-import Map from './components/map'
-import Init from './components/init'
-import Preferences from './components/preferences'
-import StationList from './components/station_list'
-import IntroDialog from './components/intro_dialog'
+import { routes } from './routes'
 
-// import LoginPage from './pages/auth/login_form'
+const router = createBrowserRouter(routes)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <IntroDialog />
-      <Preferences />
-      <StationList />
-      <Init />
-      <Map />
+      <RouterProvider router={router} />
     </Provider>
-    {/* <LoginPage /> */}
     <Toaster />
   </StrictMode>,
 )

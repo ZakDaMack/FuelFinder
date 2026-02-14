@@ -56,7 +56,6 @@ services:
       database:
         condition: service_healthy
     environment:
-      - IMMEDIATE=true
       - DEBUG_MODE=false
       - SCRAPER_INTERVAL=15
       - SCRAPER_URL=https://www.gov.uk/guidance/access-fuel-price-data

@@ -114,7 +114,7 @@ export function fetchData(bounds: LatLngBounds) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to get stations");
+        throw new Error(errorData.message || "Failed to get stations");
       }
 
       let data = await response.json()

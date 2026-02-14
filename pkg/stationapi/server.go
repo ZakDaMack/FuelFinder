@@ -44,6 +44,7 @@ func NewServer(params *StationAPIParams) *Server {
 	// Station routes
 	router.GET("/stations/query", stationController.GetQuery)
 	router.GET("/stations/brands", stationController.GetBrands)
+	router.GET("/stations/:id", stationController.GetStation)
 
 	return &Server{
 		httpServer: httpServer,

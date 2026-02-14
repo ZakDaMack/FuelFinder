@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ff-scraper-deployment
+  labels:
+    app.kubernetes.io/name: fuelfinder-scraper
+    app: ff-scraper
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: ff-scraper
+              image: ghcr.io/zakdamack/fuelfinder-scraper:latest
+              ports:
+                - containerPort: 80
+              env:
+                - name: IMMEDIATE
+                  value: "true"
+                - name: DEBUG_MODE
+                  value: "false"
+                - name: SCRAPER_INTERVAL
+                  value: "15"
+                - name: SCRAPER_URL
+                  value: "https://www.gov.uk/guidance/access-fuel-price-data"
+                - name: POSTGIS_DSN
+                  value: "postgres://databaseuser:secretpassword@database:5432/fuelfinder?sslmode=disable"
+              # depends_on:
+              #   - database  
+                

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log/slog"
 	"main/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +9,7 @@ import (
 type StationController interface {
 	GetQuery(ctx *gin.Context)
 	GetBrands(ctx *gin.Context)
-	GetStations(ctx *gin.Context)
+	GetStation(ctx *gin.Context)
 }
 
 type stationController struct {
@@ -30,7 +29,9 @@ func NewStationController(stationSvc service.StationService) StationController {
 func (c *stationController) GetQuery(ctx *gin.Context) {
 	// get coords from query params and parse into slice of floats
 	coords, err := getDelimitedFloatQueryParam(ctx, "coords")
-	handleError(ctx, err)
+	if handleError(ctx, err) {
+		return
+	}
 
 	// get brands and parse into slice
 	brandQuery := getDelimitedQueryParam(ctx, "brands")
@@ -38,25 +39,29 @@ func (c *stationController) GetQuery(ctx *gin.Context) {
 	// get fuel types and parse into slice
 	fuelQuery := getDelimitedQueryParam(ctx, "fueltypes")
 
-	slog.Info("got query", "coords", coords, "brands", brandQuery, "fueltypes", fuelQuery)
 	stations, err := c.stationService.GetStations(ctx, coords, brandQuery, fuelQuery)
-	handleError(ctx, err)
+	if handleError(ctx, err) {
+		return
+	}
 
-	slog.Info("got stations", "len", len(stations))
 	ctx.JSON(200, stations)
 }
 
 func (c *stationController) GetBrands(ctx *gin.Context) {
 	brands, err := c.stationService.GetBrands(ctx)
-	handleError(ctx, err)
+	if handleError(ctx, err) {
+		return
+	}
 
 	ctx.JSON(200, brands)
 }
 
-func (c *stationController) GetStations(ctx *gin.Context) {
-	siteID := ctx.Param("site_id")
+func (c *stationController) GetStation(ctx *gin.Context) {
+	siteID := ctx.Param("id")
 	stations, err := c.stationService.GetStationsBySiteID(ctx, siteID)
-	handleError(ctx, err)
+	if handleError(ctx, err) {
+		return
+	}
 
 	ctx.JSON(200, stations)
 }

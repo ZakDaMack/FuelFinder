@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ff-web-deployment
+  labels:
+    app.kubernetes.io/name: fuelfinder-web
+    app: ff-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ff-web
+  template:
+    metadata:
+      labels:
+        app: ff-web
+    spec:
+      containers:
+        - name: ff-web
+          image: ghcr.io/zakdamack/fuelfinder-frontend:latest
+          ports:
+            - containerPort: 80
+            

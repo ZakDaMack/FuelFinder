@@ -109,6 +109,19 @@ func (r *postgresStationRepository) GetStations(ctx context.Context, topLeft, bo
 func (r *postgresStationRepository) GetStationsBySiteID(ctx context.Context, siteID string) ([]dao.Station, error) {
 	var results []dao.Station
 	err := r.db.WithContext(ctx).Model(&dao.Station{}).
+		Select(`
+			stations.id,
+			stations.site_id,
+			ST_AsEWKT(stations.location) AS location,
+			stations.brand,
+			stations.e5,
+			stations.e10,
+			stations.b7,
+			stations.sdv,
+			stations.address,
+			stations.postcode,
+			stations.created_at
+		`).
 		Where("site_id = ?", siteID).
 		Order("created_at DESC").
 		Find(&results).Error
@@ -121,5 +134,6 @@ func (r *postgresStationRepository) Exists(ctx context.Context, siteID string, c
 	err := r.db.WithContext(ctx).Model(&dao.Station{}).
 		Where("site_id = ? AND created_at = ?", siteID, createdAt).
 		Count(&count).Error
+
 	return count > 0, err
 }

@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: ff-web-service
+  labels:
+    app.kubernetes.io/name: fuelfinder-web
+    app: ff-web
+spec:
+  selector:
+    app: ff-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

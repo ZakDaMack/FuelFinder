@@ -81,7 +81,10 @@ outer:
 			slog.Info("job triggered", "ticker_time", t)
 			go func(cncl context.CancelFunc) {
 				scraper.NewScraper(url, data)
-				cncl()
+				// cancel context after first job completes, if immediate is true this will kill the app
+				if immediate {
+					cncl()
+				}
 			}(cancel)
 
 		case job := <-data:

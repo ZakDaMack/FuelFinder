@@ -38,15 +38,16 @@ func getDelimitedFloatQueryParam(ctx *gin.Context, paramName string) ([]float64,
 }
 
 // handles app defined errors and aborts if not nil
-func handleError(ctx *gin.Context, err error) {
+func handleError(ctx *gin.Context, err error) bool {
 	if err == nil {
-		return
+		return false
 	}
 
 	// if our custom error type, extract status and message
 	var appErr *model.ErrorResponse
 	if errors.As(err, &appErr) {
-		ctx.AbortWithStatusJSON(appErr.Status, appErr.Message)
+		ctx.AbortWithStatusJSON(appErr.Status, appErr)
+		return true
 	}
 
 	// else just return 500 with generic message
@@ -54,4 +55,5 @@ func handleError(ctx *gin.Context, err error) {
 		Code:    "internal_error",
 		Message: err.Error(),
 	})
+	return true
 }
