@@ -1,3 +1,4 @@
+import { useMap } from "react-leaflet/hooks";
 import { FC, useMemo, useState } from "react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -17,7 +18,9 @@ import { faArrowDownShortWide, faClose, faSort } from "@fortawesome/free-solid-s
 const snapPoints = ['170px', '600px', 1];
 
 const StationList: FC = () => {
+  const map = useMap();
   const dispatch = useAppDispatch();
+
   const [sortBy, setSortBy] = useState<string>('distance');
   const [snap, setSnap] = useState<number|string|null>(snapPoints[0]);
 
@@ -68,6 +71,7 @@ const StationList: FC = () => {
                     <DropdownMenuRadioItem value="e10">Petrol</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="e5">Super</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="b7">Diesel</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="sdv">Super Diesel</DropdownMenuRadioItem>
                   </DropdownMenuRadioGroup>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -83,7 +87,12 @@ const StationList: FC = () => {
           )}
           <div className="border-t [&>div]:border-b-4 [&>div]:p-4 overflow-y-auto">
             {filteredStations.map(s => (
-              <StationItem key={s.site_id} station={s} onHover={(enter) => handleHover(enter, s.site_id)} />
+              <StationItem 
+                key={s.site_id} 
+                station={s} 
+                onHover={(enter) => handleHover(enter, s.site_id)}
+                onClick={() => map.flyTo([s.latitude, s.longitude]) && handleHover(true, s.site_id)}
+              />
             ))}
           </div>
         </SheetContent>

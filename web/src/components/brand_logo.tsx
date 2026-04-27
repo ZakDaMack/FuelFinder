@@ -1,4 +1,5 @@
 import { FC, useMemo } from "react";
+import { cn } from "@/lib/utils";
 
 import ApplegreenLogo from '@/assets/logos/applegreen.png';
 import BpLogo from '@/assets/logos/bp.png';
@@ -17,9 +18,15 @@ import SainsburysLogo from '@/assets/logos/sainsburys.png';
 import TescoLogo from '@/assets/logos/tesco.png';  
 import ValeroLogo from '@/assets/logos/valero.png';
 
-const BrandLogo: FC<{ brand: string}> = ({ brand }) => {
+const BrandLogo: FC<{ 
+    brand: string, 
+    className?: string 
+}> = ({ 
+    brand, 
+    className 
+}) => {
     const logo =  useMemo(() => {
-        switch (brand.toUpperCase()) {
+        switch (brand?.toUpperCase()) {
             case 'APPLEGREEN' : return ApplegreenLogo
             case 'ASDA' : return AsdaLogo
             case 'ASDA EXPRESS' : return AsdaLogo
@@ -44,8 +51,8 @@ const BrandLogo: FC<{ brand: string}> = ({ brand }) => {
     }, [brand]);
 
     return logo ? 
-        <img src={logo} alt={`${brand} logo`} style={{maxHeight: 50, maxWidth: 150}} /> : 
-        <p className="uppercase text-2xl">{brand.toUpperCase()}</p>
+        <img src={logo} alt={`${brand} logo`} className={cn("max-h-[50px] max-w-[150px]", className)} /> : 
+        <p className={cn("uppercase text-2xl", className)}>{brand?.toUpperCase()}</p>
 }
 
 export default BrandLogo;

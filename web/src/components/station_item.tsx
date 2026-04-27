@@ -15,16 +15,17 @@ dayjs.extend(calendar)
 interface StationProps {
     station: Station;
     onHover?: (enter: boolean) => void;
+    onClick?: () => void;
 }
 
 const fuels = {
     'e5'  : {colour: 'from-blue-400 to-blue-700', title: 'Super'},
     'e10' : {colour: 'from-green-400 to-green-700', title: 'Petrol'},
     'b7'  : {colour: 'from-yellow-400 to-yellow-700', title: 'Diesel'},
-    // 'sdv':{colour: 'from-orange-400 to-orange-700', title: 'SDV'},
+    'sdv' : {colour: 'from-orange-400 to-orange-700', title: 'Super Diesel'},
 }
 
-const StationItem: FC<StationProps> = ({ station, onHover }) => {
+const StationItem: FC<StationProps> = ({ station, onHover, onClick }) => {
     const coords = `${station.longitude},${station.latitude}`
     const formattedDistance = (station.distance ?? 0) >= 1000 ? (station.distance!/1000).toLocaleString('en-GB', { maximumFractionDigits: 1 }) : station.distance?.toLocaleString('en-GB', { maximumFractionDigits: 0 });
 
@@ -35,6 +36,7 @@ const StationItem: FC<StationProps> = ({ station, onHover }) => {
         <div 
             onMouseEnter={() => onHover && onHover(true)} 
             onMouseLeave={() => onHover && onHover(false)}
+            onClick={() => onClick && onClick()}
             className={cn("space-y-4", { 'hover:bg-neutral-100': !!onHover })} 
         >
             {/* header */}
@@ -60,16 +62,16 @@ const StationItem: FC<StationProps> = ({ station, onHover }) => {
 
             {/* icons */}
             <div className='space-y-4'>
-                {Object.entries(fuels).map(([fuel, data]) => (
-                    <div key={fuel} className="flex gap-4">
+                {Object.entries(fuels).filter(([fuel]) => !!station[fuel as keyof Station]).map(([fuel, data]) => (
+                    <div key={fuel} className="flex items-center gap-4">
                         <div className={cn(
                             `bg-linear-45 ${data.colour}`,
-                            "rounded size-12 grid"
+                            "rounded-lg size-11 grid"
                         )}>
                             <FontAwesomeIcon icon={faGasPump} color="white" className="place-self-center" fontSize={20} />
                         </div>
                         <div>
-                            <h4 className="text-lg">{data.title} ({fuel.toUpperCase()})</h4>
+                            <h4 className="text-base">{data.title} ({fuel.toUpperCase()})</h4>
                             <p className="m-0! p-0 text-sm text-neutral-500">{getValue(station[fuel as keyof Station] as number)} </p>
                         </div>
 

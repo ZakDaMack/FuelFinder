@@ -14,6 +14,7 @@ import CarMarker from './car_marker';
 import StationMarker from './station_marker';
 import StationSummary from './station_summary';
 import LoadingIndicator from './loading_indicator';
+import StationList from './station_list';
 
 export default function Map() {
     const stations = useAppSelector((state) => state.stations.value)
@@ -34,6 +35,9 @@ export default function Map() {
             <StationSummary />
             <LoadingIndicator />
             <BoundsListener />
+
+
+            <StationList />
         
             <RecentreAutomatically location={location} />
         </MapContainer>

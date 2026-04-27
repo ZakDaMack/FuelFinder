@@ -34,9 +34,14 @@ func GetBool(key string, dflt bool) bool {
 
 func ExistsAndNotFalse(key string) bool {
 	val, ok := os.LookupEnv(key)
+	if !ok || val == "" {
+		return false
+	}
+
 	cast, err := strconv.ParseBool(val)
 	if err != nil {
-		return ok
+		return false
 	}
-	return ok && cast
+
+	return cast
 }

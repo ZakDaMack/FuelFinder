@@ -80,5 +80,6 @@ func (p *JWTProvider) ValidateJWT(tokenString string) (*UserClaim, error) {
 	if claims, ok := token.Claims.(*UserClaim); ok && token.Valid {
 		return claims, nil
 	}
+
 	return nil, fmt.Errorf("invalid token")
 }

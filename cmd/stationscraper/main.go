@@ -22,7 +22,7 @@ func main() {
 	url := env.Get("SCRAPER_URL", "https://www.gov.uk/guidance/access-fuel-price-data")
 	databaseDSN := env.Get("POSTGIS_DSN", "postgres://localhost:5432/ofd?sslmode=disable")
 
-	interval := env.GetInt("SCRAPER_INTERVAL", 1)
+	interval := env.GetInt("SCRAPER_INTERVAL", 15)
 	debugMode := env.ExistsAndNotFalse("DEBUG_MODE")
 	immediate := env.ExistsAndNotFalse("IMMEDIATE")
 
@@ -36,7 +36,7 @@ func main() {
 
 	slog.Info("scraper started")
 
-	slog.Info("getting envs", "url", url, "dsn", databaseDSN, "debug", debugMode)
+	slog.Info("getting envs", "url", url, "dsn", databaseDSN, "debug", debugMode, "interval", interval, "immediate", immediate)
 
 	// connect to database
 	db, err := database.MakePostgresDB(databaseDSN)
@@ -80,11 +80,16 @@ outer:
 			}
 			slog.Info("job triggered", "ticker_time", t)
 			go func(cncl context.CancelFunc) {
-				scraper.NewScraper(url, data)
-				// cancel context after first job completes, if immediate is true this will kill the app
-				if immediate {
-					cncl()
+				err := scraper.NewScraper(url, data)
+				slog.Debug("scraper exited")
+				if err != nil {
+					slog.Error("error running scraper", "error", err)
 				}
+
+				// cancel context after first job completes, if immediate is true this will kill the app
+				// if immediate {
+				// 	cncl()
+				// }
 			}(cancel)
 
 		case job := <-data:

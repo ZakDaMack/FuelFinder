@@ -14,7 +14,7 @@ interface Station {
     sdv?: number;
 
     distance: number;
-    created_at: number;
+    created_at: string;
 }
 
 export type { Station };

@@ -3,14 +3,11 @@ package scraper
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"regexp"
-	"strings"
 	"time"
-)
-
-const (
-	dateTimeLayout = "02/01/2006 15:04:05"
 )
 
 func ReadJsonFrom(url string) ([]StationDataset, error) {
@@ -20,6 +17,7 @@ func ReadJsonFrom(url string) ([]StationDataset, error) {
 
 	// get the json vals
 	req, _ := createRequest(url)
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -32,13 +30,13 @@ func ReadJsonFrom(url string) ([]StationDataset, error) {
 	var priceData PriceDataset
 	err = json.NewDecoder(resp.Body).Decode(&priceData)
 	if err != nil {
+		body, _ := io.ReadAll(resp.Body)
+		slog.Error("failed to decode json", "error", err, "url", url, "status", resp.StatusCode, "body", string(body))
 		return nil, err
 	}
 
 	// parse the time. Can we read it?
-	// NOTE - jetlocal use the wrong string format
-	priceData.LastUpdated = strings.ReplaceAll(priceData.LastUpdated, "-", "/")
-	createdAt, err := time.Parse(dateTimeLayout, priceData.LastUpdated)
+	createdAt, err := handleDateTime(priceData.LastUpdated)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +46,7 @@ func ReadJsonFrom(url string) ([]StationDataset, error) {
 
 	// move last updated to each station
 	for i := range priceData.Stations {
-		priceData.Stations[i].CreatedAt = &createdAt
+		priceData.Stations[i].CreatedAt = createdAt
 	}
 
 	return priceData.Stations, nil
@@ -64,8 +62,37 @@ func createRequest(url string) (*http.Request, error) {
 	r := regexp.MustCompile(`http.?:\/\/(.+?)\/`)  // gets host name
 	host := r.FindAllStringSubmatch(url, -1)[0][1] // 0 gets first regex match, 1 gets match group within the regex
 
-	req.Header.Set("Accept", "*/*")
+	//NOTE: USE CASE - Karan Retail Ltd uses invalid cert, disable if host is trl
+	if host == "devapi.krlpos.com" {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = true
+	}
+
 	req.Header.Set("Host", host)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0")
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:149.0) Gecko/20100101 Firefox/149.0")
 	return req, nil
+}
+
+func handleDateTime(dateTimeStr string) (*time.Time, error) {
+	// type1 - 02/01/2006 15:04:05
+	matchOne := regexp.MustCompile(`\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2}`).MatchString(dateTimeStr)
+	if matchOne {
+		createdAt, err := time.Parse("02/01/2006 15:04:05", dateTimeStr)
+		if err != nil {
+			return nil, err
+		}
+		return &createdAt, nil
+	}
+
+	// type2 - 02-01-2006 15:04:05
+	matchTwo := regexp.MustCompile(`\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}`).MatchString(dateTimeStr)
+	if matchTwo {
+		createdAt, err := time.Parse("02-01-2006 15:04:05", dateTimeStr)
+		if err != nil {
+			return nil, err
+		}
+		return &createdAt, nil
+	}
+
+	return nil, fmt.Errorf("unrecognized date time format: %s", dateTimeStr)
 }

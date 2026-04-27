@@ -57,6 +57,7 @@ services:
         condition: service_healthy
     environment:
       - DEBUG_MODE=false
+      - IMMEDIATE=false
       - SCRAPER_INTERVAL=15
       - SCRAPER_URL=https://www.gov.uk/guidance/access-fuel-price-data
       - POSTGIS_DSN=postgres://databaseuser:secretpassword@database:5432/fuelfinder?sslmode=disable

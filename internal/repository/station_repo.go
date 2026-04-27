@@ -49,7 +49,7 @@ func NewStationRepo(db *gorm.DB) StationRepository {
 
 func (r *postgresStationRepository) GetBrands(ctx context.Context) ([]string, error) {
 	var brands []string
-	err := r.db.Model(&dao.Station{}).Distinct().Pluck("brand", &brands).Error
+	err := r.db.Model(&dao.Station{}).Distinct("brand").Pluck("brand", &brands).Error
 	return brands, err
 }
 
@@ -86,6 +86,9 @@ func (r *postgresStationRepository) GetStations(ctx context.Context, topLeft, bo
 
 	// Apply bounding box filter
 	query = query.Where("stations.location && ST_MakeEnvelope(?, ?, ?, ?, 4326)", topLeft.X, bottomRight.Y, bottomRight.X, topLeft.Y)
+
+	// Filter out any stations older than 24 hours
+	query = query.Where("stations.created_at >= ?", time.Now().Add(-24*time.Hour))
 
 	// Apply station filter if provided
 	if len(includeBrands) > 0 {

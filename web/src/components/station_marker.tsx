@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { cn } from "@/lib/utils";
+import { useMap } from "react-leaflet/hooks";
 import { renderToString } from 'react-dom/server';
 
 import { Station } from "@/models/station";
@@ -15,6 +16,7 @@ interface StationProps {
 }
 
 const StationMarker: FC<StationProps> = ({ station }) => {
+    const map = useMap()
     const coords = [station.latitude, station.longitude] as [number, number];
 
     const stationIcon = new DivIcon({
@@ -54,7 +56,16 @@ const StationMarker: FC<StationProps> = ({ station }) => {
     });
 
     return (
-      <Marker position={coords} icon={stationIcon}>
+      <Marker 
+        riseOnHover
+        position={coords} 
+        icon={stationIcon}
+        eventHandlers={{
+          popupopen: () => {
+            map.flyTo(coords);
+          },
+        }}
+      >
         <Popup minWidth={300} className="[&_.leaflet-popup-content-wrapper]:rounded-2xl!">
           <StationItem station={station} />
         </Popup>
