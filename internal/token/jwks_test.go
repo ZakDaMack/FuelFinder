@@ -17,7 +17,7 @@ func TestNewJWKS(t *testing.T) {
 	privatePEM, err := GeneratePEM()
 	assert.NoError(t, err)
 
-	jwks, err := GetJWKS(privatePEM)
+	jwks, err := NewJWKS(privatePEM)
 	assert.NoError(t, err)
 	assert.Len(t, jwks.Keys, 1)
 
