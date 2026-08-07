@@ -26,6 +26,13 @@ The react app can be found in the `web/` directory. To start up development, cop
 
 The three backend microservices entrypoints can be found under the `cmd/` folder. These can be built into binaries using the `make build` command.
 
+### NEW
+
+Fuel data is now restricted to api behind oauth2 authentication. Application credentials can be generated [here](https://www.developer.fuel-finder.service.gov.uk) and requires retrieval of a short lived access-token.
+
+[Gov OAuth API Documentation](https://www.developer.fuel-finder.service.gov.uk/fuel-finder/apis-ifr/access-token/docs)
+[Gov Information Recipient API Documentation](https://www.developer.fuel-finder.service.gov.uk/fuel-finder/apis-ifr/info-recipent/docs)
+
 ## Architecture
 The project consists of a number of different projects, with the FuelFinder server connecting to a mongo server, reachable via gRPC. 
 The scraper is timed to run every 15 minutes by default and will upload the data to the FuelFinder server, which can then be reachable at the web SPA via the api gateway service. (It would be nice to interact with the FuelFinder server directly at some point) 

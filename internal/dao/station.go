@@ -10,18 +10,17 @@ import (
 
 type Station struct {
 	ID       uuid.UUID `gorm:"type:uuid;primaryKey"`
-	SiteID   string
+	NodeID   string `gorm:"node_id"`
 	Location GeometryPoint `gorm:"type:geometry(Point,4326)"`
 
-	E5  sql.NullFloat64 `gorm:"e5"`
-	E10 sql.NullFloat64 `gorm:"e10"`
-	B7  sql.NullFloat64 `gorm:"b7"`
-	SDV sql.NullFloat64 `gorm:"sdv"`
-
+	Name 	  string
 	Brand     string
 	Address   string
 	Postcode  string
+	Phone	  string
+
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (s *Station) TableName() string {
