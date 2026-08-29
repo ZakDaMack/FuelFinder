@@ -5,6 +5,7 @@ import ApplegreenLogo from '@/assets/logos/applegreen.png';
 import AsdaLogo from '@/assets/logos/asda.png';
 import BpLogo from '@/assets/logos/bp.png';
 import CoopLogo from '@/assets/logos/coop.png';
+import CostcoLogo from '@/assets/logos/costco.png';
 import EssarLogo from '@/assets/logos/essar.png';
 import EssoLogo from '@/assets/logos/esso.png';
 import EGOnTheMoveLogo from '@/assets/logos/eg-on-the-move.png';
@@ -18,8 +19,33 @@ import ShellLogo from '@/assets/logos/shell.png';
 import TescoLogo from '@/assets/logos/tesco.png';
 import TexacoLogo from '@/assets/logos/texaco.png';
 import ValeroLogo from '@/assets/logos/valero.png';
+import WelcomebreakLogo from '@/assets/logos/welcome-break.png'
 
-const BrandLogo: FC<{ 
+const BRAND_LOGOS: [string, string][] = [
+    ['APPLEGREEN', ApplegreenLogo],
+    ['ASDA', AsdaLogo],
+    ['BP', BpLogo],
+    ['COSTCO', CostcoLogo],
+    ['ESSAR', EssarLogo],
+    ['GULF', GulfLogo],
+    ['JET', JetLogo],
+    ['MURCO', MurcoLogo],
+    ['SHELL', ShellLogo],
+    ['TEXACO', TexacoLogo],
+    ['COOP', CoopLogo],
+    ['ESSO', EssoLogo],
+    ['EGONTHEMOVE', EGOnTheMoveLogo],
+    ['HARVESTENERGY', HarvestEnergyLogo],
+    ['MORRISONS', MorrisonsLogo],
+    ['SAINSBURYS', SainsburysLogo],
+    ['TESCO', TescoLogo],
+    ['VALERO', ValeroLogo],
+    ['WELCOMEBREAK', WelcomebreakLogo]
+];
+
+const DEFAULT_LOGO = '/station.png';
+
+const BrandLogo: FC<{
     brand: string, 
     className?: string 
 }> = ({ 
@@ -27,32 +53,11 @@ const BrandLogo: FC<{
     className 
 }) => {
     const logo =  useMemo(() => {
-        switch (brand?.toUpperCase().replace(/[^A-Z]/g, '')) {
-            case 'APPLEGREEN' : return ApplegreenLogo
-            case 'ASDA' : return AsdaLogo
-            case 'ASDAEXPRESS' : return AsdaLogo
-            case 'BP': return BpLogo
-            case 'ESSAR': return EssarLogo
-            case 'GULF': return GulfLogo
-            case 'JET': return JetLogo
-            case 'MURCO': return MurcoLogo
-            case 'SHELL': return ShellLogo
-            case 'TEXACO': return TexacoLogo
-            case 'COOP': return CoopLogo
-            case 'ESSO': return EssoLogo
-            case 'EGONTHEMOVE': return EGOnTheMoveLogo
-            case 'HARVESTENERGY': return HarvestEnergyLogo
-            case 'MORRISONS': return MorrisonsLogo
-            case 'SAINSBURYS': return SainsburysLogo
-            case 'TESCO': return TescoLogo
-            case 'VALERO': return ValeroLogo
-            default: return null
-        }
+        const normalised = brand?.toUpperCase().replace(/[^A-Z]/g, '') ?? '';
+        return BRAND_LOGOS.find(([name]) => normalised.includes(name))?.[1] ?? DEFAULT_LOGO;
     }, [brand]);
 
-    return logo ? 
-        <img src={logo} alt={`${brand} logo`} className={cn("max-h-[50px] max-w-[150px]", className)} /> : 
-        <p className={cn("uppercase text-2xl", className)}>{brand?.toUpperCase()}</p>
+    return <img src={logo} alt={`${brand} logo`} className={cn("max-h-[50px] max-w-[150px]", className)} />
 }
 
 export default BrandLogo;
