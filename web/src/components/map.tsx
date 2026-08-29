@@ -27,7 +27,7 @@ export default function Map() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {stations?.map(s => (
-                <StationMarker key={s.site_id} station={s} />
+                <StationMarker key={s.node_id} station={s} />
             ))}
             <CarMarker coords={location} />
             <MapZoom />

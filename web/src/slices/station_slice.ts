@@ -109,7 +109,8 @@ export function fetchData(bounds: LatLngBounds) {
       const state = getState()
       const response = await fetch(import.meta.env.VITE_APP_API_URL + 'stations/query' + GetUrlParams({
         coords: [bounds.getNorthWest().lng, bounds.getNorthWest().lat, bounds.getSouthEast().lng, bounds.getSouthEast().lat],
-        ...state.stations.filters,
+        brands: state.stations.filters.brands,
+        fueltypes: state.stations.filters.fuel_types,
       }))
 
       if (!response.ok) {

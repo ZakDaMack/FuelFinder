@@ -54,8 +54,8 @@ export default Preferences;
 const availableFuelTypes = [
   { value: 'e10', label: 'Petrol', colour: 'from-green-400 to-green-700' },
   { value: 'e5', label: 'Super', colour: 'from-blue-400 to-blue-700' },
-  { value: 'b7', label: 'Diesel', colour: 'from-yellow-400 to-yellow-700' },
-  { value: 'sdv', label: 'Super Diesel', colour: 'from-orange-400 to-orange-700' },
+  { value: 'b7_standard', label: 'Diesel', colour: 'from-yellow-400 to-yellow-700' },
+  { value: 'b7_premium', label: 'Super Diesel', colour: 'from-orange-400 to-orange-700' },
 ]
 
 const PreferencesForm: FC = () => {

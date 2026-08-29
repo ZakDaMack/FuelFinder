@@ -38,9 +38,9 @@ const StationList: FC = () => {
       // sort by specified key, if equal, sort by dist
   }, [stations, sortBy]) 
    
-  const handleHover = (enter: boolean, siteId: string) => {
+  const handleHover = (enter: boolean, nodeId: string) => {
     if (!isDesktop) return;
-    const el = document.querySelector(`div[data-site-id='${siteId}']`)
+    const el = document.querySelector(`div[data-node-id='${nodeId}']`)
     const classes = ['scale-120', '-translate-y-3', 'shadow-xl', 'shadow-black/30', 'z-[10000]!'];
     enter ? el?.classList.add(...classes) : el?.classList.remove(...classes);
   }
@@ -70,8 +70,8 @@ const StationList: FC = () => {
                     <DropdownMenuRadioItem value="distance">Distance</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="e10">Petrol</DropdownMenuRadioItem>
                     <DropdownMenuRadioItem value="e5">Super</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="b7">Diesel</DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="sdv">Super Diesel</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="b7_standard">Diesel</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="b7_premium">Super Diesel</DropdownMenuRadioItem>
                   </DropdownMenuRadioGroup>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -87,11 +87,11 @@ const StationList: FC = () => {
           )}
           <div className="border-t [&>div]:border-b-4 [&>div]:p-4 overflow-y-auto">
             {filteredStations.map(s => (
-              <StationItem 
-                key={s.site_id} 
-                station={s} 
-                onHover={(enter) => handleHover(enter, s.site_id)}
-                onClick={() => map.flyTo([s.latitude, s.longitude]) && handleHover(true, s.site_id)}
+              <StationItem
+                key={s.node_id}
+                station={s}
+                onHover={(enter) => handleHover(enter, s.node_id)}
+                onClick={() => map.flyTo([s.latitude, s.longitude]) && handleHover(true, s.node_id)}
               />
             ))}
           </div>
@@ -108,7 +108,7 @@ const StationList: FC = () => {
         </DrawerHeader>
         <div className="[&>div]:border-b-4 [&>div]:p-4 overflow-y-auto">
           {stations.map(s => (
-            <StationItem key={s.site_id} station={s} />
+            <StationItem key={s.node_id} station={s} />
           ))}
         </div>
       </DrawerContent> 

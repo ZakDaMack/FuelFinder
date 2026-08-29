@@ -19,10 +19,10 @@ interface StationProps {
 }
 
 const fuels = {
-    'e5'  : {colour: 'from-blue-400 to-blue-700', title: 'Super'},
-    'e10' : {colour: 'from-green-400 to-green-700', title: 'Petrol'},
-    'b7'  : {colour: 'from-yellow-400 to-yellow-700', title: 'Diesel'},
-    'sdv' : {colour: 'from-orange-400 to-orange-700', title: 'Super Diesel'},
+    'e5'          : {colour: 'from-blue-400 to-blue-700', title: 'Super', code: 'E5'},
+    'e10'         : {colour: 'from-green-400 to-green-700', title: 'Petrol', code: 'E10'},
+    'b7_standard' : {colour: 'from-yellow-400 to-yellow-700', title: 'Diesel', code: 'B7'},
+    'b7_premium'  : {colour: 'from-orange-400 to-orange-700', title: 'Super Diesel', code: 'B7 Premium'},
 }
 
 const StationItem: FC<StationProps> = ({ station, onHover, onClick }) => {
@@ -48,7 +48,8 @@ const StationItem: FC<StationProps> = ({ station, onHover, onClick }) => {
                 </span>
             </div>
 
-            {/* address */}
+            {/* name and address */}
+            <h3 className="text-lg">{station.name}</h3>
             <p className="text-sm">{station.address}{station.address.endsWith(station.postcode) ? '' : `, ${station.postcode}`}</p>
 
             {/* open in maps */}
@@ -71,7 +72,7 @@ const StationItem: FC<StationProps> = ({ station, onHover, onClick }) => {
                             <FontAwesomeIcon icon={faGasPump} color="white" className="place-self-center" fontSize={20} />
                         </div>
                         <div>
-                            <h4 className="text-base">{data.title} ({fuel.toUpperCase()})</h4>
+                            <h4 className="text-base">{data.title} ({data.code})</h4>
                             <p className="m-0! p-0 text-sm text-neutral-500">{getValue(station[fuel as keyof Station] as number)} </p>
                         </div>
 
@@ -81,7 +82,7 @@ const StationItem: FC<StationProps> = ({ station, onHover, onClick }) => {
 
             {/* footer */}
             <div className='text-right text-xs text-neutral-400'>
-                <p>Last Updated {dayjs(station.created_at).calendar()}</p>
+                <p>Last Updated {dayjs(station.prices_effective_at ?? station.updated_at).calendar()}</p>
             </div>
         </div>
     );

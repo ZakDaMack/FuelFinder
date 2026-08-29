@@ -21,12 +21,12 @@ const chartConfig = {
     label: "Petrol (E10)",
     color: "var(--color-green-700)",
   },
-  b7: {
+  b7_standard: {
     label: "Diesel (B7)",
     color: "var(--color-yellow-700)",
   },
-  sdv: {
-    label: "Super Diesel (SDV)",
+  b7_premium: {
+    label: "Super Diesel (B7 Premium)",
     color: "var(--color-orange-700)",
   },
 } satisfies ChartConfig
@@ -38,26 +38,29 @@ const ranges = {
 }
 
 const fuels = {
-    'e5'  : {colour: 'blue-700', bg: 'blue-300', title: 'Super'},
-    'e10' : {colour: 'green-700', bg: 'green-300', title: 'Petrol'},
-    'b7'  : {colour: 'yellow-700', bg: 'yellow-300', title: 'Diesel'},
-    'sdv' : {colour: 'orange-700', bg: 'orange-300', title: 'Super Diesel'},
+    'e5'          : {colour: 'blue-700', bg: 'blue-300', title: 'Super'},
+    'e10'         : {colour: 'green-700', bg: 'green-300', title: 'Petrol'},
+    'b7_standard' : {colour: 'yellow-700', bg: 'yellow-300', title: 'Diesel'},
+    'b7_premium'  : {colour: 'orange-700', bg: 'orange-300', title: 'Super Diesel'},
 }
 
 const PriceHistoryCard: FC<{stations: Station[]}> = ({ stations }) => {
     const [range, setRange] = useState<keyof typeof ranges>('7d')
     
     const data = useMemo(() => {
-        let s = [...stations].sort((a,b) => a.created_at.localeCompare(b.created_at))
+        // each row is one price record, timestamped by when its prices took effect
+        let s = stations
+            .filter(ss => !!ss.prices_effective_at)
+            .sort((a,b) => a.prices_effective_at!.localeCompare(b.prices_effective_at!))
         if (s.length === 0) return [];
 
-        const fuels = ['e5', 'e10', 'b7', 'sdv'] as (keyof Station)[]
+        const fuels = ['e5', 'e10', 'b7_standard', 'b7_premium'] as (keyof Station)[]
         const r = parseInt(range.split('d')[0])
 
         return s
-            .filter(ss => r === -1 || Date.now() - new Date(ss.created_at).getTime() <= r * 24 * 60 * 60 * 1000)
+            .filter(ss => r === -1 || Date.now() - new Date(ss.prices_effective_at!).getTime() <= r * 24 * 60 * 60 * 1000)
             .map(ss => ({
-                date: new Date(ss.created_at).getTime(),
+                date: new Date(ss.prices_effective_at!).getTime(),
                 ...fuels.reduce((acc, fuel) => ({ ...acc, [fuel]: !!ss[fuel] ? ss[fuel] : undefined }), {})
             }))
     }, [stations, range])

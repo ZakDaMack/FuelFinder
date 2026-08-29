@@ -21,7 +21,7 @@ const StationMarker: FC<StationProps> = ({ station }) => {
 
     const stationIcon = new DivIcon({
       html: renderToString(
-        <div data-site-id={station.site_id} className={cn(
+        <div data-node-id={station.node_id} className={cn(
           `bg-white relative border rounded-2xl grid place-items-center 
           [&_img]:max-h-[32px]! [&_img]:max-w-[50px]! w-full p-1 space-y-1
 
@@ -45,7 +45,7 @@ const StationMarker: FC<StationProps> = ({ station }) => {
             <p className="text-xs text-white text-center">{!!station.e10 && station.e10 > 0 ? station.e10 : '-'}</p>
           </div>
           <div className="border rounded-xl w-full mx-1 p-[1px] bg-linear-to-r from-yellow-400 to-yellow-700">
-            <p className="text-xs text-white text-center">{!!station.b7 && station.b7 > 0 ? station.b7 : '-'}</p>
+            <p className="text-xs text-white text-center">{!!station.b7_standard && station.b7_standard > 0 ? station.b7_standard : '-'}</p>
           </div>
         </div>
       ),

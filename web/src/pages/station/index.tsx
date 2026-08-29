@@ -25,8 +25,9 @@ const StationPage: FC = () => {
             <div className="z-[1000] absolute top-[120px] left-0 right-0 bg-linear-to-b from-transparent to-background to-10%">
                 <div className="container mx-auto px-4 my-8 space-y-4">
                     <BrandLogo brand={stations[0]?.brand} className="max-w-[300px] max-h-[100px]" />
-                    <h1 className="text-3xl">{stations[0]?.address}, {stations[0]?.postcode}</h1>
-                    <p className="text-lg">Prices last updated: {stations[0]?.created_at ? dayjs(stations[0].created_at).calendar() : 'N/A'}</p>
+                    <h1 className="text-3xl">{stations[0]?.name}</h1>
+                    <p className="text-xl">{stations[0]?.address}, {stations[0]?.postcode}</p>
+                    <p className="text-lg">Prices last updated: {stations[0]?.prices_effective_at ? dayjs(stations[0].prices_effective_at).calendar() : 'N/A'}</p>
 
                     {/* <LatestPrices station={stations[0]!} /> */}
                     <PriceHistoryCard stations={stations} />
