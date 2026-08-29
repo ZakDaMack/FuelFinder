@@ -5,18 +5,44 @@ import (
 	"fmt"
 	"log"
 	"main/internal/dao"
-	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
+var fuelTypeColumns = map[string]string{
+	"e5":          "e5",
+	"e10":         "e10",
+	"b7":          "b7_standard",
+	"b7_standard": "b7_standard",
+	"sdv":         "b7_premium",
+	"b7_premium":  "b7_premium",
+}
+
+var validFuelColumns = map[string]bool{
+	"e5":          true,
+	"e10":         true,
+	"b7_standard": true,
+	"b7_premium":  true,
+}
+
+func MapFuelTypes(fuelTypes []string) ([]string, error) {
+	columns := make([]string, 0, len(fuelTypes))
+	for _, fuelType := range fuelTypes {
+		column, ok := fuelTypeColumns[fuelType]
+		if !ok {
+			return nil, fmt.Errorf("unknown fuel type %q", fuelType)
+		}
+		columns = append(columns, column)
+	}
+	return columns, nil
+}
+
 type StationRepository interface {
 	GetBrands(ctx context.Context) ([]string, error)
-	Insert(ctx context.Context, station *dao.Station) error
-	Exists(ctx context.Context, siteID string, createdAt time.Time) (bool, error)
-	GetStations(ctx context.Context, topLeft, bottomRight dao.GeometryPoint, includeBrands, includeFueltypes []string) ([]dao.Station, error)
-	GetStationsBySiteID(ctx context.Context, siteID string) ([]dao.Station, error)
+	Upsert(ctx context.Context, station *dao.Station) error
+	GetStations(ctx context.Context, topLeft, bottomRight dao.GeometryPoint, includeBrands, fuelColumns []string) ([]dao.StationWithPrice, error)
+	GetStationsByNodeID(ctx context.Context, nodeID string) ([]dao.StationWithPrice, error)
 }
 
 type postgresStationRepository struct {
@@ -24,7 +50,7 @@ type postgresStationRepository struct {
 }
 
 func NewStationRepo(db *gorm.DB) StationRepository {
-	if err := db.AutoMigrate(&dao.Station{}); err != nil {
+	if err := db.AutoMigrate(&dao.Station{}, &dao.StationPrice{}); err != nil {
 		log.Fatalf("Failed to migrate station schema: %v", err)
 	}
 	err := db.Exec(`
@@ -34,9 +60,6 @@ func NewStationRepo(db *gorm.DB) StationRepository {
 
 		CREATE INDEX IF NOT EXISTS stations_brand_idx
 		ON stations (brand);
-		
-		CREATE UNIQUE INDEX IF NOT EXISTS stations_site_created_uniq
-		ON stations (site_id, created_at);
 	`).Error
 	if err != nil {
 		log.Fatalf("Failed to create spatial index on stations location: %v", err)
@@ -49,94 +72,102 @@ func NewStationRepo(db *gorm.DB) StationRepository {
 
 func (r *postgresStationRepository) GetBrands(ctx context.Context) ([]string, error) {
 	var brands []string
-	err := r.db.Model(&dao.Station{}).Distinct("brand").Pluck("brand", &brands).Error
+	err := r.db.WithContext(ctx).Model(&dao.Station{}).Distinct("brand").Pluck("brand", &brands).Error
 	return brands, err
 }
 
-func (r *postgresStationRepository) Insert(ctx context.Context, station *dao.Station) error {
-	// create state but ignore if site_id and created_at already exist
+func (r *postgresStationRepository) Upsert(ctx context.Context, station *dao.Station) error {
 	return r.db.WithContext(ctx).
 		Clauses(clause.OnConflict{
 			Columns: []clause.Column{
-				{Name: "site_id"},
-				{Name: "created_at"},
+				{Name: "node_id"},
 			},
-			DoNothing: true,
+			DoUpdates: clause.AssignmentColumns([]string{
+				"location", "name", "brand", "address", "postcode", "phone", "updated_at",
+			}),
 		}).
 		Create(station).Error
 }
 
-func (r *postgresStationRepository) GetStations(ctx context.Context, topLeft, bottomRight dao.GeometryPoint, includeBrands, includeFueltypes []string) ([]dao.Station, error) {
-	var results []dao.Station
-	query := r.db.WithContext(ctx).Model(&dao.Station{})
-	query = query.Select(`
-    	DISTINCT ON (stations.site_id)
-		stations.id,
-		stations.site_id,
-		ST_AsEWKT(stations.location) AS location,
-		stations.brand,
-		stations.e5,
-		stations.e10,
-		stations.b7,
-		stations.sdv,
-		stations.address,
-		stations.postcode,
-		stations.created_at
-	`)
+const latestPriceJoin = `
+	LEFT JOIN LATERAL (
+		SELECT e5, e10, b7_standard, b7_premium, effective_at
+		FROM station_prices
+		WHERE station_prices.node_id = stations.node_id
+		ORDER BY effective_at DESC
+		LIMIT 1
+	) prices ON TRUE
+`
+
+const stationWithPriceColumns = `
+	stations.id,
+	stations.node_id,
+	ST_AsEWKT(stations.location) AS location,
+	stations.name,
+	stations.brand,
+	stations.address,
+	stations.postcode,
+	stations.phone,
+	stations.updated_at,
+	prices.e5,
+	prices.e10,
+	prices.b7_standard,
+	prices.b7_premium,
+	prices.effective_at
+`
+
+func (r *postgresStationRepository) GetStations(ctx context.Context, topLeft, bottomRight dao.GeometryPoint, includeBrands, fuelColumns []string) ([]dao.StationWithPrice, error) {
+	query := r.db.WithContext(ctx).Table("stations").
+		Select(stationWithPriceColumns).
+		Joins(latestPriceJoin)
 
 	// Apply bounding box filter
 	query = query.Where("stations.location && ST_MakeEnvelope(?, ?, ?, ?, 4326)", topLeft.X, bottomRight.Y, bottomRight.X, topLeft.Y)
 
-	// Filter out any stations older than 24 hours
-	query = query.Where("stations.created_at >= ?", time.Now().Add(-24*time.Hour))
-
-	// Apply station filter if provided
+	// Apply brand filter if provided
 	if len(includeBrands) > 0 {
 		query = query.Where("stations.brand IN ?", includeBrands)
 	}
 
 	// Apply fuel type filter if provided
-	if len(includeFueltypes) > 0 {
-		for _, fuelType := range includeFueltypes {
-			query = query.Where(fmt.Sprintf("stations.%s IS NOT NULL AND stations.%s > 0", fuelType, fuelType))
+	for _, column := range fuelColumns {
+		if !validFuelColumns[column] {
+			return nil, fmt.Errorf("unknown fuel column %q", column)
 		}
+		query = query.Where(fmt.Sprintf("prices.%s IS NOT NULL AND prices.%s > 0", column, column))
 	}
 
-	// Group stations by site id and select the most recent entry for each station
-	query = query.Order("stations.site_id, stations.created_at DESC")
-
-	err := query.Find(&results).Error
+	var results []dao.StationWithPrice
+	err := query.Order("stations.node_id").Find(&results).Error
 	return results, err
 }
 
-func (r *postgresStationRepository) GetStationsBySiteID(ctx context.Context, siteID string) ([]dao.Station, error) {
-	var results []dao.Station
-	err := r.db.WithContext(ctx).Model(&dao.Station{}).
+func (r *postgresStationRepository) GetStationsByNodeID(ctx context.Context, nodeID string) ([]dao.StationWithPrice, error) {
+	var results []dao.StationWithPrice
+	err := r.db.WithContext(ctx).Table("stations").
 		Select(`
 			stations.id,
-			stations.site_id,
+			stations.node_id,
 			ST_AsEWKT(stations.location) AS location,
+			stations.name,
 			stations.brand,
-			stations.e5,
-			stations.e10,
-			stations.b7,
-			stations.sdv,
 			stations.address,
 			stations.postcode,
-			stations.created_at
+			stations.phone,
+			stations.updated_at,
+			prices.e5,
+			prices.e10,
+			prices.b7_standard,
+			prices.b7_premium,
+			prices.effective_at
 		`).
-		Where("site_id = ?", siteID).
-		Order("created_at DESC").
+		Joins(`
+			LEFT JOIN station_prices prices
+			ON prices.node_id = stations.node_id
+		`).
+		Where("stations.node_id = ?", nodeID).
+		Order("prices.effective_at DESC NULLS LAST").
 		Find(&results).Error
 
 	return results, err
-}
-
-func (r *postgresStationRepository) Exists(ctx context.Context, siteID string, createdAt time.Time) (bool, error) {
-	var count int64
-	err := r.db.WithContext(ctx).Model(&dao.Station{}).
-		Where("site_id = ? AND created_at = ?", siteID, createdAt).
-		Count(&count).Error
-
-	return count > 0, err
 }

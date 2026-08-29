@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"main/internal/dao"
 	"math"
 	"time"
@@ -8,53 +9,56 @@ import (
 
 type StationResponse struct {
 	ID        string  `json:"id"`
-	SiteID    string  `json:"site_id"`
+	NodeID    string  `json:"node_id"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 
-	E5  *float64 `json:"e5,omitempty"`
-	E10 *float64 `json:"e10,omitempty"`
-	B7  *float64 `json:"b7,omitempty"`
-	SDV *float64 `json:"sdv,omitempty"`
+	E5         *float64 `json:"e5,omitempty"`
+	E10        *float64 `json:"e10,omitempty"`
+	B7Standard *float64 `json:"b7_standard,omitempty"`
+	B7Premium  *float64 `json:"b7_premium,omitempty"`
 
-	Brand     string `json:"brand"`
-	Address   string `json:"address"`
-	Postcode  string `json:"postcode"`
-	CreatedAt string `json:"created_at"`
+	Name     string `json:"name"`
+	Brand    string `json:"brand"`
+	Address  string `json:"address"`
+	Postcode string `json:"postcode"`
+	Phone    string `json:"phone,omitempty"`
+
+	PricesEffectiveAt string `json:"prices_effective_at,omitempty"`
+	UpdatedAt         string `json:"updated_at"`
 }
 
-func FromDAO(daoStation *dao.Station) StationResponse {
-	var e5, e10, b7, sdv *float64
-
-	if daoStation.E5.Valid {
-		val := math.Round(daoStation.E5.Float64*10) / 10
-		e5 = &val
-	}
-	if daoStation.E10.Valid {
-		val := math.Round(daoStation.E10.Float64*10) / 10
-		e10 = &val
-	}
-	if daoStation.B7.Valid {
-		val := math.Round(daoStation.B7.Float64*10) / 10
-		b7 = &val
-	}
-	if daoStation.SDV.Valid {
-		val := math.Round(daoStation.SDV.Float64*10) / 10
-		sdv = &val
+func FromDAO(station *dao.StationWithPrice) StationResponse {
+	effectiveAt := ""
+	if station.EffectiveAt.Valid {
+		effectiveAt = station.EffectiveAt.Time.Format(time.RFC3339)
 	}
 
 	return StationResponse{
-		ID:        daoStation.ID.String(),
-		SiteID:    daoStation.SiteID,
-		Latitude:  daoStation.Location.Y,
-		Longitude: daoStation.Location.X,
-		E5:        e5,
-		E10:       e10,
-		B7:        b7,
-		SDV:       sdv,
-		Brand:     daoStation.Brand,
-		Address:   daoStation.Address,
-		Postcode:  daoStation.Postcode,
-		CreatedAt: daoStation.CreatedAt.Format(time.RFC3339),
+		ID:         station.ID.String(),
+		NodeID:     station.NodeID,
+		Latitude:   station.Location.Y,
+		Longitude:  station.Location.X,
+		E5:         roundedPrice(station.E5),
+		E10:        roundedPrice(station.E10),
+		B7Standard: roundedPrice(station.B7Standard),
+		B7Premium:  roundedPrice(station.B7Premium),
+		Name:       station.Name,
+		Brand:      station.Brand,
+		Address:    station.Address,
+		Postcode:   station.Postcode,
+		Phone:      station.Phone,
+
+		PricesEffectiveAt: effectiveAt,
+		UpdatedAt:         station.UpdatedAt.Format(time.RFC3339),
 	}
+}
+
+func roundedPrice(price sql.NullFloat64) *float64 {
+	if !price.Valid {
+		return nil
+	}
+
+	val := math.Round(price.Float64*10) / 10
+	return &val
 }

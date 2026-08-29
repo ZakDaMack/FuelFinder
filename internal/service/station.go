@@ -19,7 +19,7 @@ const (
 type StationService interface {
 	GetBrands(ctx context.Context) ([]string, error)
 	GetStations(ctx context.Context, coords []float64, stations []string, fuelTypes []string) ([]model.StationResponse, error)
-	GetStationsBySiteID(ctx context.Context, siteID string) ([]model.StationResponse, error)
+	GetStationsByNodeID(ctx context.Context, nodeID string) ([]model.StationResponse, error)
 }
 
 type stationService struct {
@@ -70,12 +70,22 @@ func (s *stationService) GetStations(ctx context.Context, coords []float64, stat
 		}
 	}
 
+	// map request fuel types onto price columns
+	fuelColumns, err := repository.MapFuelTypes(fuelTypes)
+	if err != nil {
+		return nil, &model.ErrorResponse{
+			Code:    "invalid_input",
+			Message: err.Error(),
+			Status:  http.StatusBadRequest,
+		}
+	}
+
 	daoStations, err := s.repo.GetStations(
 		ctx,
 		topLeft,
 		bottomRight,
 		stations,
-		fuelTypes,
+		fuelColumns,
 	)
 
 	if err != nil {
@@ -95,12 +105,12 @@ func (s *stationService) GetStations(ctx context.Context, coords []float64, stat
 	return stationResponses, nil
 }
 
-func (s *stationService) GetStationsBySiteID(ctx context.Context, siteID string) ([]model.StationResponse, error) {
-	daoStations, err := s.repo.GetStationsBySiteID(ctx, siteID)
+func (s *stationService) GetStationsByNodeID(ctx context.Context, nodeID string) ([]model.StationResponse, error) {
+	daoStations, err := s.repo.GetStationsByNodeID(ctx, nodeID)
 	if err != nil {
 		return nil, &model.ErrorResponse{
 			Code:    "internal_error",
-			Message: "unable to retrieve stations with the provided site ID",
+			Message: "unable to retrieve stations with the provided node ID",
 			Status:  http.StatusInternalServerError,
 			Err:     err,
 		}
@@ -109,7 +119,7 @@ func (s *stationService) GetStationsBySiteID(ctx context.Context, siteID string)
 	if len(daoStations) == 0 {
 		return nil, &model.ErrorResponse{
 			Code:    "not_found",
-			Message: "no stations found with the provided site ID",
+			Message: "no stations found with the provided node ID",
 			Status:  http.StatusNotFound,
 			Err:     gorm.ErrRecordNotFound,
 		}

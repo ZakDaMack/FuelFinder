@@ -57,8 +57,8 @@ func (c *stationController) GetBrands(ctx *gin.Context) {
 }
 
 func (c *stationController) GetStation(ctx *gin.Context) {
-	siteID := ctx.Param("id")
-	stations, err := c.stationService.GetStationsBySiteID(ctx, siteID)
+	nodeID := ctx.Param("id")
+	stations, err := c.stationService.GetStationsByNodeID(ctx, nodeID)
 	if handleError(ctx, err) {
 		return
 	}

@@ -9,23 +9,23 @@ import (
 )
 
 type StationPrice struct {
-	ID       uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Station   Station `gorm:"foreignKey:node_id;references:node_id"`
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey"`
+	NodeID string    `gorm:"column:node_id;not null;uniqueIndex:station_prices_node_effective_uniq,priority:1"`
 
-	E5  sql.NullFloat64 `gorm:"e5"`
-	E10 sql.NullFloat64 `gorm:"e10"`
-	B7Standard  sql.NullFloat64 `gorm:"b7_standard"`
-	B7Premium sql.NullFloat64 `gorm:"b7_premium"`
+	E5         sql.NullFloat64
+	E10        sql.NullFloat64
+	B7Standard sql.NullFloat64
+	B7Premium  sql.NullFloat64
 
-	EffectiveAt time.Time
-	CreatedAt time.Time
+	EffectiveAt time.Time `gorm:"uniqueIndex:station_prices_node_effective_uniq,priority:2"`
+	CreatedAt   time.Time
 }
 
-func (s *Station) TableName() string {
+func (s *StationPrice) TableName() string {
 	return "station_prices"
 }
 
-func (s *Station) BeforeCreate(tx *gorm.DB) error {
+func (s *StationPrice) BeforeCreate(tx *gorm.DB) error {
 	id, err := uuid.NewV7()
 	s.ID = id
 	return err
