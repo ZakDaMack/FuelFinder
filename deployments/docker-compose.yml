@@ -55,11 +55,12 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    env_file:
+      - ../.env # personal tokens stored in this file
     environment:
-      - DEBUG_MODE=false
-      - IMMEDIATE=false
+      - DEBUG_MODE=true
+      - IMMEDIATE=true
       - SCRAPER_INTERVAL=15
-      - SCRAPER_URL=https://www.gov.uk/guidance/access-fuel-price-data
       - POSTGIS_DSN=postgres://databaseuser:secretpassword@database:5432/fuelfinder?sslmode=disable
 
 volumes:

@@ -3,7 +3,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o bin/stationapi cmd/stationapi/main.go
+RUN go build -o bin/stationapi ./cmd/stationapi
 
 FROM alpine:latest AS fuelfinder-stationapi
 WORKDIR /app

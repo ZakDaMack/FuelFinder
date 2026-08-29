@@ -20,7 +20,10 @@ type postgresRefreshTokenRepository struct {
 }
 
 func NewRefreshTokenRepo(db *gorm.DB) RefreshTokenRepository {
-	if err := db.AutoMigrate(&dao.RefreshToken{}); err != nil {
+	err := withMigrationLock(db, func(conn *gorm.DB) error {
+		return conn.AutoMigrate(&dao.RefreshToken{})
+	})
+	if err != nil {
 		log.Fatalf("Failed to migrate refresh token schema: %v", err)
 	}
 	return &postgresRefreshTokenRepository{

@@ -50,19 +50,22 @@ type postgresStationRepository struct {
 }
 
 func NewStationRepo(db *gorm.DB) StationRepository {
-	if err := db.AutoMigrate(&dao.Station{}, &dao.StationPrice{}); err != nil {
-		log.Fatalf("Failed to migrate station schema: %v", err)
-	}
-	err := db.Exec(`
-		CREATE INDEX IF NOT EXISTS stations_location_gix
-		ON stations
-		USING GIST (location);
+	err := withMigrationLock(db, func(conn *gorm.DB) error {
+		if err := conn.AutoMigrate(&dao.Station{}, &dao.StationPrice{}); err != nil {
+			return err
+		}
 
-		CREATE INDEX IF NOT EXISTS stations_brand_idx
-		ON stations (brand);
-	`).Error
+		return conn.Exec(`
+			CREATE INDEX IF NOT EXISTS stations_location_gix
+			ON stations
+			USING GIST (location);
+
+			CREATE INDEX IF NOT EXISTS stations_brand_idx
+			ON stations (brand);
+		`).Error
+	})
 	if err != nil {
-		log.Fatalf("Failed to create spatial index on stations location: %v", err)
+		log.Fatalf("Failed to migrate station schema: %v", err)
 	}
 
 	return &postgresStationRepository{

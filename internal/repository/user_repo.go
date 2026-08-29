@@ -21,7 +21,10 @@ type postgresUserRepository struct {
 }
 
 func NewUserRepo(db *gorm.DB) UserRepository {
-	if err := db.AutoMigrate(&dao.User{}); err != nil {
+	err := withMigrationLock(db, func(conn *gorm.DB) error {
+		return conn.AutoMigrate(&dao.User{})
+	})
+	if err != nil {
 		log.Fatalf("Failed to migrate user schema: %v", err)
 	}
 

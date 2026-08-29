@@ -18,7 +18,10 @@ type postgresStationPriceRepository struct {
 }
 
 func NewStationPriceRepo(db *gorm.DB) StationPriceRepository {
-	if err := db.AutoMigrate(&dao.StationPrice{}); err != nil {
+	err := withMigrationLock(db, func(conn *gorm.DB) error {
+		return conn.AutoMigrate(&dao.StationPrice{})
+	})
+	if err != nil {
 		log.Fatalf("Failed to migrate station price schema: %v", err)
 	}
 
